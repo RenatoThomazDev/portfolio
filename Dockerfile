@@ -1,28 +1,27 @@
 FROM php:8.2-fpm
 
+# Instalar dependências
 RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev libjpeg-dev libfreetype6-dev zip
+
+# Configurar extensões do PHP necessárias
 RUN docker-php-ext-install pdo pdo_mysql gd
 
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Remover config padrão do Nginx
+# Remover configuração padrão do nginx
 RUN rm -f /etc/nginx/sites-enabled/default
 
-# Copiar código do Laravel
+# Copiar os arquivos do projeto Laravel
 WORKDIR /var/www/html
 COPY . .
 
-# Instalar dependências
-RUN composer install --no-dev --optimize-autoloader
-
-# Copiar configs
+# Copiar configuração personalizada do nginx e do supervisor
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Permissões
+# Dar permissão nas pastas de cache e storage
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Expor porta 80
 EXPOSE 80
 
+# Iniciar os dois serviços
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
