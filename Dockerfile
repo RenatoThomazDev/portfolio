@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev l
 # Configurar extensões do PHP necessárias
 RUN docker-php-ext-install pdo pdo_mysql gd
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # Remover configuração padrão do nginx
 RUN rm -f /etc/nginx/sites-enabled/default
 
@@ -13,9 +15,14 @@ RUN rm -f /etc/nginx/sites-enabled/default
 WORKDIR /var/www/html
 COPY . .
 
+# Instalar dependências do Laravel
+RUN composer install --no-dev --optimize-autoloader
+
+
 # Copiar configuração personalizada do nginx e do supervisor
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 
 # Dar permissão nas pastas de cache e storage
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
