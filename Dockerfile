@@ -1,39 +1,37 @@
 # -----------------------------
-# Etapa 1: build do Laravel + dependências
+# Base PHP com FPM
 # -----------------------------
-FROM php:8.2-fpm AS build
+FROM php:8.2-fpm
 
-# Instala extensões necessárias e Composer
+# Instalar dependências e extensões PHP
 RUN apt-get update && apt-get install -y \
-    git zip unzip curl libpng-dev libonig-dev libxml2-dev && \
+    nginx supervisor git zip unzip curl libpng-dev libonig-dev libxml2-dev && \
     docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
-# Instala o Composer
+# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copia os arquivos do projeto para dentro do container
+# Definir diretório de trabalho
 WORKDIR /var/www/html
+
+# Copiar projeto Laravel
 COPY . .
 
-# Instala dependências do Laravel
+# Instalar dependências Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# Gera cache do Laravel
+# Criar cache do Laravel
 RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
 
-# -----------------------------
-# Etapa 2: ambiente de produção com servidor Nginx
-# -----------------------------
-FROM nginx:alpine
-
-# Copia os arquivos do Laravel do container anterior
-COPY --from=build /var/www/html /var/www/html
-
-# Copia configuração do Nginx
+# Copiar configuração do Nginx e Supervisor
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Expõe a porta padrão do Nginx
+# Permissões para o Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Expor porta 80
 EXPOSE 80
 
-# Inicia o Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Comando inicial
+CMD ["/usr/bin/supervisord"]
