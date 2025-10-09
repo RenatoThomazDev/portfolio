@@ -2,9 +2,7 @@ services:
   - type: web
     name: portfolio
     env: php
-    buildCommand: |
-      composer install
-      php artisan key:generate
-      php artisan migrate --force
-    startCommand: php artisan serve --host 0.0.0.0 --port 10000
     plan: free
+    buildCommand: ""
+    startCommand: ""
+    region: oregon
