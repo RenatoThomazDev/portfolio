@@ -18,9 +18,6 @@ RUN composer install --no-dev --optimize-autoloader
 # Corrige permissões
 RUN chmod -R 777 storage bootstrap/cache
 
-# Instala dependências JS e faz o build do Vite
-RUN npm install && npm run build
-
 
 # Expõe a porta
 EXPOSE 80
