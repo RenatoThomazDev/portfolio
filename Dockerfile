@@ -14,11 +14,9 @@ COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
 # Instala dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
-RUN npm install && npm run build
 
 # Corrige permissões
 RUN chmod -R 777 storage bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 
 # Expõe a porta
