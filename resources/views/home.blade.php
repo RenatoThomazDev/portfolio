@@ -22,7 +22,7 @@
 
     <div class="relative">
         <div class="absolute inset-0 rounded-full bg-indigo-400 blur-3xl opacity-30 animate-pulse"></div>
-        <img src="https://cdn.discordapp.com/attachments/830605801567420449/1424814609478713455/IMG_0206.png?ex=68e55182&is=68e40002&hm=adb5876c72ddd19f5ce245dae6f7237e80bf0c7815cf10047c87e81ad1260537" 
+        <img src="imagens/perfil.png" 
              alt="Foto" 
              class="relative z-10 w-64 h-64 rounded-full shadow-[0_0_40px_rgba(99,102,241,0.6)] object-cover border-4 border-indigo-500">
     </div>
@@ -45,26 +45,26 @@
             [
                 'titulo' => 'Portfólio Pessoal',
                 'descricao' => 'Site pessoal moderno com Laravel e Tailwind.',
-                'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424915053324533760/image.png?ex=68e5af0e&is=68e45d8e&hm=2d366b940fd1f92b88435de6889da6863fd4ffa06ded79963037972613f9d6d2',
+                'imagem' => asset('imagens/image1.png'),
                 'video' => asset('videos/portfolio.mp4'),
             ],
             [
                 'titulo' => 'Jogo da Velha',
                 'descricao' => 'Feito em aula de Programação Mobile.',
-                'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424841066322071582/image.png?ex=68e56a26&is=68e418a6&hm=a272e748a493757b5ecbc7e4b5dcd3dc86bbd645b7fe0f2d37557921a64a72ef',
+                'imagem' => asset('imagens/image2.png'),
                 'video' => asset('videos/jogodavelha.mp4'),
             ],
             [
                 'titulo' => 'Gerenciador de Tarefas',
                 'descricao' => 'Lista de tarefas com botão de excluir e ver mais.',
-                'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424878349775540327/image.png?ex=68e58cdf&is=68e43b5f&hm=cad75dbf8d1ae20612bf3a44a96626c1d8e260a99ab00ecfe24d7e2296a4b0ec',
+                'imagem' => asset('imagens/image3.png'),
                 'video' => asset('videos/tarefas.mp4'),
             ],
             [
-                'titulo' => 'Gerenciador de Tarefas',
-                'descricao' => 'Lista de tarefas com botão de excluir e ver mais.',
-                'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424878349775540327/image.png?ex=68e58cdf&is=68e43b5f&hm=cad75dbf8d1ae20612bf3a44a96626c1d8e260a99ab00ecfe24d7e2296a4b0ec',
-                'video' => asset('videos/tarefas.mp4'),
+                'titulo' => 'TCC Conecta-AI',
+                'descricao' => 'Trabalho de conclusão de curso feito em grupo durante esse ano com o tema de inteligência Articial.',
+                'imagem' => asset('imagens/image4.png'),
+                'video' => asset('videos/tcc.mp4'),
             ],
         ] as $p)
         <div class="group relative bg-gray-800/70 hover:bg-gray-700 transition rounded-xl p-6 shadow-lg overflow-hidden">
