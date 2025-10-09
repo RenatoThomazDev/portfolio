@@ -1,30 +1,25 @@
-# Etapa 1 – PHP com Composer para build
-FROM composer:2 AS build
-
-WORKDIR /app
-
-COPY . .
-
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Etapa 2 – PHP com Apache
 FROM php:8.2-apache
 
+# Instala dependências
+RUN apt-get update && apt-get install -y unzip git libpng-dev libonig-dev libxml2-dev zip curl
+
+# Copia arquivos
+COPY . /var/www/html
+
+# Define diretório de trabalho
 WORKDIR /var/www/html
 
-# Copia a aplicação construída
-COPY --from=build /app /var/www/html
+# Instala o Composer
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
 
-# Instala extensões necessárias do Laravel
-RUN docker-php-ext-install pdo pdo_mysql
+# Instala dependências do Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-# Ativa o mod_rewrite (necessário para o Laravel)
-RUN a2enmod rewrite
+# Corrige permissões
+RUN chmod -R 777 storage bootstrap/cache
 
-# Define o DocumentRoot para o diretório public/
-COPY ./.docker/vhost.conf /etc/apache2/sites-available/000-default.conf
-
-# Expõe a porta padrão
+# Expõe a porta
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# Inicia o servidor
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
