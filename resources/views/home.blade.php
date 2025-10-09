@@ -60,6 +60,12 @@
                 'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424878349775540327/image.png?ex=68e58cdf&is=68e43b5f&hm=cad75dbf8d1ae20612bf3a44a96626c1d8e260a99ab00ecfe24d7e2296a4b0ec',
                 'video' => asset('videos/tarefas.mp4'),
             ],
+            [
+                'titulo' => 'Gerenciador de Tarefas',
+                'descricao' => 'Lista de tarefas com botão de excluir e ver mais.',
+                'imagem' => 'https://cdn.discordapp.com/attachments/830605801567420449/1424878349775540327/image.png?ex=68e58cdf&is=68e43b5f&hm=cad75dbf8d1ae20612bf3a44a96626c1d8e260a99ab00ecfe24d7e2296a4b0ec',
+                'video' => asset('videos/tarefas.mp4'),
+            ],
         ] as $p)
         <div class="group relative bg-gray-800/70 hover:bg-gray-700 transition rounded-xl p-6 shadow-lg overflow-hidden">
 
