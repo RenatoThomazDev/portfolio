@@ -1,27 +1,18 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
-# Instala dependências
-RUN apt-get update && apt-get install -y unzip git libpng-dev libonig-dev libxml2-dev zip curl
+# Instala dependências do sistema e Node.js
+RUN apt-get update && apt-get install -y \
+    git unzip curl nodejs npm
 
-# Copia arquivos
-COPY . /var/www/html
-
-# Define diretório de trabalho
+# Copia os arquivos
 WORKDIR /var/www/html
+COPY . .
 
-# Instala o Composer
-COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
-
-# Instala dependências do Laravel
+# Instala dependências do Laravel e faz build
 RUN composer install --no-dev --optimize-autoloader
+RUN npm install && npm run build
 
-# Corrige permissões
-RUN chmod -R 777 storage bootstrap/cache
+# Garante permissões
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-
-# Expõe a porta
-EXPOSE 80
-
-# Inicia o servidor
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
-
+CMD php artisan serve --host=0.0.0.0 --port=10000
