@@ -29,6 +29,8 @@ COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Permissões para o Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+    
 
 # Expor porta 80
 EXPOSE 80
