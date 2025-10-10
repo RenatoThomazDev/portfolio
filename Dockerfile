@@ -1,56 +1,34 @@
-# Etapa 1: build do frontend
-FROM node:18 AS build-frontend
+# Etapa 1: Construir os assets com Node
+FROM node:20 AS build-assets
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json vite.config.js tailwind.config.js postcss.config.js ./
+COPY resources ./resources
 RUN npm install
-COPY . .
 RUN npm run build
 
+# Etapa 2: Construir o PHP + Laravel
 FROM php:8.2-fpm
 
-# Instalar dependências
-RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev libjpeg-dev libfreetype6-dev zip
+# Instalar dependências do sistema e extensões PHP
+RUN apt-get update && apt-get install -y unzip git libpng-dev libonig-dev libxml2-dev zip curl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Configurar extensões do PHP necessárias
-RUN docker-php-ext-install pdo pdo_mysql gd
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Remover configuração padrão do nginx
-RUN rm -f /etc/nginx/sites-enabled/default
-
-COPY --from=build-frontend /app /var/www/html
-
-
-# Copiar os arquivos do projeto Laravel
 WORKDIR /var/www/html
+
+# Copiar arquivos do Laravel
 COPY . .
 
-ENV COMPOSER_MEMORY_LIMIT=-1
+# Copiar assets compilados
+COPY --from=build-assets /app/public/build ./public/build
 
-
-# Instalar dependências do Laravel
-RUN apt-get update && apt-get install -y nginx supervisor \
-    && rm -rf /var/lib/apt/lists/*
-RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+# Instalar dependências PHP
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader
 
-
-# Copiar configuração personalizada do nginx e do supervisor
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-
-# Dar permissão nas pastas de cache e storage
+# Corrigir permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expor porta 80
-EXPOSE 80
+# Porta padrão
+EXPOSE 9000
 
-RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
-
-RUN ls -R /var/www/html/public
-
-
-# Iniciar os dois serviços
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["php-fpm"]
