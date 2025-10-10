@@ -1,37 +1,41 @@
-# Etapa 1: build do Laravel + Vite
-FROM node:18 AS build
+# Etapa 1 - build do Laravel (composer + npm)
+FROM php:8.2-fpm AS build
 
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+# Instala dependências do sistema
+RUN apt-get update && apt-get install -y \
+    git unzip curl nodejs npm nginx supervisor
 
-# Etapa 2: PHP + Nginx
-FROM php:8.2-fpm
-
-# Instala dependências necessárias
-RUN apt-get update && apt-get install -y nginx zip unzip curl git
-
-# Configura diretório de trabalho
+# Copia os arquivos do projeto
 WORKDIR /var/www/html
-
-# Copia código e build
 COPY . .
-COPY --from=build /app/public/build /var/www/html/public/build
 
 # Instala dependências do Composer
-RUN curl -sS https://getcomposer.org/installer | php && \
-    php composer.phar install --no-dev --optimize-autoloader
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader
 
-# Configura nginx
+# Gera build dos assets do Vite
+RUN npm install && npm run build
+
+# Etapa 2 - container final
+FROM php:8.2-fpm
+
+# Instala o Nginx e o Supervisor (para rodar múltiplos serviços)
+RUN apt-get update && apt-get install -y nginx supervisor
+
+WORKDIR /var/www/html
+COPY --from=build /var/www/html /var/www/html
+
+# Copia o Nginx e configuração do Supervisor
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expõe a porta esperada pelo Render
-EXPOSE 10000
+RUN mkdir -p /var/log/supervisor
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Define variável de ambiente de porta
-ENV PORT=10000
+# Ajusta permissões
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Inicia PHP-FPM e Nginx juntos
-CMD service nginx start && php-fpm
+EXPOSE ${PORT}
+
+# Inicia o Nginx + PHP-FPM via Supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
