@@ -1,25 +1,27 @@
 FROM php:8.2-fpm
 
-# Instalar dependências do sistema
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpng-dev libonig-dev libxml2-dev nodejs npm
+# Instalar dependências
+RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev libjpeg-dev libfreetype6-dev zip
 
-# Copiar os arquivos do projeto
+# Configurar extensões do PHP necessárias
+RUN docker-php-ext-install pdo pdo_mysql gd
+
+# Remover configuração padrão do nginx
+RUN rm -f /etc/nginx/sites-enabled/default
+
+# Copiar os arquivos do projeto Laravel
 WORKDIR /var/www/html
 COPY . .
 
-# Instalar dependências do PHP
-RUN curl -sS https://getcomposer.org/installer | php && \
-    php composer.phar install --no-dev --optimize-autoloader
+# Copiar configuração personalizada do nginx e do supervisor
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Criar arquivo de banco e cache
-RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
+# Dar permissão nas pastas de cache e storage
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Build do front-end
-RUN npm install && npm run build
+# Expor porta 80
+EXPOSE 80
 
-# Permissões
-RUN chown -R www-data:www-data /var/www/html
-
-# Configurar o supervisor
-CMD ["php-fpm"]
+# Iniciar os dois serviços
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
