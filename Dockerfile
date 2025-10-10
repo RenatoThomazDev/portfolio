@@ -30,5 +30,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Expor porta 80
 EXPOSE 80
 
+RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
+
 # Iniciar os dois serviços
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
