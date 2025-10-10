@@ -2,6 +2,7 @@
 FROM node:20 AS build
 WORKDIR /app
 COPY package*.json ./
+RUN rm -rf node_modules public/build
 RUN npm install
 COPY . .
 RUN npm run build
@@ -18,7 +19,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copiar app completo (incluindo build)
+# Copiar tudo, incluindo o build do Vite
 COPY --from=build /app /var/www/html
 
 # Instalar dependências Laravel (sem dev)
