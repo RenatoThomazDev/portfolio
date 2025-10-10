@@ -19,23 +19,29 @@ RUN npm install && npm run build
 # Etapa 2 - container final
 FROM php:8.2-fpm
 
-# Instala o Nginx e o Supervisor (para rodar múltiplos serviços)
-RUN apt-get update && apt-get install -y nginx supervisor
+# Instala dependências
+RUN apt-get update && apt-get install -y nginx supervisor curl git unzip libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_mysql gd zip
 
+# Copia o código
 WORKDIR /var/www/html
-COPY --from=build /var/www/html /var/www/html
+COPY . .
 
-# Copia o Nginx e configuração do Supervisor
+# Copia configs de nginx e supervisord
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./supervisord.conf /etc/supervisord.conf
 
-RUN mkdir -p /var/log/supervisor
-COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Instala dependências Laravel
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && composer install --no-dev --optimize-autoloader
 
-# Ajusta permissões
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+# Corrige permissões
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE ${PORT}
+# Expõe a porta usada pelo Render
+EXPOSE 10000
 
-# Inicia o Nginx + PHP-FPM via Supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Inicia o supervisor (que gerencia nginx + php-fpm)
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+
