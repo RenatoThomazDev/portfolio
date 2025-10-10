@@ -25,7 +25,6 @@ COPY --from=build /app /var/www/html
 RUN composer install --no-dev --optimize-autoloader || true
 
 # Copiar .env (se existir no repositório)
-COPY .env /var/www/html/.env
 
 # Gerar chave do Laravel (se ainda não existir)
 RUN php -r "file_exists('.env') && !str_contains(file_get_contents('.env'), 'APP_KEY=base64:') && file_put_contents('.env', preg_replace('/^APP_KEY=.*/m', 'APP_KEY=' . 'base64:' . base64_encode(random_bytes(32)), file_get_contents('.env')));" || true
