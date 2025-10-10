@@ -1,31 +1,25 @@
-# Imagem base com PHP, Composer e extensões necessárias
-FROM richarvey/nginx-php-fpm:latest
+FROM php:8.2-fpm
 
-# Define diretório de trabalho
+# Instalar dependências do sistema
+RUN apt-get update && apt-get install -y \
+    git curl zip unzip libpng-dev libonig-dev libxml2-dev nodejs npm
+
+# Copiar os arquivos do projeto
 WORKDIR /var/www/html
+COPY . .
 
-# Copia todos os arquivos do Laravel
-COPY . /var/www/html
+# Instalar dependências do PHP
+RUN curl -sS https://getcomposer.org/installer | php && \
+    php composer.phar install --no-dev --optimize-autoloader
 
-# Instala dependências do Composer
-RUN composer install --no-dev --optimize-autoloader
+# Criar arquivo de banco e cache
+RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
 
-# Gera chave do Laravel
-RUN php artisan key:generate
-
-# Corrige permissões
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Define variáveis de ambiente do Laravel
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV APP_URL=https://portfolio_js8.onrender.com
-
-# Build dos assets (caso use Laravel Mix ou Vite)
+# Build do front-end
 RUN npm install && npm run build
 
-# Expõe a porta 80
-EXPOSE 80
+# Permissões
+RUN chown -R www-data:www-data /var/www/html
 
-# Inicia Nginx e PHP-FPM via supervisord
-CMD ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
+# Configurar o supervisor
+CMD ["php-fpm"]
