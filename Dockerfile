@@ -1,34 +1,37 @@
-# Etapa 1: Construir os assets com Node
-FROM node:20 AS build-assets
+# Etapa 1: build do Laravel + Vite
+FROM node:18 AS build
+
 WORKDIR /app
-COPY package*.json vite.config.js tailwind.config.js postcss.config.js ./
-COPY resources ./resources
+COPY package*.json ./
 RUN npm install
+COPY . .
 RUN npm run build
 
-# Etapa 2: Construir o PHP + Laravel
+# Etapa 2: PHP + Nginx
 FROM php:8.2-fpm
 
-# Instalar dependências do sistema e extensões PHP
-RUN apt-get update && apt-get install -y unzip git libpng-dev libonig-dev libxml2-dev zip curl \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Instala dependências necessárias
+RUN apt-get update && apt-get install -y nginx zip unzip curl git
 
+# Configura diretório de trabalho
 WORKDIR /var/www/html
 
-# Copiar arquivos do Laravel
+# Copia código e build
 COPY . .
+COPY --from=build /app/public/build /var/www/html/public/build
 
-# Copiar assets compilados
-COPY --from=build-assets /app/public/build ./public/build
+# Instala dependências do Composer
+RUN curl -sS https://getcomposer.org/installer | php && \
+    php composer.phar install --no-dev --optimize-autoloader
 
-# Instalar dependências PHP
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-dev --optimize-autoloader
+# Configura nginx
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
-# Corrigir permissões
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Expõe a porta esperada pelo Render
+EXPOSE 10000
 
-# Porta padrão
-EXPOSE 9000
+# Define variável de ambiente de porta
+ENV PORT=10000
 
-CMD ["php-fpm"]
+# Inicia PHP-FPM e Nginx juntos
+CMD service nginx start && php-fpm
