@@ -11,7 +11,7 @@
         </h1>
         <p class="text-gray-300 text-lg mb-6">
             Desenvolvedor de sites em PHP, JavaScript e Java.  
-            Gosto de transformar ideias em interfaces bonitas e funcionais.
+            Gosto de transformar ideias em interfaces bonitas e funciona
         </p>
 
         <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
