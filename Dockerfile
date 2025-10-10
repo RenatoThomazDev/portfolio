@@ -1,6 +1,7 @@
+# Etapa 1: build do frontend
 FROM node:18 AS build-frontend
 WORKDIR /app
-COPY package*.json ./   
+COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
@@ -37,7 +38,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 
-
 # Dar permissão nas pastas de cache e storage
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
@@ -45,6 +45,9 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 EXPOSE 80
 
 RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
+
+RUN ls -R /var/www/html/public
+
 
 # Iniciar os dois serviços
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
