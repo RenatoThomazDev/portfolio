@@ -9,6 +9,8 @@ RUN npm run build
 # Etapa 2 - PHP + Apache
 FROM php:8.3-apache
 
+RUN rm -rf node_modules && rm -rf public/build
+
 # Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
     unzip \
