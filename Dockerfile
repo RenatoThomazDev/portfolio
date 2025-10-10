@@ -1,47 +1,31 @@
-# Etapa 1 - build do Laravel (composer + npm)
-FROM php:8.2-fpm AS build
+# Imagem base com PHP, Composer e extensões necessárias
+FROM richarvey/nginx-php-fpm:latest
 
-# Instala dependências do sistema
-RUN apt-get update && apt-get install -y \
-    git unzip curl nodejs npm nginx supervisor
-
-# Copia os arquivos do projeto
+# Define diretório de trabalho
 WORKDIR /var/www/html
-COPY . .
+
+# Copia todos os arquivos do Laravel
+COPY . /var/www/html
 
 # Instala dependências do Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader
 
-# Gera build dos assets do Vite
-RUN npm install && npm run build
-
-# Etapa 2 - container final
-FROM php:8.2-fpm
-
-# Instala dependências
-RUN apt-get update && apt-get install -y nginx supervisor curl git unzip libpng-dev libjpeg-dev libfreetype6-dev libzip-dev zip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql gd zip
-
-# Copia o código
-WORKDIR /var/www/html
-COPY . .
-
-# Copia configs de nginx e supervisord
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-COPY ./supervisord.conf /etc/supervisord.conf
-
-# Instala dependências Laravel
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer install --no-dev --optimize-autoloader
+# Gera chave do Laravel
+RUN php artisan key:generate
 
 # Corrige permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Expõe a porta usada pelo Render
-EXPOSE 10000
+# Define variáveis de ambiente do Laravel
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV APP_URL=https://portfolio_js8.onrender.com
 
-# Inicia o supervisor (que gerencia nginx + php-fpm)
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+# Build dos assets (caso use Laravel Mix ou Vite)
+RUN npm install && npm run build
 
+# Expõe a porta 80
+EXPOSE 80
+
+# Inicia Nginx e PHP-FPM via supervisord
+CMD ["supervisord", "-n", "-c", "/etc/supervisord.conf"]
