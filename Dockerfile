@@ -32,9 +32,5 @@ EXPOSE 80
 
 RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
 
-# Instalar dependências do frontend e gerar build
-RUN npm install
-RUN npm run build
-
 # Iniciar os dois serviços
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
