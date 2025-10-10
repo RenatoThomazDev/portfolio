@@ -1,31 +1,31 @@
-FROM php:8.2-fpm
+# Etapa 1: construir assets com Node
+FROM node:20 AS build
 
-RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev libjpeg-dev libfreetype6-dev zip
-RUN docker-php-ext-install pdo pdo_mysql gd
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Remover config padrão do Nginx
-RUN rm -f /etc/nginx/sites-enabled/default
-
-# Copiar código do Laravel
-WORKDIR /var/www/html
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
+RUN npm run build
 
-# Instalar dependências
-RUN composer install --no-dev --optimize-autoloader
+# Etapa 2: rodar Laravel com PHP
+FROM php:8.3-apache
 
-# Copiar configs
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+WORKDIR /var/www/html
 
-# Permissões
+# Instalar extensões necessárias
+RUN docker-php-ext-install pdo pdo_mysql
+
+# Copiar código da aplicação
+COPY --from=build /app /var/www/html
+
+# Configurar permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-RUN mkdir -p /var/www/html/database && touch /var/www/html/database/database.sqlite
+# Habilitar mod_rewrite do Apache
+RUN a2enmod rewrite
 
+# Expor porta
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Iniciar servidor Apache
+CMD ["apache2-foreground"]
