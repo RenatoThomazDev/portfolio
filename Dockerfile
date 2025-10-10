@@ -18,17 +18,26 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Remover configuração padrão do nginx
 RUN rm -f /etc/nginx/sites-enabled/default
 
+COPY --from=build-frontend /app /var/www/html
+
+
 # Copiar os arquivos do projeto Laravel
 WORKDIR /var/www/html
 COPY . .
 
 # Instalar dependências do Laravel
+RUN apt-get update && apt-get install -y nginx supervisor \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
 
 # Copiar configuração personalizada do nginx e do supervisor
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/supervisord.conf /etc/supervisord.conf
 
 
 # Dar permissão nas pastas de cache e storage
