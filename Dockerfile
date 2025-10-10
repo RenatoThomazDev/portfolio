@@ -26,6 +26,9 @@ COPY --from=build-frontend /app /var/www/html
 WORKDIR /var/www/html
 COPY . .
 
+ENV COMPOSER_MEMORY_LIMIT=-1
+
+
 # Instalar dependências do Laravel
 RUN apt-get update && apt-get install -y nginx supervisor \
     && rm -rf /var/lib/apt/lists/*
