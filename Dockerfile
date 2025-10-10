@@ -1,8 +1,11 @@
-FROM php:8.2-fpm
 FROM node:18 AS frontend
 WORKDIR /app
 COPY package*.json ./
+RUN npm install
 COPY . .
+RUN npm run build
+
+FROM php:8.2-fpm
 
 # Instalar dependências
 RUN apt-get update && apt-get install -y nginx supervisor git unzip libpng-dev libjpeg-dev libfreetype6-dev zip
