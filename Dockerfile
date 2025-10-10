@@ -36,8 +36,6 @@ RUN composer install --no-dev --optimize-autoloader
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker/supervisord.conf /etc/supervisord.conf
 
 
 # Dar permissão nas pastas de cache e storage
