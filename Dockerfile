@@ -23,7 +23,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Copiar os assets buildados do Vite/Tailwind
-COPY --from=frontend /app/public/build /var/www/html/public/build
+COPY --from=frontend /app/public /var/www/html/public
 
 # Instalar dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
