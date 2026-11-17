@@ -581,3 +581,36 @@ main, .site-footer { position: relative; z-index: 1; }
 .foot-nome .mono { margin-left: var(--s-8); color: var(--subtle); }
 .foot-dir { display: flex; align-items: center; gap: var(--s-24); }
 .site-footer .carimbo-final { grid-column: auto; justify-self: auto; width: 92px; margin: 0; }
+
+/* ===== Folha saindo da prancheta (o voo é public/folha.js, Web Animations API) =====
+   .p-folha: a miniatura vista como folha de papel (borda fina e carimbo "Folha 02.x" sobre a captura).
+   .levanta (ida, 120ms antes do voo): a fita solta e some, a miniatura descola e levanta.
+   .pousando (volta): a fita fica fora até a folha pousar; aí cola (.recola). */
+.p-folha { position: absolute; inset: 0; z-index: 3; display: flex; align-items: flex-end; justify-content: flex-end; padding: 6%; box-shadow: inset 0 0 0 1px var(--line-strong); opacity: 0; pointer-events: none; transition: opacity 200ms var(--e-saida); }
+.p-folha span, .folha-carimbo span { display: block; padding: 4px 10px; background: color-mix(in srgb, var(--paper) 88%, transparent); border: 1.5px solid color-mix(in srgb, var(--ink-2) 80%, transparent); color: var(--ink-2); font-size: clamp(10px, 1.2vw, 14px); letter-spacing: 0.06em; transform: rotate(-3deg); }
+.p-frame:is(.levanta, .pousando) .p-folha { opacity: 1; }
+.p-frame.levanta .p-folha { transition-duration: 120ms; }
+.p-frame.levanta .p-media img { filter: none; }
+/* O clone que voa (folha.js monta e remove): camadas fixas na tela inteira, recortadas (clip-path) no tamanho da folha */
+.folha-veu { position: fixed; inset: 0; z-index: 9998; opacity: 0; }
+.folha-voo { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+.folha-voo > i, .folha-papel > i { position: absolute; inset: 0; display: block; }
+.folha-foto { position: absolute; top: 0; max-width: none; transform-origin: 0 0; }
+.folha-carimbo { position: absolute; }
+.folha-papel > .folha-fundo { opacity: 0; }
+.folha-mini { overflow: hidden; }
+/* Demo demorando a abrir depois do assentar (folha.js, 300ms): uma régua fina corre no topo, sobre a folha */
+.folha-carregando { position: fixed; top: 0; left: 0; right: 0; z-index: 10001; height: 2px; overflow: hidden; pointer-events: none; }
+.folha-carregando::before { content: ""; position: absolute; inset: 0; width: 40%; background: repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 8px), linear-gradient(currentColor, currentColor) bottom / 100% 1px no-repeat; transform: translateX(-100%); animation: folha-carregando 900ms cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+@keyframes folha-carregando { to { transform: translateX(250%); } }
+@media (prefers-reduced-motion: reduce) { .folha-carregando::before { animation: none; transform: none; width: 100%; } }
+/* volta: até a folha estar montada, a tela fica na cor de fundo da demo (o último quadro dela) */
+html.folha-volta::after { content: ""; position: fixed; inset: 0; z-index: 10000; background: var(--folha-capa); }
+.p-frame.levanta .p-media { transform: rotate(-2deg) scale(1.03); box-shadow: 0 0 0 1px var(--line), 0 24px 48px -14px rgba(40, 28, 10, 0.5), 0 4px 10px -4px rgba(40, 28, 10, 0.3); transition: transform 120ms var(--e-saida), box-shadow 120ms var(--e-saida); }
+.p-frame.levanta .tape .t-in { opacity: 0; transform: translate3d(0, -8px, 0) rotate(-8deg); transition: opacity 120ms linear, transform 120ms var(--e-saida); }
+.p-frame.levanta .p-sombra, .p-frame.levanta .p-open { opacity: 0; }
+/* na volta a fita fica fora até a folha pousar; aí cola com o efeito de sempre, sem a foto cair de novo */
+.p-frame.pousando .tape .t-in { opacity: 0; }
+.js-reveal .p-frame.recola { --t0: 0ms; }
+/* mesma força da regra da foto caindo (.colado:not(.ja)), declarada depois dela: a foto não cai de novo */
+.js-reveal .p-frame.recola.colado:not(.ja) :is(.p-media, .p-sombra) { animation: none; }

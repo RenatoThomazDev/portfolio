@@ -82,7 +82,7 @@ export default function Projects() {
               {/* Sombra larga da foto ainda no ar: some (opacity) quando ela pousa no papel. */}
               <span className="p-sombra" aria-hidden="true" />
               {/* A imagem repete o link "Abrir demonstração": fica fora da ordem do Tab e do leitor de tela. */}
-              <ProjectMedia href={p.href}>
+              <ProjectMedia href={p.href} folha={p.id}>
               <Image className="img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 58vw, 100vw" />
               <Image className="img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 58vw, 100vw" />
               {/* Abaixo de 768px: recorte ampliado do topo da demo, legível na largura do celular. */}

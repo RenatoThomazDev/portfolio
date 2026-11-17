@@ -52,23 +52,9 @@ const jsonLd = {
 // Aplica o tema salvo antes da primeira pintura, para não piscar.
 /* .js-reveal liga o estado escondido das revelações ao rolar. Só entra com JS, IntersectionObserver e sem
    movimento reduzido: sem ele (JS desligado, navegador antigo, movimento reduzido) tudo aparece pronto.
-   Troca de tema: revelação circular a partir do botão (View Transitions; sem suporte, troca direta).
-   pagereveal: ao voltar de uma demonstração, a miniatura daquele projeto recebe o nome da transição, e a página da
-   demo encolhe até o card. */
-const themeScript = `(function(){var d=document,r=d.documentElement;r.classList.add('js');if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('js-reveal');try{var t=localStorage.getItem('tema');if(t)r.dataset.theme=t}catch(e){}
-d.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('button.theme');if(!b)return;
-var dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches,next=dark?'light':'dark';
-var apply=function(){r.dataset.theme=next};
-if(d.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches){var q=b.getBoundingClientRect(),x=q.left+q.width/2,y=q.top+q.height/2;
-r.style.setProperty('--wx',x+'px');r.style.setProperty('--wy',y+'px');r.style.setProperty('--wr',Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y))+'px');
-r.classList.add('vt-theme');try{d.startViewTransition(apply).finished.finally(function(){r.classList.remove('vt-theme')})}catch(err){r.classList.remove('vt-theme');apply()}}else apply();
-d.querySelectorAll('meta[name="theme-color"]').forEach(function(m){m.setAttribute('content',next==='light'?'#F3EBD8':'#1A1814')});
-try{localStorage.setItem('tema',next)}catch(err){}});
-addEventListener('storage',function(e){if(e.key==='tema'&&(e.newValue==='light'||e.newValue==='dark'))r.dataset.theme=e.newValue});
-addEventListener('pagereveal',function(e){if(!e.viewTransition)return;var a=window.navigation&&navigation.activation,de=a&&a.from&&a.from.url||'',m=de.match(/\\/demos\\/([a-z]+)/);if(!m)return;
-var p=d.querySelector('.project[data-demo="'+m[1]+'"]'),c=p&&p.querySelector('.p-media');if(!c)return;
-var f=p.querySelector('.p-frame');if(f)f.classList.add('colado','ja');c.scrollIntoView({block:'center'});c.style.viewTransitionName='demo-pagina';
-e.viewTransition.finished.then(function(){c.style.viewTransitionName=''})});})();`;
+   Troca de tema (clique, animação circular, outra aba): public/tema-transicao.js, o mesmo das demonstrações.
+   Ida e volta das demonstrações (a folha saindo da prancheta): public/folha.js. */
+const themeScript = `(function(){var r=document.documentElement;r.classList.add('js');if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('js-reveal');try{var t=localStorage.getItem('tema');if(t)r.dataset.theme=t}catch(e){}})();`;
 
 /* No fim do <body>, antes da primeira pintura: o que já está na tela (ou acima dela, ao abrir com âncora)
    aparece pronto, sem animar nem piscar. Também mede a linha de base dos números grandes de folha (SVG). */
@@ -81,6 +67,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="pt-BR" className={`${geist.variable} ${geistMono.variable} ${clash.variable} ${serif.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* Botão de tema, animação circular e sincronia entre abas: mesmo arquivo das demonstrações. */}
+        <script src="/tema-transicao.js" data-botao="button.theme" data-claro="#F3EBD8" data-escuro="#1A1814" defer />
+        {/* Voo da folha entre o portfólio e as demonstrações. Sem defer: na volta, a capa com a cor da demo entra
+            antes da primeira pintura. Arquivo pequeno e sem dependências. */}
+        {/* eslint-disable-next-line @next/next/no-sync-scripts -- síncrono de propósito (capa antes da pintura) */}
+        <script src="/folha.js" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body>

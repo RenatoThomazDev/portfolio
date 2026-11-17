@@ -157,14 +157,9 @@
 .malha { bottom: 0; }
 .malha-dica kbd { font: inherit; color: var(--ink); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 5px; margin-right: 4px; }
 
-/* ===== Transição entre o portfólio e as demonstrações (View Transitions entre documentos) ===== */
-@view-transition { navigation: auto; }
-::view-transition-group(demo-pagina) { animation-duration: 480ms; animation-timing-function: var(--e-saida); }
-::view-transition-old(demo-pagina), ::view-transition-new(demo-pagina) { height: 100%; object-fit: cover; object-position: top center; }
+/* A passagem entre o portfólio e as demonstrações (a folha saindo da prancheta) é public/folha.js. */
 
 @media (prefers-reduced-motion: reduce) {
-  @view-transition { navigation: none; }
-  .aviao, .c-gira, .guias i, .carimbo-final, .foot-stamp, .diagram .recebe { animation: none !important; }
-  .c-form.voa form { animation: none; }
+  .c-gira, .guias i, .carimbo-final, .foot-stamp, .diagram .recebe { animation: none !important; }
   .malha { transition: none; }
 }

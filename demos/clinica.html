@@ -15,17 +15,21 @@
 <meta name="theme-color" content="#FBFAF6">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <!-- Tema antes da primeira pintura. A clínica abre no claro por padrão (saúde pede limpeza); o escuro fica no botão. -->
-<script>(function(){var t=null;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='light'&&t!=='dark')t=null;addEventListener('storage',function(e){if(e.key==='tema'&&(e.newValue==='light'||e.newValue==='dark'))document.documentElement.dataset.theme=e.newValue});document.documentElement.dataset.theme=t||'light'})()</script>
+<script>(function(){var t=null;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='light'&&t!=='dark')t=null;document.documentElement.dataset.theme=t||'light'})()</script>
+<!-- Botão de tema, animação circular, theme-color e sincronia entre abas: o mesmo arquivo do portfólio. -->
+<script src="/tema-transicao.js" data-botao="#tema" data-claro="#FBFAF6" data-escuro="#0B0B0C" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<!-- Fontes. Com o CSS do Google bloqueando sempre, a página esperava a rede dele (~200ms no Fast 4G, segundos quando
+     ele demora). Vindo do portfólio, o CSS e as fontes já estão no cache (/folha.js aquece no prefetch e marca
+     "fontes-clinica"): aí ele carrega bloqueando, custa milissegundos e a primeira pintura já sai com as fontes, igual
+     à folha que voou. Senão, carrega sem bloquear (media="print" vira "all"). Mesmo endereço em /folha.js (FONTES). -->
+<script>(function(){var u='https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap',q=null;try{q=sessionStorage.getItem('fontes-clinica')}catch(e){}
+if(q){document.write('<link rel="stylesheet" href="'+u+'">');return}var l=document.createElement('link');l.rel='stylesheet';l.href=u;l.media='print';l.onload=function(){l.media='all'};document.head.appendChild(l)})()</script>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet"></noscript>
 <style>
-/* Transição com o portfólio: a miniatura do card cresce até virar esta página (e encolhe na volta). */
-@view-transition { navigation: auto; }
-:root { view-transition-name: demo-pagina; }
-::view-transition-group(demo-pagina) { animation-duration: 480ms; animation-timing-function: cubic-bezier(.16, 1, .3, 1); }
-::view-transition-old(demo-pagina), ::view-transition-new(demo-pagina) { height: 100%; object-fit: cover; object-position: top center; }
-@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+/* A passagem do portfólio para cá anima só lá (/folha.js): esta página abre pronta, sem animação de chegada.
+   A cor de fundo (--bg) é a do último quadro da folha; se mudar aqui, mude também em /folha.js. */
 /* Reserva dos títulos enquanto a Fraunces não chega: Georgia encolhida para a mesma largura (medido: 76,5%),
    assim o título quebra nas mesmas linhas antes e depois da troca e a página não pula. */
 @font-face { font-family: "Fraunces Reserva"; src: local("Georgia Bold"), local("Georgia"); size-adjust: 76.5%; }
@@ -358,13 +362,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: .8rem 2rem; justify-content:
 <script>
 (function () {
   var html = document.documentElement, $ = function (s) { return document.querySelector(s); };
-  // Tema: salvo em localStorage (com try/catch); sem escolha salva, a clínica fica no claro.
-  $('#tema').addEventListener('click', function () {
-    var next = html.dataset.theme === 'dark' ? 'light' : 'dark';
-    html.dataset.theme = next;
-    document.querySelector('meta[name="theme-color"]').content = next === 'dark' ? '#0B0B0C' : '#FBFAF6';
-    try { localStorage.setItem('tema', next); } catch (e) {}
-  });
+  // Tema: /tema-transicao.js (no <head>); sem escolha salva, a clínica fica no claro.
   // Revelação ao rolar (só com IntersectionObserver e sem movimento reduzido)
   if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     html.classList.add('js');

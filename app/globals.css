@@ -113,10 +113,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .sheet-d.rolar > span { display: inline-block; animation: sheet-roll 320ms var(--ease); }
 @keyframes sheet-roll { from { transform: translate3d(0, 40%, 0); opacity: 0.35; } to { transform: none; opacity: 1; } }
 
-/* Troca de tema: círculo que se abre a partir do botão. */
-html.vt-theme::view-transition-old(root) { animation: none; }
-html.vt-theme::view-transition-new(root) { animation: theme-wipe 640ms cubic-bezier(0.7, 0, 0.2, 1) both; }
-@keyframes theme-wipe { from { clip-path: circle(0 at var(--wx) var(--wy)); } to { clip-path: circle(var(--wr) at var(--wx) var(--wy)); } }
+/* Troca de tema (círculo a partir do botão): o CSS vem de public/tema-transicao.js, compartilhado com as demos. */
 
 @media (prefers-reduced-motion: reduce) {
   .sheet-d.rolar > span { animation: none; }
