@@ -70,6 +70,14 @@ export async function POST(req: Request) {
   const erros = validar(d);
   if (Object.keys(erros).length) return erro("validacao", { campos: erros });
 
+  // Simulação para testar a animação e os erros sem mandar e-mail: ?simular=ok|limite|indisponivel|falha.
+  // Só fora de produção (next dev); em produção o parâmetro é ignorado e o envio segue normal.
+  const simular = new URL(req.url).searchParams.get("simular");
+  if (simular && process.env.NODE_ENV !== "production") {
+    await new Promise((ok) => setTimeout(ok, 400));
+    return simular === "ok" ? ok() : erro((["limite", "indisponivel", "falha"] as const).find((e) => e === simular) ?? "falha");
+  }
+
   const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || req.headers.get("x-real-ip") || "local";
   const agora = Date.now(), lista = (envios.get(ip) ?? []).filter((t) => agora - t < JANELA_MS);
   if (lista.length >= MAX_ENVIOS) return erro("limite");

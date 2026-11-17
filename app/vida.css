@@ -41,21 +41,35 @@
 .c-mel { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .an-ok { margin-left: var(--s-8); flex-direction: row-reverse; font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem); max-width: 100%; }
 .an-ok em { white-space: normal; }
-/* Avião de papel: a folha encolhe, dobra em triângulo, ganha a asa e sai voando na direção da linha conectora
-   (margem esquerda). Polígonos sempre com 5 pontos, para o clip-path interpolar. */
-.c-form.voa form { animation: c-some var(--m-media) var(--e-saida) forwards; }
-@keyframes c-some { to { opacity: 0; } }
-.aviao { position: absolute; inset: 0; z-index: 2; pointer-events: none; transform-origin: 25% 50%;
-  background: linear-gradient(to bottom, var(--paper-2) 0 50%, var(--paper-3) 50% 100%); outline: 1px solid var(--line-strong);
-  animation: aviao 1250ms cubic-bezier(0.5, 0, 0.2, 1) forwards; }
-@keyframes aviao {
-  0% { opacity: 0; clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: none; }
-  12% { opacity: 1; clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: none; }
-  34% { clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: scale(0.34, 0.5); }
-  52% { clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 100% 50%); transform: scale(0.34, 0.5); }
-  66% { opacity: 1; clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 76% 50%); transform: scale(0.34, 0.4) rotate(5deg); }
-  100% { opacity: 0; clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 76% 50%); transform: translate(-60vw, -50vh) scale(0.18, 0.2) rotate(16deg); }
+/* Avião de papel (app/components/aviao.ts): uma cópia do bloco do formulário, com o que foi digitado, dobra e voa
+   por cima da página; o bloco real fica no lugar, invisível, guardando o espaço. */
+.av-sombra { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; box-shadow: 0 14px 28px -10px rgb(42 38 32 / 0.35), 0 2px 6px rgb(42 38 32 / 0.12); }
+/* O contorno de 1px (--line-strong) é feito com quatro drop-shadow sem desfoque: segue o recorte do clip-path em
+   qualquer forma (retângulo, ponta, dardo), o que uma borda não faz. Depois vem a sombra suave. */
+.aviao { position: absolute; z-index: 60; pointer-events: none; transform-origin: 50% 25%; will-change: transform, opacity;
+  --av-borda: var(--line-strong); --av-sombra: rgb(42 38 32 / 0.28);
+  filter: drop-shadow(1px 0 0 var(--av-borda)) drop-shadow(-1px 0 0 var(--av-borda)) drop-shadow(0 1px 0 var(--av-borda)) drop-shadow(0 -1px 0 var(--av-borda))
+    drop-shadow(0 10px 14px var(--av-sombra)); }
+.av-forma, .av-cima { position: absolute; inset: 0; }
+.av-cima { clip-path: inset(0 0 50% 0); }
+.av-baixo { position: absolute; left: 0; top: 50%; width: 100%; height: 50%; transform-origin: 50% 0; transform-style: preserve-3d; }
+.av-frente, .av-verso { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; }
+.av-verso { transform: rotateX(180deg); background: var(--paper-3); border: 1px solid var(--line-strong);
+  /* o vinco do meio, que vira a quilha do avião */
+  background-image: linear-gradient(var(--line-strong), var(--line-strong)); background-size: 1px 100%; background-position: center; background-repeat: no-repeat; }
+.aviao .ct-bloco::before { display: none; }
+.av-rastro { position: absolute; z-index: 59; pointer-events: none; overflow: visible; }
+.av-rastro > path { stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 0 8; }
+/* no escuro a sombra é preta e mais forte, para aparecer sobre o papel escuro */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .av-sombra { box-shadow: 0 14px 28px -10px rgb(0 0 0 / 0.6); }
+  :root:not([data-theme="light"]) .aviao { --av-sombra: rgb(236 228 210 / 0.14); }
+  :root:not([data-theme="light"]) .av-verso { background-color: color-mix(in srgb, var(--ink) 42%, var(--paper-3)); }
 }
+:root[data-theme="dark"] .av-sombra { box-shadow: 0 14px 28px -10px rgb(0 0 0 / 0.6); }
+/* no escuro o papel do avião é bem mais claro que o fundo (3,2:1 sobre --paper) e a sombra é clara */
+:root[data-theme="dark"] .aviao { --av-sombra: rgb(236 228 210 / 0.14); }
+:root[data-theme="dark"] .av-verso { background-color: color-mix(in srgb, var(--ink) 42%, var(--paper-3)); }
 
 /* ===== 1. Fluxo vivo do diagrama ===== */
 /* Rastro: o halo fica um pouco atrás do ponto, na direção de onde ele veio. */

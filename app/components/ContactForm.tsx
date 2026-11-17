@@ -2,10 +2,12 @@
 import { useRef, useState } from "react";
 import Annot from "./Annot";
 import enviado from "./escrita/enviado";
+import { flushSync } from "react-dom";
 import { WHATSAPP_URL } from "../../config/contato";
+import { dobrarAviao, surgir } from "./aviao";
 
 /* Formulário da Folha 04. Com JS, envia por fetch para app/api/contato (Resend) e mostra enviando, sucesso e erro
-   dentro do próprio bloco; no sucesso a folha dobra em avião de papel (vida.css) e aparece a confirmação escrita à mão.
+   dentro do próprio bloco; no sucesso o bloco inteiro dobra em avião de papel (aviao.ts) e aparece a confirmação.
    Sem JS, o mesmo <form> faz POST normal para a rota, que responde com uma página curta de confirmação ou de erro.
    Os limites e as opções são os mesmos da rota. */
 type Estado = "pronto" | "enviando" | "voando" | "enviado" | "erro";
@@ -48,15 +50,26 @@ export default function ContactForm() {
     if (primeiro) { form.current?.querySelector<HTMLElement>(`[name="${primeiro}"]`)?.focus(); return; }
     setEstado("enviando");
     try {
-      const r = await fetch("/api/contato", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(dados) });
+      // ?simular=ok|limite|indisponivel|falha na página vai junto para a rota, que só obedece fora de produção
+      // (route.ts): serve para testar a animação e os erros sem mandar e-mail de verdade.
+      const simular = new URLSearchParams(location.search).get("simular");
+      const r = await fetch(simular ? `/api/contato?simular=${encodeURIComponent(simular)}` : "/api/contato", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(dados) });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         setFalha(j.erro === "limite" ? "Você já mandou algumas mensagens agora há pouco. Espere uns minutos ou" : j.erro === "validacao" ? "Confira os campos e tente de novo, ou" : "Não consegui enviar agora,");
         setEstado("erro");
         return;
       }
-      if (matchMedia("(prefers-reduced-motion: reduce)").matches) setEstado("enviado");
-      else { setEstado("voando"); setTimeout(() => setEstado("enviado"), 1250); }
+      // Só o sucesso dobra o avião; erro, limite e "indisponível" ficam no formulário (acima).
+      const bloco = form.current?.closest<HTMLElement>(".ct-bloco");
+      if (bloco && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setEstado("voando");
+        // a troca pela confirmação acontece no meio do voo (800ms), dentro de dobrarAviao
+        await dobrarAviao(bloco, () => flushSync(() => setEstado("enviado")));
+      } else {
+        flushSync(() => setEstado("enviado"));
+        if (bloco) surgir(bloco);
+      }
     } catch {
       setFalha("Não consegui enviar agora,");
       setEstado("erro");
@@ -70,7 +83,7 @@ export default function ContactForm() {
         <h3 className="c-tit">Mensagem enviada</h3>
         <Annot className="an-ok" escrita={enviado} text="mensagem recebida, obrigado!" arrow="M6 40C18 30 34 22 58 20M46 12L59 20L48 30" />
         <p>Respondo em até 24 horas, no e-mail que você informou.</p>
-        <button type="button" className="btn btn-secondary" onClick={() => setEstado("pronto")}>Enviar outra mensagem</button>
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const b = e.currentTarget.closest<HTMLElement>(".ct-bloco"); if (b) b.style.minHeight = ""; setEstado("pronto"); }}>Enviar outra mensagem</button>
       </div>
     );
   }
@@ -83,9 +96,7 @@ export default function ContactForm() {
     </div>
   );
   return (
-    <div className={`c-form${estado === "voando" ? " voa" : ""}`}>
-      {/* A folha que vira avião: só existe durante o voo, por cima do formulário que some. */}
-      {estado === "voando" && <span className="aviao" aria-hidden="true" />}
+    <div className="c-form">
       <form ref={form} action="/api/contato" method="post" onSubmit={enviar} noValidate aria-labelledby="c-form-t">
         <h3 id="c-form-t" className="c-tit">Envie uma mensagem</h3>
         {/* Honeypot: fora da tela, fora do Tab e do leitor de tela. Robô que preenche é descartado no servidor. */}
