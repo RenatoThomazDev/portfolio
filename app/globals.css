@@ -138,7 +138,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .annot > svg path { stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 /* A seta é traçada depois que a frase termina de ser escrita (--fim, vindo dos dados da escrita). */
 .annot.armed > svg path { stroke-dasharray: 1; stroke-dashoffset: 1; }
-.annot.armed.on > svg path { stroke-dashoffset: 0; transition: stroke-dashoffset 800ms cubic-bezier(.6,.05,.3,1) var(--fim); }
+/* --e-vel escala o tempo da escrita e da seta (1 = ritmo gravado; a confirmação do Contato usa menos). */
+.annot.armed.on > svg path { stroke-dashoffset: 0; transition: stroke-dashoffset calc(800ms * var(--e-vel, 1)) cubic-bezier(.6,.05,.3,1) calc(var(--fim) * var(--e-vel, 1)); }
 @media (prefers-reduced-motion: reduce) { .annot.armed > svg path { stroke-dashoffset: 0; transition: none; } }
 .annot em { white-space: nowrap; }
 @media (max-width: 479px) { .annot { font-size: 1.15rem; } .annot > svg { width: 36px; height: 27px; } .an-erp { margin-left: 0; } }
@@ -164,8 +165,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
 .hero-anim .escrita .e-full { animation: e-pronta 1ms step-end calc(var(--b, 0ms) + var(--t) + 16ms) both; }
 .annot.armed .escrita .e-sk { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .annot.armed .escrita .e-full { opacity: 0; }
-.annot.armed.on .escrita .e-sk { animation: e-caneta var(--du) var(--e-curva) var(--t) both; }
-.annot.armed.on .escrita .e-full { animation: e-pronta 1ms step-end calc(var(--t) + 16ms) both; }
+.annot.armed.on .escrita .e-sk { animation: e-caneta calc(var(--du) * var(--e-vel, 1)) var(--e-curva) calc(var(--t) * var(--e-vel, 1)) both; }
+.annot.armed.on .escrita .e-full { animation: e-pronta 1ms step-end calc(var(--t) * var(--e-vel, 1) + 16ms) both; }
 @media (prefers-reduced-motion: reduce) { .escrita .e-sk, .escrita .e-full { animation: none !important; stroke-dashoffset: 0 !important; opacity: 1 !important; } }
 
 /* Rabisco no papel: SVG absoluto no topo do documento (rola com a folha), da largura da janela e da altura da página,

@@ -41,6 +41,9 @@
 .c-mel { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 .an-ok { margin-left: var(--s-8); flex-direction: row-reverse; font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem); max-width: 100%; }
 .an-ok em { white-space: normal; }
+/* A confirmação fica pronta e parada antes de 2s depois do clique em Enviar: frase de 2,6s escrita em ~0,75s e a seta
+   em ~220ms (o resto da página mantém o ritmo gravado). */
+.an-ok { --e-vel: 0.28; }
 /* Avião de papel (app/components/aviao.ts): uma cópia do bloco do formulário, com o que foi digitado, dobra e voa
    por cima da página; o bloco real fica no lugar, invisível, guardando o espaço. */
 .av-sombra { position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; box-shadow: 0 14px 28px -10px rgb(42 38 32 / 0.35), 0 2px 6px rgb(42 38 32 / 0.12); }

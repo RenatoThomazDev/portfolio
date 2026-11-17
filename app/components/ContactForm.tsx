@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Annot from "./Annot";
 import enviado from "./escrita/enviado";
 import { flushSync } from "react-dom";
@@ -37,10 +37,15 @@ export default function ContactForm() {
   const [erros, setErros] = useState<Erros>({});
   const [falha, setFalha] = useState("");
   const form = useRef<HTMLFormElement>(null);
+  const ocupadoRef = useRef(false);
+  // foco na confirmação uma vez só, quando ela monta (um ref inline rodaria de novo a cada renderização)
+  const focarOk = useCallback((el: HTMLDivElement | null) => { el?.focus({ preventScroll: true }); }, []);
 
   const enviar = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
-    if (estado === "enviando") return;
+    // Trava do envio inteiro (requisição + voo): um envio e um voo por clique. Ref e não o estado, porque o estado
+    // lido aqui é o da renderização em que o handler foi criado e não enxerga o "voando".
+    if (ocupadoRef.current) return;
     const fd = new FormData(ev.currentTarget);
     const s = (k: string) => String(fd.get(k) ?? "");
     const dados = { nome: s("nome"), email: s("email"), tipo: s("tipo"), mensagem: s("mensagem"), site: s("site") };
@@ -49,6 +54,7 @@ export default function ContactForm() {
     const primeiro = (["nome", "email", "mensagem"] as const).find((k) => e[k]);
     if (primeiro) { form.current?.querySelector<HTMLElement>(`[name="${primeiro}"]`)?.focus(); return; }
     setEstado("enviando");
+    ocupadoRef.current = true;
     try {
       // ?simular=ok|limite|indisponivel|falha na página vai junto para a rota, que só obedece fora de produção
       // (route.ts): serve para testar a animação e os erros sem mandar e-mail de verdade.
@@ -73,13 +79,15 @@ export default function ContactForm() {
     } catch {
       setFalha("Não consegui enviar agora,");
       setEstado("erro");
+    } finally {
+      ocupadoRef.current = false;
     }
   };
   const limpar = (k: Campo) => () => { if (erros[k]) setErros((a) => ({ ...a, [k]: undefined })); if (estado === "erro") setEstado("pronto"); };
 
   if (estado === "enviado") {
     return (
-      <div className="c-form c-ok" role="status" tabIndex={-1} ref={(el) => el?.focus({ preventScroll: true })}>
+      <div className="c-form c-ok" role="status" tabIndex={-1} ref={focarOk}>
         <h3 className="c-tit">Mensagem enviada</h3>
         <Annot className="an-ok" escrita={enviado} text="mensagem recebida, obrigado!" arrow="M6 40C18 30 34 22 58 20M46 12L59 20L48 30" />
         <p>Respondo em até 24 horas, no e-mail que você informou.</p>
