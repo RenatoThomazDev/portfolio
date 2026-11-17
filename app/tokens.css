@@ -1,0 +1,91 @@
+/* Planta técnica: tokens. Contraste verificado (WCAG 2.x) na página do sistema de design. */
+:root {
+  /* Cor: claro */
+  --paper: #F3EBD8;        /* fundo: creme envelhecido */
+  --paper-2: #F7F1E3;      /* superfície: cards, molduras */
+  --paper-3: #ECE2CB;      /* áreas rebaixadas */
+  --line: #C9BEA5;         /* linhas finas, decorativas */
+  --line-2: #B0A488;       /* linhas de grade */
+  --line-strong: #857B69;  /* bordas de interface (3,2:1 ou mais) */
+  --subtle: #686153;       /* cotas e mono (4,7:1 ou mais) */
+  --muted: #57514A;        /* texto de apoio */
+  --ink-2: #3D3830;        /* texto corrido */
+  --ink: #2A2620;          /* títulos: sépia-grafite */
+  --accent: #2B44E0;       /* a caneta: azul de prancheta */
+  --accent-hover: #1F35C2;
+  --on-accent: #F7F1E3;
+  --pencil: #AD3F2B;       /* vermelho-lápis: só anotações e margem */
+  --danger: #B3261E;
+  --grid-ink: #9DB4B0;     /* quadriculado azul-esverdeado desbotado */
+  --shade: #8A6A35;        /* amarelado das margens (vinheta) */
+  --selection: color-mix(in srgb, #F2D86B 60%, transparent);
+
+  /* Espaço: escala 4/8 */
+  --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-24: 24px; --s-32: 32px;
+  --s-48: 48px; --s-64: 64px; --s-96: 96px; --s-128: 128px; --s-160: 160px;
+
+  /* Grid: 12 colunas */
+  --cols: 12;
+  --gutter: var(--s-16);
+  --margin: var(--s-16);
+  --section: var(--s-96);
+
+  /* Tipografia: razão 1.25 */
+  --f-display: "Clash Display", "Geist", system-ui, sans-serif;
+  --f-text: "Geist", system-ui, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, monospace;
+  --t-xs: 0.8rem;      /* 12.8 */
+  --t-sm: 1rem;        /* 16 */
+  --t-base: 1.125rem;  /* 18, texto corrido */
+  --t-md: 1.25rem;     /* 20 */
+  --t-lg: 1.5625rem;   /* 25 */
+  --t-xl: clamp(1.9531rem, 1.6rem + 1.2vw, 2.4414rem);  /* 31 a 39 */
+  --t-2xl: clamp(2.4414rem, 1.8rem + 2.4vw, 3.8147rem); /* 39 a 61 */
+  --t-display: clamp(3.0518rem, 1.6rem + 6.2vw, 7.4506rem); /* 49 a 119 */
+
+  /* Tracking: letras apertadas, espaço entre palavras preservado */
+  --track-display: -0.02em; --word-display: 0.12em;
+  --track-2xl: -0.015em;    --word-2xl: 0.08em;
+  --track-xl: -0.01em;      --word-xl: 0.04em;
+
+  /* Forma e movimento: um raio, uma sombra, uma curva */
+  --radius: 4px;
+  --shadow: 0 1px 0 var(--line), 0 8px 24px -16px color-mix(in srgb, #5A4320 30%, transparent);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --d-fast: 400ms; --d-base: 600ms; --d-slow: 900ms;
+  /* Movimento: três durações e três curvas para tudo o que é novo. Entradas saem rápido e assentam devagar
+     (--e-saida, --e-quart); interação usa mola leve (--e-mola). Os --d-* acima são os tempos das revelações
+     aprovadas nas rodadas anteriores e continuam valendo para elas. */
+  --m-rapida: 160ms; --m-media: 320ms; --m-lenta: 700ms;
+  --e-saida: cubic-bezier(0.16, 1, 0.3, 1);
+  --e-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --e-mola: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 768px)  { :root { --gutter: var(--s-24); --margin: var(--s-32); --section: var(--s-96); } }
+/* Vão entre seções fica em 96px também a partir de 1280: com 128px, a linha de abertura de cada seção ficava ~200px
+   abaixo do último conteúdo da anterior, um vão vazio demais em telas largas. */
+@media (min-width: 1280px) { :root { --margin: var(--s-64); } }
+@media (min-width: 1920px) { :root { --margin: var(--s-96); } }
+
+/* Escuro: caderno à noite, desenhado à parte (não é inversão) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #1A1814; --paper-2: #221F1A; --paper-3: #141210; --line: #3A352D; --line-2: #4A443A; --line-strong: #7A7264;
+    --subtle: #A0978A; --muted: #B8AF9C; --ink-2: #D9D0BC; --ink: #ECE4D2;
+    --accent: #8C9BFF; --accent-hover: #A8B3FF; --on-accent: #1A1814; --pencil: #E8907A; --danger: #FF8A80;
+    --grid-ink: #7F9894; --shade: #000000; --selection: color-mix(in srgb, #8C9BFF 35%, transparent);
+    --shadow: 0 1px 0 var(--line), 0 8px 24px -16px color-mix(in srgb, #050403 70%, transparent);
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #1A1814; --paper-2: #221F1A; --paper-3: #141210; --line: #3A352D; --line-2: #4A443A; --line-strong: #7A7264;
+    --subtle: #A0978A; --muted: #B8AF9C; --ink-2: #D9D0BC; --ink: #ECE4D2;
+    --accent: #8C9BFF; --accent-hover: #A8B3FF; --on-accent: #1A1814; --pencil: #E8907A; --danger: #FF8A80;
+    --grid-ink: #7F9894; --shade: #000000; --selection: color-mix(in srgb, #8C9BFF 35%, transparent);
+    --shadow: 0 1px 0 var(--line), 0 8px 24px -16px color-mix(in srgb, #050403 70%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --d-fast: 0ms; --d-base: 0ms; --d-slow: 0ms; --m-rapida: 0ms; --m-media: 0ms; --m-lenta: 0ms; }
+}

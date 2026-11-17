@@ -1,0 +1,170 @@
+/* Vida da planta: cards em formato de caso, formulário de contato e os momentos-assinatura.
+   Regras: só transform, opacity, clip-path e stroke animados; durações e curvas dos tokens de movimento
+   (--m-rapida, --m-media, --m-lenta, --e-saida, --e-mola em tokens.css); com movimento reduzido os tokens valem 0ms
+   e as animações abaixo são desligadas no fim do arquivo: tudo aparece no estado final. */
+
+/* ===== Link "pular para o conteúdo" ===== */
+.pular { position: absolute; left: var(--margin); top: -80px; z-index: 100; padding: var(--s-8) var(--s-16); background: var(--ink); color: var(--paper); border-radius: var(--radius); text-decoration: none; }
+.pular:focus { top: var(--s-12); }
+
+/* ===== Cards de projeto: problema, o que fiz, resultado ===== */
+.p-caso { margin: 0; display: grid; gap: var(--s-12); }
+.p-caso > div { display: grid; gap: 2px; }
+.p-caso dt { color: var(--subtle); }
+.p-caso dd { margin: 0; color: var(--muted); max-width: 60ch; }
+.p-acoes { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); margin-top: var(--s-8); }
+.p-acoes .p-link { margin-top: 0; }
+.work-nota { color: var(--subtle); }
+.caso-lista { margin: 0; padding-left: 1.1em; display: grid; gap: 2px; list-style: disc; }
+.caso-lista li::marker { color: var(--accent); }
+/* "Por baixo do capô" (ERP): bloco técnico recolhível, details nativo */
+.capo { margin-top: var(--s-24); border-top: 1px dashed var(--line-strong); border-bottom: 1px dashed var(--line-strong); max-width: 68ch; }
+.capo summary { display: flex; align-items: center; gap: var(--s-8); min-height: 44px; cursor: pointer; font-weight: 600; color: var(--ink); list-style: none; }
+.capo summary::-webkit-details-marker { display: none; }
+.capo summary::before { content: "+"; font-family: var(--font-geist-mono), monospace; width: 1ch; color: var(--accent); }
+.capo[open] summary::before { content: "−"; }
+.capo summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.capo-corpo { padding: 0 0 var(--s-16); display: grid; gap: var(--s-8); }
+.capo-corpo h4 { margin: var(--s-8) 0 0; font-size: var(--t-sm); font-weight: 500; color: var(--subtle); }
+.capo-corpo p { margin: 0; }
+
+/* ===== Formulário de contato ===== */
+/* Os campos, os chips e o botão estão em sections.css ("Folha 04"); aqui ficam os estados e o avião. */
+.c-form { position: relative; height: 100%; }
+.c-form form { display: grid; gap: var(--s-24); }
+.c-gira { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: c-gira 700ms linear infinite; }
+@keyframes c-gira { to { transform: rotate(360deg); } }
+.c-ok { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-16); outline: none; }
+.c-ok .pr-cab { align-self: stretch; }
+.c-ok p { color: var(--muted); }
+.c-nota { color: var(--subtle); }
+.c-mel { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.an-ok { margin-left: var(--s-8); flex-direction: row-reverse; font-size: clamp(1.4rem, 1rem + 1.6vw, 2rem); max-width: 100%; }
+.an-ok em { white-space: normal; }
+/* Avião de papel: a folha encolhe, dobra em triângulo, ganha a asa e sai voando na direção da linha conectora
+   (margem esquerda). Polígonos sempre com 5 pontos, para o clip-path interpolar. */
+.c-form.voa form { animation: c-some var(--m-media) var(--e-saida) forwards; }
+@keyframes c-some { to { opacity: 0; } }
+.aviao { position: absolute; inset: 0; z-index: 2; pointer-events: none; transform-origin: 25% 50%;
+  background: linear-gradient(to bottom, var(--paper-2) 0 50%, var(--paper-3) 50% 100%); outline: 1px solid var(--line-strong);
+  animation: aviao 1250ms cubic-bezier(0.5, 0, 0.2, 1) forwards; }
+@keyframes aviao {
+  0% { opacity: 0; clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: none; }
+  12% { opacity: 1; clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: none; }
+  34% { clip-path: polygon(100% 0, 0 0, 0 100%, 100% 100%, 100% 50%); transform: scale(0.34, 0.5); }
+  52% { clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 100% 50%); transform: scale(0.34, 0.5); }
+  66% { opacity: 1; clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 76% 50%); transform: scale(0.34, 0.4) rotate(5deg); }
+  100% { opacity: 0; clip-path: polygon(100% 0, 0 50%, 0 50%, 100% 100%, 76% 50%); transform: translate(-60vw, -50vh) scale(0.18, 0.2) rotate(16deg); }
+}
+
+/* ===== 1. Fluxo vivo do diagrama ===== */
+/* Rastro: o halo fica um pouco atrás do ponto, na direção de onde ele veio. */
+.diagram .pulse .halo { opacity: 0.3; }
+.diagram :is(.p-a, .pw-a, .pw-b, .pl-a) .halo { transform: translateX(-9px); }
+.diagram :is(.p-b, .pv-a, .pv-b, .pl-b) .halo { transform: translateY(-9px); }
+/* Cada caixa pulsa de leve ao receber o pacote (contorno azul que acende e apaga), no compasso de 4,8s dos pontos. */
+.diagram .node .recebe { fill: none; stroke: var(--accent); stroke-width: 2.5; opacity: 0; }
+@keyframes recebe-1 { 0%, 31% { opacity: 0; } 37% { opacity: 0.9; } 52%, 100% { opacity: 0; } }
+@keyframes recebe-2 { 0%, 73% { opacity: 0; } 79% { opacity: 0.9; } 94%, 100% { opacity: 0; } }
+.pulsing .diagram .node.r-1 .recebe { animation: recebe-1 4.8s linear infinite; }
+.pulsing .diagram .node.r-2 .recebe { animation: recebe-2 4.8s linear infinite; }
+/* Fora da vista, o fluxo pausa (Vida.tsx põe .hero-fora no <html>). */
+.hero-fora .diagram :is(.pulse, .recebe) { animation-play-state: paused; }
+
+/* ===== 2. Réguas e mira do cursor (só mouse, 1024px ou mais) ===== */
+.regua-y, .mira { display: none; }
+@media (min-width: 1024px) and (pointer: fine) {
+  .regua-y { display: block; position: fixed; top: 0; bottom: 0; left: 0; width: 7px; z-index: 60; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, var(--line-strong) 0 1px, transparent 1px 64px) top left / 7px 100% no-repeat,
+      repeating-linear-gradient(0deg, var(--line-2) 0 1px, transparent 1px 8px) top left / 3px 100% no-repeat; }
+  .mira { display: block; position: fixed; top: 0; left: 0; z-index: 61; pointer-events: none; opacity: 0; color: var(--accent); font-size: 10px; line-height: 1; transition: opacity var(--m-rapida) var(--e-saida); will-change: transform; }
+  .mira-on .mira { opacity: 1; }
+  .mira i { position: absolute; left: 0; top: 0; background: currentColor; }
+  .mira span { position: absolute; white-space: nowrap; padding: 1px 3px; background: var(--paper); }
+  /* o rótulo do x fica logo abaixo do cabeçalho (64px), nunca por cima dos links; a marca segue na régua do topo.
+     Com o cursor sobre o cabeçalho (mira-cab), os rótulos somem e só as marcas ficam. */
+  .mira-x i { width: 1px; height: 12px; } .mira-x span { left: 5px; top: 70px; }
+  .mira-cab .mira span { opacity: 0; }
+  .mira-y i { height: 1px; width: 12px; } .mira-y span { left: 9px; top: 5px; }
+}
+
+/* ===== 3. Cotas no hover e no foco ===== */
+[data-cotas] { position: relative; }
+.cotas { position: absolute; inset: 0; z-index: 3; pointer-events: none; color: var(--accent); font-size: 11px; line-height: 1; }
+@media (max-width: 767px) { .cotas { display: none; } }
+.cotas i { position: absolute; background: currentColor; transition: transform var(--m-media) var(--e-saida); }
+.cotas b { position: absolute; font-weight: 400; padding: 2px 6px; background: var(--paper); opacity: 0; transition: opacity var(--m-rapida) var(--e-saida); }
+.cotas.on b { opacity: 1; transition-delay: 160ms; }
+.cota-w { position: absolute; left: 0; right: 0; top: -20px; height: 11px; }
+.cota-w i { left: 0; right: 0; top: 5px; height: 1px; transform: scaleX(0); transform-origin: left; }
+.cota-w b { left: 50%; top: -1px; transform: translateX(-50%); }
+.cota-h { position: absolute; top: 0; bottom: 0; right: -20px; width: 11px; }
+.cota-h i { top: 0; bottom: 0; left: 5px; width: 1px; transform: scaleY(0); transform-origin: top; }
+.cota-h b { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(90deg); }
+/* marcas das pontas, a 45 graus como nas cotas do diagrama */
+.cota-w::before, .cota-w::after, .cota-h::before, .cota-h::after { content: ""; position: absolute; width: 11px; height: 1px; background: currentColor; transform: rotate(-45deg); opacity: 0; transition: opacity var(--m-rapida) var(--e-saida); }
+.cota-w::before { left: -5px; top: 5px; } .cota-w::after { right: -5px; top: 5px; }
+.cota-h::before { left: 0; top: 0; } .cota-h::after { left: 0; bottom: 0; }
+.cotas.on i { transform: none; }
+.cotas.on :is(.cota-w, .cota-h)::before, .cotas.on :is(.cota-w, .cota-h)::after { opacity: 1; }
+
+/* ===== 4. Títulos de seção construídos sobre linhas-guia ===== */
+.sec-head h2 { position: relative; }
+.guias { display: none; }
+.js-reveal .guias { display: block; position: absolute; left: 0; right: 0; top: 0; height: 1.05em; pointer-events: none; }
+.guias i { position: absolute; left: -12px; right: 0; height: 1px; background: var(--accent); opacity: 0; transform: scaleX(0); transform-origin: left; }
+.guias i:nth-child(1) { top: 0.15em; }  /* ascendente */
+.guias i:nth-child(2) { top: 0.34em; }  /* altura-x */
+.guias i:nth-child(3) { top: 0.875em; } /* linha de base */
+@keyframes guia { 0% { opacity: 0; transform: scaleX(0); } 35% { opacity: 0.5; transform: none; } 70% { opacity: 0.5; transform: none; } 100% { opacity: 0; transform: none; } }
+.js-reveal .sec-head.in:not(.pronto) .guias i { animation: guia var(--m-lenta) var(--e-saida) both; }
+.js-reveal .sec-head.in:not(.pronto) .guias i:nth-child(2) { animation-delay: 40ms; }
+.js-reveal .sec-head.in:not(.pronto) .guias i:nth-child(3) { animation-delay: 80ms; }
+/* o título entra logo depois de as guias aparecerem */
+.js-reveal .sec-head[data-reveal]:not(.pronto) h2 .w > span { transition-delay: calc(120ms + var(--stagger, 0ms)); }
+
+/* ===== 8. Carimbo final ===== */
+.carimbo-final { grid-column: 1 / -1; justify-self: end; width: min(220px, 60vw); margin-top: var(--s-16); color: var(--pencil); transform: rotate(-6deg); opacity: 0.9; }
+.carimbo-final svg { display: block; width: 100%; height: auto; overflow: visible; }
+.carimbo-final rect { fill: none; stroke: currentColor; stroke-width: 3; }
+.carimbo-final .fino { fill: none; stroke: currentColor; stroke-width: 1.2; }
+.carimbo-final text { fill: currentColor; }
+.carimbo-final .c1 { font: 600 24px var(--f-display); letter-spacing: 0.05em; }
+.carimbo-final .c2 { font: 500 13px var(--f-mono); letter-spacing: 0.32em; }
+/* Antes de bater: só um pouco maior (1,15) e transparente. Com 2,2x o carimbo passava da borda direita da tela e a
+   página inteira rolava na horizontal. O rodapé também recorta na horizontal (overflow-x: clip), por garantia. */
+.site-footer { overflow-x: clip; }
+.js-reveal .carimbo-final[data-reveal]:not(.in) { opacity: 0; transform: rotate(-12deg) scale(1.15); transition: none; }
+.js-reveal .carimbo-final[data-reveal].in { opacity: 0.9; transform: rotate(-6deg); transition: none; }
+.js-reveal .carimbo-final[data-reveal].in:not(.pronto) { animation: carimbo-bate 420ms cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+@keyframes carimbo-bate { 0% { opacity: 0; transform: rotate(-12deg) scale(1.15); } 55% { opacity: 0.95; transform: rotate(-6deg) scale(0.96); } 100% { opacity: 0.9; transform: rotate(-6deg) scale(1); } }
+/* o papel treme de leve com a batida */
+.js-reveal .site-footer:has(.carimbo-final.in:not(.pronto)) .foot-stamp { animation: carimbo-treme 320ms 190ms; }
+@keyframes carimbo-treme { 30% { transform: translate(1px, 2px); } 65% { transform: translate(-1px, -1px); } }
+
+/* ===== 9. Malha de construção (tecla G) ===== */
+.malha { position: absolute; top: 0; left: 0; right: 0; z-index: 45; pointer-events: none; opacity: 0; transition: opacity var(--m-media) var(--e-saida);
+  background: repeating-linear-gradient(to bottom, color-mix(in srgb, var(--accent) 9%, transparent) 0 1px, transparent 1px 8px); }
+.malha.on { opacity: 1; }
+.malha-cols { height: 100%; }
+.malha-cols i { background: color-mix(in srgb, var(--pencil) 6%, transparent); box-shadow: inset 1px 0 0 color-mix(in srgb, var(--pencil) 38%, transparent), inset -1px 0 0 color-mix(in srgb, var(--pencil) 38%, transparent); }
+.malha-leg { position: fixed; left: var(--margin); bottom: var(--s-12); padding: 2px var(--s-8); background: var(--paper); border: 1px solid var(--line-strong); color: var(--ink); }
+.malha-dica { position: fixed; left: var(--s-16); bottom: var(--s-16); z-index: 46; pointer-events: none; padding: var(--s-4) var(--s-8); background: var(--paper-2); border: 1px dashed var(--line-strong); color: var(--subtle); opacity: 0; transform: translate3d(0, 8px, 0); transition: opacity var(--m-media) var(--e-saida), transform var(--m-media) var(--e-saida); }
+.malha-dica.on { opacity: 1; transform: none; }
+.malha-dica.on.cobre { opacity: 0; }
+/* malha cobre o <body> inteiro (relative) sem definir a altura do documento */
+.malha { bottom: 0; }
+.malha-dica kbd { font: inherit; color: var(--ink); border: 1px solid var(--line-strong); border-radius: 3px; padding: 0 5px; margin-right: 4px; }
+
+/* ===== Transição entre o portfólio e as demonstrações (View Transitions entre documentos) ===== */
+@view-transition { navigation: auto; }
+::view-transition-group(demo-pagina) { animation-duration: 480ms; animation-timing-function: var(--e-saida); }
+::view-transition-old(demo-pagina), ::view-transition-new(demo-pagina) { height: 100%; object-fit: cover; object-position: top center; }
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  .aviao, .c-gira, .guias i, .carimbo-final, .foot-stamp, .diagram .recebe { animation: none !important; }
+  .c-form.voa form { animation: none; }
+  .malha { transition: none; }
+}

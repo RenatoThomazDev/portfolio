@@ -1,0 +1,17 @@
+# Sobe o portfólio em http://localhost:3010.
+#   docker compose up -d --build
+# Segredos (RESEND_API_KEY, RESEND_FROM) vêm de .env.local, se existir; veja .env.example.
+services:
+  portfolio:
+    build:
+      context: .
+      args:
+        # endereço público: troque pelo domínio final antes de publicar (vai para canonical, og:image, sitemap)
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3010}
+    container_name: portfolio
+    ports:
+      - "3010:3010"
+    env_file:
+      - path: .env.local
+        required: false
+    restart: unless-stopped

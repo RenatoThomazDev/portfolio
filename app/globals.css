@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./hero.css";
+@import "./sections.css";
+@import "./vida.css";
+
+:root {
+  --f-text: var(--font-geist), system-ui, sans-serif;
+  --f-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --f-display: var(--font-clash), "Geist", system-ui, sans-serif;
+  --f-serif: var(--font-serif), Georgia, serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--paper); -webkit-text-size-adjust: 100%; scrollbar-color: var(--line-strong) var(--paper); }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+body {
+  margin: 0; background: transparent; color: var(--ink-2);
+  font: 400 var(--t-base)/1.6 var(--f-text);
+  -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  overflow-x: clip;
+}
+::selection { background: var(--selection); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--radius); }
+a { color: inherit; }
+p { text-wrap: pretty; margin: 0; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+.wrap { padding-inline: var(--margin); }
+.grid12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+.mono { font-family: var(--f-mono); font-size: var(--t-xs); line-height: 1.4; letter-spacing: 0.02em; color: var(--subtle); }
+
+.btn {
+  --mx: 0px; --my: 0px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s-12);
+  height: 48px; padding: 0 var(--s-24); border-radius: var(--radius);
+  font: 500 var(--t-sm)/1 var(--f-text); text-decoration: none; cursor: pointer; white-space: nowrap;
+  border: 1px solid transparent; transform: translate3d(var(--mx), var(--my), 0);
+  transition: transform var(--d-fast) var(--ease), background-color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease);
+}
+.btn:active { transform: translate3d(var(--mx), var(--my), 0) scale(0.98); }
+.btn-primary { background: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary { color: var(--ink); border-color: var(--line-strong); }
+.btn-secondary:hover { border-color: var(--ink); }
+.btn svg { width: 16px; height: 16px; transition: transform var(--d-fast) var(--ease); }
+.btn:hover svg { transform: translateX(4px); }
+
+.link { position: relative; text-decoration: none; color: var(--ink); }
+.link::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right; transition: transform var(--d-base) var(--ease);
+}
+.link:hover::after, .link:focus-visible::after, .link[aria-current]::after { transform: scaleX(1); transform-origin: left; }
+
+.cursor {
+  position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none;
+  width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
+  background: var(--accent); opacity: 0;
+  transition: width var(--d-fast) var(--ease), height var(--d-fast) var(--ease), margin var(--d-fast) var(--ease), opacity var(--d-fast) var(--ease), background-color var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
+}
+.cursor.on { opacity: 1; }
+.cursor.hover { width: 40px; height: 40px; margin: -20px 0 0 -20px; background: transparent; box-shadow: inset 0 0 0 1px var(--accent); }
+
+
+
+/* Prancheta: quadriculado de 8px com linhas mais marcadas a cada 64px, que some nas bordas,
+   e um grão de papel por cima. Ficam atrás de tudo e não recebem clique. */
+:root { --grid-minor: color-mix(in srgb, var(--grid-ink) 16%, transparent); --grid-major: color-mix(in srgb, var(--grid-ink) 30%, transparent); --grain-opacity: 0.09; --vig: 9%; }
+:root[data-theme="dark"] { --grid-minor: color-mix(in srgb, var(--grid-ink) 7%, transparent); --grid-major: color-mix(in srgb, var(--grid-ink) 13%, transparent); --grain-opacity: 0.045; --vig: 28%; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --grid-minor: color-mix(in srgb, var(--grid-ink) 7%, transparent); --grid-major: color-mix(in srgb, var(--grid-ink) 13%, transparent); --grain-opacity: 0.045; --vig: 28%; } }
+body::before, body::after { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+body::before {
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px), linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid-minor) 1px, transparent 1px), linear-gradient(90deg, var(--grid-minor) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 8px 8px, 8px 8px;
+  background-position: calc(var(--margin) - 1px) -1px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 30%, transparent 100%);
+}
+body::after {
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.06 0.18' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.34 0 0 0 0 0.18 0 0 0 1.5 -0.55'/%3E%3C/filter%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.15 0 0 0 1.2 -0.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.5'/%3E%3C/svg%3E");
+}
+body::before, body::after { transform: translateZ(0); will-change: transform; }
+
+/* ===== Etapa 4: microdetalhes ===== */
+/* Seleção em azul de prancheta. */
+::selection { background: var(--selection); color: var(--ink); }
+/* Barra de rolagem fina. */
+html { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 0; border: 2px solid var(--paper); }
+::-webkit-scrollbar-track { background: var(--paper); }
+/* Foco do teclado: retângulo tracejado de desenho técnico. */
+:focus-visible { outline: 1.5px dashed var(--accent); outline-offset: 5px; border-radius: 0; }
+
+/* Régua de leitura no topo: marcações a cada 8px e 64px, preenchida em azul conforme a rolagem. */
+.ruler { position: fixed; top: 0; left: 0; right: 0; height: 7px; z-index: 60; pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, var(--line-strong) 0 1px, transparent 1px 64px) top left / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 8px) top left / 100% 3px no-repeat; }
+.ruler span { position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--accent); transform-origin: left; transform: scaleX(var(--read, 0)); }
+
+/* Contador de folha. */
+/* O número nunca depende da animação para aparecer: sem caixa com corte nem altura fixa, mesmo corpo do rótulo,
+   e a rolagem só roda quando a folha muda depois da primeira pintura (.rolar). Se a animação parar no meio,
+   o pior caso é o número levemente deslocado, nunca cortado nem invisível. */
+.sheet-no { font-size: var(--t-sm); color: var(--muted); font-variant-numeric: tabular-nums; }
+.sheet-d { display: inline-block; font: inherit; color: var(--ink); }
+.sheet-d.rolar > span { display: inline-block; animation: sheet-roll 320ms var(--ease); }
+@keyframes sheet-roll { from { transform: translate3d(0, 40%, 0); opacity: 0.35; } to { transform: none; opacity: 1; } }
+
+/* Troca de tema: círculo que se abre a partir do botão. */
+html.vt-theme::view-transition-old(root) { animation: none; }
+html.vt-theme::view-transition-new(root) { animation: theme-wipe 640ms cubic-bezier(0.7, 0, 0.2, 1) both; }
+@keyframes theme-wipe { from { clip-path: circle(0 at var(--wx) var(--wy)); } to { clip-path: circle(var(--wr) at var(--wx) var(--wy)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-d.rolar > span { animation: none; }
+}
+
+/* ===== Papel de engenharia ===== */
+/* Vinheta: o papel amarelou mais nas margens. Margem vermelha: a margem do caderno; o fio azul é o desenho. */
+.paper-v { position: fixed; inset: 0; z-index: -1; pointer-events: none; transform: translateZ(0);
+  background: radial-gradient(ellipse 85% 80% at 50% 45%, transparent 55%, color-mix(in srgb, var(--shade) var(--vig), transparent) 100%); }
+.paper-m { display: none; }
+@media (min-width: 1280px) {
+  .paper-m { display: block; position: fixed; top: 0; bottom: 0; z-index: -1; pointer-events: none; width: 1px; transform: translateZ(0);
+    left: calc(var(--margin) - 24px); /* 24px de folga até o texto; o fio azul fica em margem/2 */
+    background: color-mix(in srgb, var(--pencil) 45%, transparent);
+    box-shadow: 3px 0 0 color-mix(in srgb, var(--pencil) 18%, transparent); }
+}
+
+/* Anotações à mão: no máximo 3 no site. */
+.annot { display: inline-flex; align-items: flex-end; gap: var(--s-8); color: var(--accent); font: italic 400 1.5rem/1 var(--f-serif); transform: rotate(-2deg); }
+.annot-pencil { color: var(--pencil); }
+.annot > svg { width: 48px; height: 36px; flex: none; overflow: visible; }
+.annot > svg path { stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* A seta é traçada depois que a frase termina de ser escrita (--fim, vindo dos dados da escrita). */
+.annot.armed > svg path { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.annot.armed.on > svg path { stroke-dashoffset: 0; transition: stroke-dashoffset 800ms cubic-bezier(.6,.05,.3,1) var(--fim); }
+@media (prefers-reduced-motion: reduce) { .annot.armed > svg path { stroke-dashoffset: 0; transition: none; } }
+.annot em { white-space: nowrap; }
+@media (max-width: 479px) { .annot { font-size: 1.15rem; } .annot > svg { width: 36px; height: 27px; } .an-erp { margin-left: 0; } }
+
+/* ===== Escrita à mão (Escrita.tsx) =====
+   O texto real fica no lugar, transparente (guarda largura, linha de base e leitura); a letra desenhada vai por cima,
+   revelada pela máscara do esqueleto. Pronto por padrão: a máscara só começa fechada quando uma animação é ligada
+   (hero-anim, .annot.armed). */
+/* text-fill-color em vez de color: o texto some, mas currentColor (a cor da tinta do desenho) continua a do tema. */
+.e-alvo { position: relative; -webkit-text-fill-color: transparent; }
+.escrita-sobre { display: inline-block; position: relative; z-index: 1; overflow: visible; pointer-events: none; }
+.escrita .e-ti { fill: currentColor; }
+/* Máscara: branco = mostra. Traço da caneta grosso e redondo; a largura vem dos dados (um pouco mais que a haste). */
+.escrita .e-sk { fill: none; stroke: #fff; stroke-linecap: round; stroke-linejoin: round; }
+.escrita .e-full { fill: #fff; }
+@keyframes e-caneta { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes e-pronta { from { opacity: 0; } to { opacity: 1; } }
+/* Cada traço com duração proporcional ao comprimento e uma curva leve de entrada e saída, como a mão acelerando e
+   freando. A letra fecha inteira (e-full) só depois que o último traço chega a 100% (--t do e-full = fim desse traço,
+   mais 16ms de folga): degrau de 1ms, sem tinta "brotando". */
+.escrita { --e-curva: cubic-bezier(.4, 0, .6, 1); }
+.hero-anim .escrita .e-sk { stroke-dasharray: 1; animation: e-caneta var(--du) var(--e-curva) calc(var(--b, 0ms) + var(--t)) both; }
+.hero-anim .escrita .e-full { animation: e-pronta 1ms step-end calc(var(--b, 0ms) + var(--t) + 16ms) both; }
+.annot.armed .escrita .e-sk { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.annot.armed .escrita .e-full { opacity: 0; }
+.annot.armed.on .escrita .e-sk { animation: e-caneta var(--du) var(--e-curva) var(--t) both; }
+.annot.armed.on .escrita .e-full { animation: e-pronta 1ms step-end calc(var(--t) + 16ms) both; }
+@media (prefers-reduced-motion: reduce) { .escrita .e-sk, .escrita .e-full { animation: none !important; stroke-dashoffset: 0 !important; opacity: 1 !important; } }
+
+/* Rabisco no papel: SVG absoluto no topo do documento (rola com a folha), da largura da janela e da altura da página,
+   sem eventos. Abaixo do cabeçalho (z 50), que passa por cima do traço como passa pelo conteúdo. */
+/* O <body> é o contêiner das camadas absolutas que cobrem a página (fio, rabisco, malha): top 0 e bottom 0, sem
+   altura em px, então elas acompanham o conteúdo e nunca seguram o documento numa altura antiga. */
+body { position: relative; }
+.scribble { position: absolute; top: 0; height: 100%; left: 0; width: 100%; z-index: 40; pointer-events: none; overflow: hidden; }
+/* Traço de grafite; a borracha age pela máscara de cada traço (Scribble.tsx). */
+.scribble polyline { fill: none; stroke: var(--ink-2); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* Borracha visível: traço técnico na cor da tinta (--ink: #2A2620 claro, #ECE4D2 escuro), corpo no tom do papel.
+   Movida só por transform e opacity (Scribble.tsx); transform-box/origin na própria origem = ponta de apagar. */
+.scribble .borracha { opacity: 0; transform-box: view-box; transform-origin: 0 0; will-change: transform, opacity; }
+.scribble .borracha rect, .scribble .borracha path { fill: var(--paper); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+.scribble .borracha path { fill: none; }
+.scribble .borracha .borracha-fio { stroke-width: 1; }
+/* Migalhas: 2-4px na cor da tinta a ~40%, caem 10-20px girando e somem em ~600ms. */
+.scribble .migalha { fill: var(--ink); stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; opacity: 0;
+  transform-box: view-box; transform-origin: 0 0; animation: migalha 600ms cubic-bezier(.3, .2, .6, 1) forwards; }
+@keyframes migalha {
+  0% { opacity: .4; transform: translate(var(--x), var(--y)) rotate(0deg); }
+  70% { opacity: .35; }
+  100% { opacity: 0; transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) + var(--dy))) rotate(var(--r)); }
+}
+.scribble-tip { white-space: nowrap; position: fixed; z-index: 41; pointer-events: none; padding: 4px 8px; background: var(--paper-2); border: 1px dashed var(--line-strong); color: var(--subtle); opacity: 0; transition: opacity 300ms; }
+.scribble-tip.on { opacity: 1; }
+html.scribbling, html.scribbling * { user-select: none; cursor: crosshair; }

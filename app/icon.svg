@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .bg{fill:#F3EBD8}.fg{fill:#191C18}.ac{stroke:#2B44E0}
+    @media (prefers-color-scheme: dark){.bg{fill:#1A1814}.fg{fill:#E6E8EA}.ac{stroke:#7B8CFF}}
+  </style>
+  <rect class="bg" width="32" height="32" rx="4"/>
+  <path class="ac" d="M6 6.5H26M6 4.5V8.5M26 4.5V8.5" fill="none" stroke-width="1.25"/>
+  <text class="fg" x="16" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="14" letter-spacing="-0.5">RT</text>
+</svg>

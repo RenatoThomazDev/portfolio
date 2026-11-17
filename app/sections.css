@@ -1,0 +1,583 @@
+/* Seções: cabeçalho comum */
+.sec { padding-block: var(--section) 0; row-gap: var(--s-48); }
+.sec-head { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: baseline; padding-top: var(--s-16); border-top: 1px solid var(--line); row-gap: var(--s-12); }
+.sec-head .mono { grid-column: 1 / -1; }
+.sec-head h2 { grid-column: 1 / -1; font: 600 var(--t-2xl)/1.05 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 18ch; }
+@media (min-width: 1024px) {
+  .sec-head .mono { grid-column: 1 / 4; }
+  .sec-head h2 { grid-column: 4 / -1; }
+}
+
+/* Projetos */
+.projects { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; row-gap: var(--s-96); }
+.project { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: var(--s-24); }
+.p-media { grid-column: 1 / -1; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius); background: var(--paper-2); box-shadow: 0 0 0 1px var(--line); }
+.p-media img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(1) contrast(1.02); transform: scale(1.001); transition: transform var(--d-slow) var(--ease), filter var(--d-slow) var(--ease); }
+.p-media:hover img, .p-media:focus-visible img { filter: grayscale(0); transform: scale(1.03); }
+.p-body { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--s-16); }
+.p-stamp { display: grid; grid-template-columns: max-content 1fr; column-gap: var(--s-24); row-gap: var(--s-4); margin: 0; padding-bottom: var(--s-12); border-bottom: 1px solid var(--line); }
+.p-stamp dd { margin: 0; color: var(--ink); }
+.project h3, .work h3 { font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); color: var(--ink); }
+.project p, .work p { color: var(--muted); max-width: 60ch; }
+.p-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-8); }
+.p-tags li { padding: var(--s-4) var(--s-8); border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--muted); }
+.p-link { display: inline-flex; align-items: center; gap: var(--s-8); align-self: flex-start; font-weight: 500; margin-top: var(--s-8); }
+.p-link svg { width: 16px; height: 16px; transition: transform var(--d-fast) var(--ease); }
+.p-link:hover svg { transform: translate(2px, -2px); }
+.work { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--s-16); padding: var(--s-32); border: 1px solid var(--line-strong); border-radius: var(--radius); margin-top: var(--s-48); }
+.work-note { color: var(--subtle); }
+
+@media (min-width: 768px) {
+  .p-body { grid-column: 1 / 9; }
+  .work { padding: var(--s-48); }
+  .work > * { max-width: 60ch; }
+}
+@media (min-width: 1024px) {
+  .projects { row-gap: var(--s-96); } /* 128px deixava ~200px vazios entre a legenda de um projeto e a linha do próximo */
+  .p-media { grid-column: 1 / 8; }
+  .p-body { grid-column: 9 / -1; align-self: end; }
+  .work { grid-column: 4 / -1; }
+}
+@media (min-width: 1920px) {
+  .p-media { grid-column: 1 / 8; }
+  .p-body { grid-column: 9 / 12; }
+}
+
+/* Reveals ao rolar */
+/* O estado escondido só existe sob html.js-reveal (posto pelo script do <head> quando há JS, IntersectionObserver e
+   sem movimento reduzido). Sem JS tudo aparece pronto. Os blocos assentam (fade + 12px, 400ms); o escalonamento
+   entre blocos que entram juntos é de no máximo 80ms. .pronto (já visível ao abrir) desliga as transições. */
+.js-reveal [data-reveal] { transition: opacity 400ms var(--ease) var(--stagger, 0ms), transform 400ms var(--ease) var(--stagger, 0ms); }
+.js-reveal [data-reveal]:not(.in) { opacity: 0; transform: translate3d(0, 12px, 0); }
+.js-reveal .pronto, .js-reveal .pronto *, .js-reveal .pronto *::before, .js-reveal .pronto *::after { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .p-media img { transform: none !important; }
+}
+
+/* Sobre */
+.about-text { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--s-16); }
+.about-text p { color: var(--muted); max-width: 62ch; }
+.about-text .about-lead { font: 500 var(--t-lg)/1.3 var(--f-text); color: var(--ink); max-width: 32ch; }
+.about-tools { grid-column: 1 / -1; display: flex; flex-direction: column; gap: var(--s-12); }
+.steps-head { grid-column: 1 / -1; margin-top: var(--s-48); padding-top: var(--s-16); border-top: 1px solid var(--line); }
+.steps-head h3 { font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); color: var(--ink); }
+.steps { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); row-gap: var(--s-32); }
+/* A sequência é real: cada etapa tem um traço que a liga à próxima, como uma linha de cota. */
+.step { position: relative; display: flex; flex-direction: column; gap: var(--s-8); padding-left: var(--s-48); }
+.step::before { content: ""; position: absolute; left: 12px; top: 28px; bottom: calc(-1 * var(--s-32)); width: 1px; background: var(--line-strong); }
+.step:last-child::before { display: none; }
+.step-n { position: absolute; left: 0; top: 0; width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid var(--accent); border-radius: var(--radius); color: var(--accent); }
+.step h4 { margin: 0; font: 600 var(--t-md)/1.3 var(--f-text); color: var(--ink); }
+.step p { color: var(--muted); max-width: 40ch; }
+
+@media (min-width: 768px) {
+  .about-text { grid-column: 1 / 10; }
+  .about-tools { grid-column: 1 / 10; }
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: var(--s-48); }
+  .step::before { display: none; }
+}
+@media (min-width: 1024px) {
+  .about-text { grid-column: 4 / 10; }
+  .about-tools { grid-column: 10 / -1; align-self: start; }
+  .steps-head { grid-column: 4 / -1; }
+  .steps { grid-column: 4 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* No desktop as etapas ficam lado a lado, ligadas por um traço horizontal. */
+  .step { padding-left: 0; padding-top: var(--s-48); }
+  .step-n { top: 0; }
+  .step::before { display: block; left: 33px; right: calc(-1 * var(--gutter) + 8px); top: 12px; bottom: auto; width: auto; height: 1px; }
+}
+
+/* Contato */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 404 */
+.nf { min-height: calc(100svh - 64px); align-content: center; row-gap: var(--s-24); padding-block: var(--s-96); }
+.nf > * { grid-column: 1 / -1; }
+.nf-title { font: 600 var(--t-2xl)/1.05 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 16ch; }
+.nf-lead { color: var(--muted); max-width: 52ch; }
+.nf-ctas { display: flex; flex-wrap: wrap; gap: var(--s-12); margin-top: var(--s-8); }
+.nf-dim { width: 100%; max-width: 400px; margin-top: var(--s-48); }
+.nf-dim path { stroke: var(--subtle); fill: none; }
+.nf-dim text { font: 400 14px var(--f-mono); fill: var(--accent); }
+@media (min-width: 1024px) { .nf > * { grid-column: 4 / 11; } }
+
+/* Acabamento */
+.p-media .img-d { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-media .img-l { display: none; } :root:not([data-theme="light"]) .p-media .img-d { display: block; } }
+:root[data-theme="dark"] .p-media .img-l { display: none; }
+:root[data-theme="dark"] .p-media .img-d { display: block; }
+/* Sem mouse não existe hover: a imagem fica colorida desde o início. */
+@media (hover: none) { .p-media img { filter: none; } }
+/* Setas diagonais: compensação óptica de 1px para cima e para a direita. */
+.p-link svg, .ch-arrow svg { transform: translate(1px, -1px); }
+.p-link:hover svg, .channel:hover .ch-arrow svg { transform: translate(3px, -3px); }
+@media (min-width: 1024px) { .ch-value { font-size: var(--t-sm); } }
+
+/* Foto do Sobre: retrato impresso colado no caderno (borda clara de papel fotográfico, sombra curta e quente),
+   sem filtro de cor: a foto já vem com a cor certa. A fita e a sombra da queda ficam na mesma célula (.ap-wrap). */
+.about-photo { grid-column: 1 / -1; margin: 0; max-width: 320px; display: flex; flex-direction: column; gap: var(--s-12); --pr: -2.6deg; --t0: 670ms; }
+.about-photo .ap-wrap { position: relative; display: grid; }
+.about-photo .ap-wrap > * { grid-area: 1 / 1; }
+/* Tema claro: margem de impressão de 10px em off-white de papel fotográfico, sombra bem sutil e rente ao papel.
+   (O tema escuro sobrescreve logo abaixo com a borda fina de 1px.) */
+.about-photo .frame { position: relative; z-index: 1; margin: 0; overflow: hidden; border: 10px solid #FBF8F1; border-bottom-width: 0; border-radius: 2px; background: #FBF8F1;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #5A4320 10%, transparent), 0 1px 2px color-mix(in srgb, #5A4320 14%, transparent); }
+.about-photo img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 40%; }
+/* Margem inferior mais alta (28px, como foto de revelação) com a legenda centralizada na mesma mono pequena.
+   Tinta escura fixa nos dois temas, porque a borda é clara nos dois: #2A2620 dá ~14:1 sobre #FBF8F1 e ~7:1 sobre o bege do escuro. */
+.about-photo .frame figcaption { height: 28px; line-height: 28px; text-align: center; color: #2A2620;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* A margem de impressão existe nos dois temas (mesmos 10px); só a cor muda. No escuro, papel fotográfico na penumbra:
+   #D9D1BF puxado 15% para o tom do fundo, para não brilhar. A cor acompanha a troca de tema em 200ms. */
+.about-photo .frame { transition: border-color 200ms var(--ease), background-color 200ms var(--ease); }
+:root[data-theme="dark"] .about-photo .frame { border-color: color-mix(in srgb, #D9D1BF 85%, #1A1814); background-color: color-mix(in srgb, #D9D1BF 85%, #1A1814); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .about-photo .frame { border-color: color-mix(in srgb, #D9D1BF 85%, #1A1814); background-color: color-mix(in srgb, #D9D1BF 85%, #1A1814); } }
+/* Fitas da foto: menores que as das miniaturas (a foto é mais estreita), cruzando os cantos superior esquerdo e inferior direito. */
+.about-photo .tape { width: clamp(56px, 4.5vw, 76px); height: 20px; }
+@media (min-width: 768px) {
+  .about-photo { grid-column: 1 / 5; max-width: none; grid-row: span 2; }
+  .about-text, .about-tools { grid-column: 5 / -1; }
+}
+@media (min-width: 1024px) {
+  .about-photo { grid-column: 1 / 4; grid-row: span 2; }
+  .about-text { grid-column: 4 / 10; }
+  .about-tools { grid-column: 10 / -1; }
+}
+/* Rodapé: "Voltar ao topo" nunca quebra */
+.foot-top { white-space: nowrap; flex-shrink: 0; }
+
+/* Diagrama do ERP: mesmo desenho do hero, aparece com o card */
+.work { overflow: visible; }
+.erp-fig { overflow: hidden; } /* só o diagrama é recortado; anotações do card nunca */
+.work > .erp-fig { max-width: none; }
+.erp-fig { margin: var(--s-16) 0 0; display: flex; flex-direction: column; gap: var(--s-16); }
+.erp-fig svg { display: block; width: 100%; height: auto; }
+.erp-fig .e-h { display: none; }
+.e-node { fill: var(--paper); stroke: var(--ink); stroke-width: 1.25; }
+.e-nt { font: 600 19px var(--f-text); fill: var(--ink); }
+.e-ns { font: 400 13px var(--f-mono); fill: var(--subtle); }
+.e-dt { font: 400 12px var(--f-mono); fill: var(--subtle); }
+.e-dim path { stroke: var(--subtle); fill: none; }
+.e-wire { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.e-tip { fill: var(--accent); }
+.erp-fig .e-v { max-width: 360px; }
+@media (min-width: 768px) { .erp-fig .e-h { display: block; } .erp-fig .e-v { display: none; } }
+.work { grid-column: 1 / -1 !important; }
+@media (min-width: 1024px) { .work { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); padding: var(--s-48) 0; border: 0; border-top: 1px solid var(--line-strong); border-radius: 0; }
+  .work > * { grid-column: 9 / -1; }
+  /* O diagrama ocupa todas as linhas do texto e fica centralizado na altura dele. */
+  .work > .erp-fig { grid-column: 1 / 8; grid-row: 1 / span 4; align-self: center; margin: 0; } }
+
+
+/* ERP: em 1024px ou mais usa a grade 2x2, centralizada na altura do texto */
+.erp-fig .e-g { display: none; }
+@media (min-width: 1024px) {
+  .erp-fig .e-h { display: none; }
+  .erp-fig .e-g { display: block; }
+  .work { align-items: center; }
+}
+
+
+/* ERP: texto num bloco só, ao lado do diagrama, ambos centralizados na mesma linha */
+.work-body { display: flex; flex-direction: column; gap: var(--s-16); }
+.work-body > * { max-width: 60ch; }
+@media (min-width: 1024px) {
+  .work > .erp-fig { grid-row: 1; }
+  .work > .work-body { grid-column: 9 / -1; grid-row: 1; align-self: center; }
+}
+
+
+/* Miniaturas: página inteira a partir de 768px, recorte ampliado abaixo disso, cada uma no tema certo. */
+.p-media img.img-lm, .p-media img.img-dm { display: none; }
+@media (max-width: 767px) {
+  .p-media img.img-l, .p-media img.img-d { display: none !important; }
+  .p-media img.img-lm { display: block; }
+  :root[data-theme="dark"] .p-media img.img-lm { display: none; }
+  :root[data-theme="dark"] .p-media img.img-dm { display: block; }
+}
+@media (max-width: 767px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .p-media img.img-lm { display: none; }
+  :root:not([data-theme="light"]) .p-media img.img-dm { display: block; }
+}
+
+/* ===== Etapa 2: scroll e seções ===== */
+/* Fio protagonista: um SVG da altura da página, atrás do conteúdo. */
+/* height 100% do <body> (relative): SVG com height auto fica nos 150px intrínsecos, mesmo com top e bottom */
+.thread { position: absolute; top: 0; height: 100%; left: 0; width: 100%; z-index: 0; pointer-events: none; overflow: visible; }
+.thread path { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; }
+.thread circle { fill: var(--paper); stroke: var(--accent); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; transform: scale(0.4); opacity: 0; transition: transform var(--d-base) var(--ease), opacity var(--d-fast) var(--ease); }
+.thread circle.on { opacity: 1; transform: scale(1); fill: var(--accent); }
+main, .site-footer { position: relative; z-index: 1; }
+
+/* Números de folha gigantes em contorno, atrás do título, com parallax leve (transform via JS). */
+.sec-head { position: relative; }
+.sec-n { position: absolute; right: 0; top: -0.28em; z-index: -1; font: 600 clamp(7rem, 4rem + 16vw, 24rem)/1 var(--f-display); letter-spacing: -0.04em; color: transparent; -webkit-text-stroke: 1px var(--line-2); pointer-events: none; user-select: none; will-change: transform; }
+
+/* Títulos de seção: máscara linha a linha. O bloco não esmaece mais; só as palavras sobem. */
+.sec-head h2 .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.sec-head h2 .w > span { display: inline-block; }
+/* Cabeçalho de seção: o bloco não se move; a linha de cima se traça (400ms), o título sobe 12px com fade (400ms),
+   o rótulo "Folha 0X / ..." aparece logo depois (40ms) e o número grande se desenha pelo contorno (600ms). */
+.js-reveal .sec-head[data-reveal] { opacity: 1; transform: none; }
+.js-reveal .sec-head[data-reveal] > .mono { transition: opacity 400ms var(--ease) 40ms; }
+.js-reveal .sec-head[data-reveal] h2 { transition: opacity 400ms var(--ease), transform 400ms var(--ease); }
+.js-reveal .sec-head[data-reveal]:not(.in) > .mono { opacity: 0; }
+.js-reveal .sec-head[data-reveal]:not(.in) h2 { opacity: 0; transform: translate3d(0, 12px, 0); }
+
+/* Número grande: sem JS, contorno em texto HTML; com .js-reveal, o HTML fica invisível e a cópia em SVG se desenha. */
+.sec-n .bl { display: inline-block; width: 0; height: 0; }
+.sec-n-svg { display: none; }
+.js-reveal .sec-n { -webkit-text-stroke-color: transparent !important; }
+.js-reveal .sec-n-svg { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* o desenho do último algarismo passava 3-5px da borda útil: recua o traço para dentro */
+.sec-n-svg text { transform: translateX(-0.04em); }
+.sec-n-svg text { font: inherit; letter-spacing: inherit; fill: none; stroke: var(--line-strong); stroke-width: 1; stroke-dasharray: 1400; stroke-dashoffset: 0; transition: stroke-dashoffset 600ms cubic-bezier(.4, .1, .2, 1); }
+.js-reveal .sec-head[data-reveal]:not(.in) .sec-n-svg text { stroke-dashoffset: 1400; }
+
+/* Linhas técnicas que se traçam de ponta a ponta (400ms) quando o bloco entra: a borda real some e uma linha de 1px
+   (pseudo-elemento, só transform) cresce da esquerda. Sem .js-reveal, ficam as bordas normais. */
+.js-reveal :is(.sec-head, .steps-head, .site-footer) { border-top-color: transparent; position: relative; }
+.js-reveal .p-stamp { border-bottom-color: transparent; position: relative; }
+.js-reveal :is(.sec-head, .steps-head, .site-footer)::before,
+.js-reveal .p-stamp::after { content: ""; position: absolute; left: 0; right: 0; height: 1px; background: var(--line); transform-origin: 0 50%; transition: transform 400ms cubic-bezier(.4, .1, .2, 1); pointer-events: none; }
+.js-reveal :is(.sec-head, .steps-head, .site-footer)::before { top: -1px; }
+.js-reveal .p-stamp::after { bottom: -1px; }
+.js-reveal :is(.sec-head, .steps-head, .site-footer)[data-reveal]:not(.in)::before,
+.js-reveal [data-reveal]:not(.in) .p-stamp::after { transform: scaleX(0); }
+
+/* Metadados (folha/tipo) e tags aparecem em sequência curta, 40ms entre cada um. */
+.js-reveal [data-reveal] :is(.p-stamp, .p-tags li) { transition: opacity 300ms var(--ease) calc(80ms + var(--i, 0) * 40ms); }
+.js-reveal [data-reveal]:not(.in) :is(.p-stamp, .p-tags li) { opacity: 0; }
+.p-tags li:nth-child(1) { --i: 1; } .p-tags li:nth-child(2) { --i: 2; } .p-tags li:nth-child(3) { --i: 3; } .p-tags li:nth-child(4) { --i: 4; } .p-tags li:nth-child(5) { --i: 5; }
+
+/* Cotas das miniaturas: o traço cresce de ponta a ponta quando a foto é colada, e o número aparece no fim;
+   a legenda "fig." vem logo depois. Usa a propriedade scale (compõe com o transform do hover). */
+.js-reveal .p-frame[data-colar] :is(.pf-w, .pf-h) { transition: scale 400ms cubic-bezier(.4, .1, .2, 1), transform var(--d-base) var(--ease); }
+.js-reveal .p-frame[data-colar] .pf-w { transform-origin: 0 50%; }
+.js-reveal .p-frame[data-colar] .pf-h { transform-origin: 50% 0; }
+.js-reveal .p-frame[data-colar]:not(.colado) .pf-w { scale: 0 1; }
+.js-reveal .p-frame[data-colar]:not(.colado) .pf-h { scale: 1 0; }
+.js-reveal .p-frame[data-colar] :is(.pf-w, .pf-h) > span { transition: opacity 200ms var(--ease) 400ms; }
+.js-reveal .p-frame[data-colar]:not(.colado) :is(.pf-w, .pf-h) > span { opacity: 0; }
+.js-reveal .p-frame[data-colar] > figcaption { transition: opacity 300ms var(--ease) 440ms; }
+.js-reveal .p-frame[data-colar]:not(.colado) > figcaption { opacity: 0; }
+.js-reveal .p-frame.ja :is(.pf-w, .pf-h, .pf-w > span, .pf-h > span), .js-reveal .p-frame.ja > figcaption { transition: none; }
+
+/* Marcas de corte nos cantos de cada folha, fora da área de conteúdo, como numa prancha impressa. */
+@media (min-width: 768px) {
+  .sec, .hero { --cm: var(--line-2); --o: min(24px, calc(var(--margin) - 6px));
+    background:
+      linear-gradient(var(--cm), var(--cm)) left calc(-1 * var(--o)) top 0 / 14px 1px,
+      linear-gradient(var(--cm), var(--cm)) left 0 top calc(-1 * var(--o)) / 1px 14px,
+      linear-gradient(var(--cm), var(--cm)) right calc(-1 * var(--o)) top 0 / 14px 1px,
+      linear-gradient(var(--cm), var(--cm)) right 0 top calc(-1 * var(--o)) / 1px 14px,
+      linear-gradient(var(--cm), var(--cm)) left calc(-1 * var(--o)) bottom 0 / 14px 1px,
+      linear-gradient(var(--cm), var(--cm)) left 0 bottom calc(-1 * var(--o)) / 1px 14px,
+      linear-gradient(var(--cm), var(--cm)) right calc(-1 * var(--o)) bottom 0 / 14px 1px,
+      linear-gradient(var(--cm), var(--cm)) right 0 bottom calc(-1 * var(--o)) / 1px 14px;
+    background-repeat: no-repeat; background-origin: content-box; background-clip: padding-box; }
+  .sec { padding-bottom: var(--s-48); }
+}
+
+/* Carimbo da folha, no canto inferior direito de cada seção. */
+.sheet-stamp { grid-column: 1 / -1; justify-self: end; display: flex; flex-wrap: wrap; margin: var(--s-24) 0 0; border: 1px solid var(--line-2); background: var(--paper); }
+.sheet-stamp div { display: flex; gap: var(--s-8); padding: var(--s-8) var(--s-12); }
+.sheet-stamp div + div { border-left: 1px solid var(--line-2); }
+.sheet-stamp dd { margin: 0; color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .sec-head[data-reveal] > .mono, .js .sec-head[data-reveal] h2 .w > span { opacity: 1; transform: none; transition: none; }
+  .sec-n { transform: none !important; }
+}
+
+/* Números de folha sempre dentro do container (o contorno do traço não passa da margem). */
+.sec-n { right: 0.06em; max-width: 100%; }
+/* Contato: o 04 sobe acima do título e fica mais fraco, para não cruzar as palavras. */
+#contato .sec-n { top: -0.62em; opacity: 0.55; }
+
+/* ===== Etapa 3: projetos com acabamento de prancha ===== */
+.cursor.off { opacity: 0 !important; }
+.project > .p-frame { grid-column: 1 / -1; }
+@media (min-width: 1024px) { .project > .p-frame { grid-column: 1 / 8; } }
+.p-frame { margin: 0; display: grid; grid-template-columns: 28px minmax(0, 1fr); grid-template-rows: 28px auto auto; }
+.p-frame .p-media { grid-column: 2; grid-row: 2; }
+.p-frame figcaption { grid-column: 2; grid-row: 3; margin-top: var(--s-12); }
+.d-sm { display: inline; } .d-lg { display: none; }
+@media (min-width: 768px) { .d-sm { display: none; } .d-lg { display: inline; } }
+
+/* Cotas: linha com tics nas pontas e o valor no meio, como no hero. */
+.pf-w, .pf-h { --c: var(--line-strong); display: flex; align-items: center; justify-content: center; color: var(--subtle); transition: transform var(--d-base) var(--ease); }
+.pf-w { grid-column: 2; grid-row: 1; height: 20px; align-self: start; transform: scaleX(0.94);
+  background: linear-gradient(var(--c), var(--c)) left center / 1px 14px no-repeat, linear-gradient(var(--c), var(--c)) right center / 1px 14px no-repeat, linear-gradient(var(--c), var(--c)) center / 100% 1px no-repeat; }
+.pf-h { grid-column: 1; grid-row: 2; width: 20px; justify-self: start; transform: scaleY(0.94);
+  background: linear-gradient(var(--c), var(--c)) center top / 14px 1px no-repeat, linear-gradient(var(--c), var(--c)) center bottom / 14px 1px no-repeat, linear-gradient(var(--c), var(--c)) center / 1px 100% no-repeat; }
+.pf-w > span, .pf-h > span { background: var(--paper); padding: 0 6px; line-height: 1; }
+.pf-h > span { writing-mode: vertical-rl; transform: rotate(180deg); padding: 6px 0; }
+.p-frame:hover .pf-w { transform: scaleX(1); }
+.p-frame:hover .pf-h { transform: scaleY(1); }
+.p-frame:hover { --c: var(--accent); }
+
+/* Inclinação de até 2,5 graus e o "Abrir" que segue o cursor. */
+.p-media { position: relative; transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform 500ms var(--ease), clip-path var(--d-base) var(--ease); }
+.p-open { position: absolute; left: 0; top: 0; z-index: 2; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius); background: var(--ink); color: var(--paper); font-size: var(--t-xs); pointer-events: none; opacity: 0; transform: translate3d(calc(var(--cx, 50%) - 50%), calc(var(--cy, 50%) - 50%), 0) scale(0.85); transition: transform 180ms var(--ease), opacity var(--d-fast) var(--ease); }
+.p-open svg { width: 14px; height: 14px; }
+.p-media:hover .p-open { opacity: 1; transform: translate3d(calc(var(--cx, 50%) - 50%), calc(var(--cy, 50%) - 50%), 0) scale(1); }
+@media (hover: none) { .p-open { display: none; } }
+
+/* Nas transições entre páginas e na troca de tema, o fundo não faz o fade padrão: só o elemento nomeado se move
+   (a miniatura que vira demo, em vida.css) ou a revelação circular do tema (globals.css). */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p-media { transform: none !important; transition: none; }
+  .pf-w, .pf-h { transform: none; transition: none; }
+}
+.p-open.mono { color: var(--paper); }
+/* Os três números de folha se comportam igual: acima do título, 55% de opacidade. */
+.sec-n, #contato .sec-n { top: -0.62em; opacity: 0.55; }
+/* Cotas da moldura: a cor vem da prancha (antes a própria cota redefinia --c e o hover não chegava). */
+.p-frame { --c: var(--line-strong); }
+.pf-w, .pf-h { --c: inherit; }
+.p-frame:hover { --c: var(--accent); }
+.p-frame:hover .pf-w, .p-frame:hover .pf-h { color: var(--accent); }
+.pf-w > span, .pf-h > span { transition: color var(--d-fast) var(--ease); }
+.p-frame .pf-w, .p-frame .pf-h { background-size: 1px 14px, 1px 14px, 100% 1px; }
+.p-frame .pf-h { background-size: 14px 1px, 14px 1px, 1px 100%; }
+.p-frame:hover .pf-w { background-size: 1.5px 18px, 1.5px 18px, 100% 1.5px; }
+.p-frame:hover .pf-h { background-size: 18px 1.5px, 18px 1.5px, 1.5px 100%; }
+
+.sec-n, #contato .sec-n { top: auto; bottom: calc(100% - 0.16em); }
+.sec-n, #contato .sec-n { bottom: calc(100% + 0.04em); }
+
+/* Número de folha dentro da própria folha: abaixo da linha de abertura, à direita, no nível do rótulo.
+   Tamanho limitado para caber ao lado do título sem cruzar as palavras. */
+.sec-n, #contato .sec-n { top: var(--s-16); bottom: auto; right: 0; opacity: 0.55; font-size: clamp(3.5rem, 1.5rem + 7vw, 10rem); line-height: 0.8; }
+@media (min-width: 1024px) and (max-width: 1599px) { .sec-n, #contato .sec-n { font-size: clamp(3.5rem, 0.5rem + 5.6vw, 10rem); } }
+/* O título reserva à direita a largura do número: nunca passa por baixo dele, em nenhuma largura. */
+/* também em #contato: o cartão do WhatsApp usa o tamanho do "04" para começar logo abaixo dele */
+.sec-head, #contato { --nfs: clamp(3.5rem, 1.5rem + 7vw, 10rem); }
+@media (min-width: 1024px) and (max-width: 1599px) { .sec-head, #contato { --nfs: clamp(3.5rem, 0.5rem + 5.6vw, 10rem); } }
+.sec-n, #contato .sec-n { font-size: var(--nfs); }
+@media (min-width: 768px) { .sec-head h2 { padding-right: calc(var(--nfs) * 1.45); max-width: none; } .sec-head h2:not(.contact-title) { max-width: calc(18ch + var(--nfs) * 1.45); } }
+/* Revisão de jurado */
+.sec-n { -webkit-text-stroke-color: var(--line-strong); }
+.foot-top { display: inline-flex; align-items: center; gap: 6px; }
+.foot-top svg { width: 14px; height: 14px; transition: transform var(--d-fast) var(--ease); }
+.foot-top:hover svg { transform: translateY(-2px); }
+.p-media img { filter: grayscale(0.85) contrast(1.04); }
+.p-media { backface-visibility: hidden; }
+
+/* ===== Papel de engenharia ===== */
+/* Miniaturas como fotos coladas na prancha: borda creme, sombra curta e quente, rotação mínima que zera no hover. */
+.p-media { --rot: -0.4deg; border: 6px solid var(--paper-2); box-shadow: 0 0 0 1px var(--line), 0 1px 1px color-mix(in srgb, #5A4320 18%, transparent), 0 3px 6px -2px color-mix(in srgb, #5A4320 22%, transparent);
+  transform: rotate(var(--rot)); transition: transform var(--d-base) var(--ease), box-shadow var(--d-base) var(--ease); backface-visibility: hidden; }
+.project:nth-child(2) .p-media { --rot: 0.4deg; }
+.project:nth-child(3) .p-media { --rot: -0.3deg; }
+.p-media:hover, .p-media:focus-visible { transform: rotate(0deg); }
+@media (prefers-reduced-motion: reduce) { .p-media { transition: none; } }
+/* Carimbo de tinta: borda dupla, opacidade de tinta, leve irregularidade. */
+.sheet-stamp { border: 1.5px solid color-mix(in srgb, var(--ink-2) 85%, transparent); outline: 1px solid color-mix(in srgb, var(--ink-2) 55%, transparent); outline-offset: 3px;
+  background: transparent; opacity: .88; transform: rotate(-0.4deg); filter: url(#tinta); margin-right: 4px; }
+.sheet-stamp div + div { border-left-color: color-mix(in srgb, var(--ink-2) 55%, transparent); }
+/* Anotações dentro das folhas. */
+.an-erp { align-items: center; margin: calc(-1 * var(--s-8)) 0 var(--s-8) var(--s-24); }
+.an-erp svg { height: 30px; width: 40px; align-self: flex-start; margin-top: -6px; }
+.an-erp em { margin-bottom: -4px; }
+
+.an-erp { display: flex; width: max-content; max-width: 100%; }
+/* ERP: a anotação quebra em linhas quando a coluna é estreita, nunca é cortada. */
+.annot.an-erp { max-width: calc(100% - var(--s-24)); margin-left: var(--s-8); } /* 8px de recuo + 16px de folga para a rotação */
+@media (max-width: 479px) { .an-erp { max-width: 100%; } }
+.annot.an-erp em { white-space: normal; text-wrap: balance; min-width: 0; line-height: 1.1; }
+
+/* ===== Projetos: texto ao lado da foto, centralizado na altura dela, com 64 a 96px de vão ===== */
+@media (min-width: 1024px) {
+  .project { display: flex; align-items: center; gap: clamp(64px, 5vw, 96px); }
+  .project > .p-frame { flex: 0 0 58%; min-width: 0; }
+  .project > .p-body { flex: 0 1 30rem; min-width: 0; align-self: center; }
+}
+/* Fita crepe: dois pedaços em cantos opostos, ângulos diferentes por projeto; no celular, um só. */
+.p-frame { position: relative; }
+/* .tape só posiciona e gira; dentro dela (.t-in) fica o SVG da fita. Assim a animação trabalha no eixo da própria fita. */
+.tape { position: relative; grid-column: 2; grid-row: 2; z-index: 3; pointer-events: none; width: clamp(64px, 6vw, 96px); height: 22px; }
+.tape-a { justify-self: start; align-self: start; transform: translate(-30%, -40%) rotate(var(--ta, -38deg)); }
+.tape-b { justify-self: end; align-self: end; transform: translate(30%, 40%) rotate(var(--tb, -34deg)); }
+.project:nth-child(2) { --ta: 36deg; --tb: 41deg; }
+.project:nth-child(2) .tape-a { justify-self: end; transform: translate(30%, -40%) rotate(var(--ta)); }
+.project:nth-child(2) .tape-b { justify-self: start; transform: translate(-30%, 40%) rotate(var(--tb)); }
+.project:nth-child(3) { --ta: -42deg; --tb: -36deg; }
+@media (max-width: 767px) { .tape-b { display: none; } }
+/* Centro do texto alinhado ao centro da imagem (a legenda embaixo pesa mais que a cota em cima). */
+@media (min-width: 1024px) {
+  .project { gap: clamp(68px, 5vw, 96px); }
+  .project > .p-body { margin-bottom: 34px; }
+}
+/* Celular: a fita não passa da borda da tela. */
+@media (max-width: 767px) {
+  .tape { width: 56px; height: 18px; }
+  .tape-a, .project:nth-child(2) .tape-a { transform: translate(0, -50%) rotate(var(--ta, -38deg)); }
+}
+
+
+/* Ponta do fio no topo: ponto de 4px com pulsação lenta; some quando a rolagem começa (sem movimento reduzido nem aparece). */
+.thread .ponta { fill: var(--accent); stroke: none; opacity: 0; transform: none; transition: opacity var(--d-fast) var(--ease); }
+.thread .ponta.on { opacity: 1; transform-box: fill-box; transform-origin: center; animation: ponta 2.4s ease-in-out infinite; }
+@keyframes ponta { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .thread .ponta { display: none; } }
+
+/* ===== Colar a foto no caderno =====
+   A foto cai (550ms) e as fitas são alisadas por cima (500ms cada; a 2ª começa 200ms depois da 1ª). Total ~1,35s.
+   Só translate/rotate/scale/transform e opacity; sombras são elementos à parte. Nada muda de tamanho nem de lugar no
+   fluxo: sem CLS. Antes de .colado (posto por Colar.tsx quando a miniatura está de fato na tela) tudo fica invisível e parado. */
+.p-sombra { grid-column: 2; grid-row: 2; z-index: 0; pointer-events: none; border-radius: var(--radius); opacity: 0;
+  box-shadow: 0 30px 50px -12px color-mix(in srgb, #5A4320 36%, transparent), 0 10px 20px -8px color-mix(in srgb, #5A4320 22%, transparent); }
+.p-frame .p-media { z-index: 1; }
+/* Giro inicial da queda (o sentido muda por projeto) e início da 1ª fita (120ms depois do pouso, com variação). */
+.p-frame { --pr: 3deg; --t0: 670ms; }
+.project:nth-child(2) .p-frame { --pr: -3deg; --t0: 690ms; }
+.project:nth-child(3) .p-frame { --pr: 2.6deg; --t0: 660ms; }
+/* A foto cai como uma folha: some o giro passando um pouco do zero e voltando (3 → -0,6 → 0,3 → 0), sem quique vertical. */
+@keyframes foto-cai {
+  0% { opacity: 0; translate: 0 -40px; rotate: var(--pr); animation-timing-function: cubic-bezier(.3, .1, .5, 1); }
+  18% { opacity: 1; }
+  62% { translate: 0 -5px; rotate: calc(var(--pr) * -0.2); animation-timing-function: cubic-bezier(.3, .4, .4, 1); }
+  84% { translate: 0 0; rotate: calc(var(--pr) * 0.1); }
+  100% { opacity: 1; translate: 0 0; rotate: 0deg; }
+}
+@keyframes foto-sombra {
+  0% { opacity: 0; translate: 0 -40px; rotate: var(--pr); animation-timing-function: cubic-bezier(.3, .1, .5, 1); }
+  18% { opacity: 1; }
+  62% { translate: 0 -5px; rotate: calc(var(--pr) * -0.2); }
+  100% { opacity: 0; translate: 0 0; rotate: 0deg; }
+}
+/* Só com .js-reveal (JS ligado, sem movimento reduzido). .ja = já estava na tela ao abrir: entra colada, sem animar. */
+.js-reveal .p-frame[data-colar]:not(.colado) .p-media { opacity: 0; }
+.js-reveal .p-frame.colado:not(.ja) .p-media { animation: foto-cai 550ms both; }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .p-sombra { animation: foto-sombra 550ms both; }
+/* Foto do Sobre: mesma queda das miniaturas. */
+.js-reveal .about-photo[data-colar]:not(.colado) .frame { opacity: 0; }
+.js-reveal .about-photo.colado:not(.ja) .frame { animation: foto-cai 550ms both; }
+
+/* Fita crepe encurvada que estica e cola (SVG, Projects.tsx). Chega arqueada: a ponta de fora já encostada no papel,
+   o meio levantado num arco de ~12px e a ponta de dentro no ar, mais clara (.t-cl) e com uma sombra curta (.t-sh).
+   Em 450ms a curva achata da ponta presa até a ponta livre (interpolação do "d"), como um dedo passando; a sombra
+   acompanha e some. Onde a ponta de fora fica à direita, .t-in espelha a fita para a mesma sequência valer.
+   Sem suporte a "d" no CSS (Safari antigo), a fita simplesmente aparece colada. */
+.tape .t-in { position: absolute; inset: 0; display: block; }
+.tape-b .t-in, .project:nth-child(2) .tape-a .t-in { transform: scaleX(-1); }
+.project:nth-child(2) .tape-b .t-in { transform: none; }
+.tape .t-svg { position: absolute; left: 0; top: -1px; width: 100%; height: calc(100% + 2px); overflow: visible; display: block; }
+.tape .t-f { fill: url(#fita-tx); opacity: 0.95; }
+.tape .t-sh { fill: #5A4320; opacity: 0; }
+.tape .t-cl { fill: url(#fita-claro); opacity: 0; }
+/* Tema claro: tom de fita crepe real (base #D8C79E a 85%), bordas rasgadas um pouco mais escuras (#C4B183) e sombra de
+   contato de 1px a 12%, para a fita não sumir sobre a margem off-white da foto nem sobre o papel. Tema escuro: como antes. */
+:root { --tape: color-mix(in srgb, #D8C79E 85%, transparent); --tape-fio: color-mix(in srgb, #fff 14%, transparent); --tape-borda: #C4B183; --tape-contato: drop-shadow(0 1px 0 rgba(90, 67, 32, 0.12)); }
+:root[data-theme="dark"] { --tape: color-mix(in srgb, #B8A77A 34%, transparent); --tape-fio: color-mix(in srgb, #fff 7%, transparent); --tape-borda: none; --tape-contato: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --tape: color-mix(in srgb, #B8A77A 34%, transparent); --tape-fio: color-mix(in srgb, #fff 7%, transparent); --tape-borda: none; --tape-contato: none; } }
+.tape .t-f { stroke: var(--tape-borda); stroke-width: 0.75; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.tape .t-svg { filter: var(--tape-contato); }
+/* Quadros da curva achatando (gerados com o mesmo número de pontos, para o "d" interpolar). Os tempos desaceleram
+   no fim, como o dedo alisando: 25% do caminho em 12%, metade em 28%, três quartos em 52%. */
+@keyframes fita-curva {
+  0% { d: path("M1 4 L10 4 L20 4 L30 3.78 L40 2.84 L50 1.5 L60 -0.14 L70 -2.04 L80 -4.16 L90 -6.49 L99 -8.74 L100 -5 L98.5 -1 L100 3 L99 7.26 L90 9.51 L80 11.84 L70 13.96 L60 15.86 L50 17.5 L40 18.84 L30 19.78 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  12% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 3.64 L60 2.49 L70 0.89 L80 -1.04 L90 -3.27 L99 -5.49 L100 -1.75 L98.5 2.25 L100 6.25 L99 10.51 L90 12.73 L80 14.96 L70 16.89 L60 18.49 L50 19.64 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  28% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 3.42 L80 1.93 L90 -0.08 L99 -2.24 L100 1.5 L98.5 5.5 L100 9.5 L99 13.76 L90 15.92 L80 17.93 L70 19.42 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  52% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 4 L80 4 L90 2.96 L99 1.01 L100 4.75 L98.5 8.75 L100 12.75 L99 17.01 L90 18.96 L80 20 L70 20 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  100% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 4 L80 4 L90 4 L99 4 L100 8 L98.5 12 L100 16 L99 20 L90 20 L80 20 L70 20 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+}
+/* Sombra: a mesma fita "projetada" para baixo onde ela está no ar; encolhe junto e some. */
+@keyframes fita-sombra {
+  0% { opacity: 0.3; d: path("M1 4 L10 4 L20 4 L30 3.93 L40 3.65 L50 3.25 L60 2.76 L70 2.19 L80 1.55 L90 0.85 L99 0.18 L100 4.1 L98.5 8.1 L100 12.1 L99 16.18 L90 16.85 L80 17.55 L70 18.19 L60 18.76 L50 19.25 L40 19.65 L30 19.93 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  12% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 3.89 L60 3.55 L70 3.07 L80 2.49 L90 1.82 L99 1.15 L100 5.07 L98.5 9.07 L100 13.07 L99 17.15 L90 17.82 L80 18.49 L70 19.07 L60 19.55 L50 19.89 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  28% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 3.83 L80 3.38 L90 2.78 L99 2.13 L100 6.05 L98.5 10.05 L100 14.05 L99 18.13 L90 18.78 L80 19.38 L70 19.83 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  52% { d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 4 L80 4 L90 3.69 L99 3.1 L100 7.03 L98.5 11.03 L100 15.03 L99 19.1 L90 19.69 L80 20 L70 20 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+  100% { opacity: 0; d: path("M1 4 L10 4 L20 4 L30 4 L40 4 L50 4 L60 4 L70 4 L80 4 L90 4 L99 4 L100 8 L98.5 12 L100 16 L99 20 L90 20 L80 20 L70 20 L60 20 L50 20 L40 20 L30 20 L20 20 L10 20 L1 20 L0 16 L1.8 12 L0.3 8 Z"); }
+}
+@keyframes fita-claro { 0% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fita-entra { from { opacity: 0; } to { opacity: 1; } }
+.js-reveal :is(.p-frame, .about-photo)[data-colar]:not(.colado) .tape .t-in { opacity: 0; }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape .t-in { animation: fita-entra 80ms var(--t0) both; }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape .t-f { animation: fita-curva 450ms linear calc(var(--t0) + 60ms) both; }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape .t-sh { animation: fita-sombra 450ms linear calc(var(--t0) + 60ms) both; }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape .t-cl { animation: fita-curva 450ms linear calc(var(--t0) + 60ms) both, fita-claro 450ms cubic-bezier(.25, .8, .25, 1) calc(var(--t0) + 60ms) both; }
+/* 2ª fita: canto oposto, 200ms depois. */
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape-b .t-in { animation-delay: calc(var(--t0) + 200ms); }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape-b :is(.t-f, .t-sh) { animation-delay: calc(var(--t0) + 260ms); }
+.js-reveal :is(.p-frame, .about-photo).colado:not(.ja) .tape-b .t-cl { animation-delay: calc(var(--t0) + 260ms), calc(var(--t0) + 260ms); }
+
+/* ===== Folha 04: contato =====
+   Celular e tablet: uma coluna (título, formulário, canais, na ordem do DOM). A partir de 1024px: colunas 1-5 com
+   título e canais, colunas 6-12 com o bloco do formulário, os dois começando na mesma linha. A segunda linha da malha
+   é 1fr para o formulário, mais alto, não empurrar os canais para baixo. Nenhuma cor anima: só transform. */
+#contato .sec-head { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-16); }
+#contato .sec-head h2.contact-title { margin: 0; padding-right: 0; font-size: var(--t-2xl); line-height: 1.02; max-width: 14ch; }
+#contato .contact-lead { margin: 0; color: var(--muted); font-size: var(--t-md); max-width: 40ch; }
+.ct-bloco, .ct-canais { grid-column: 1 / -1; min-width: 0; }
+@media (min-width: 1024px) {
+  #contato { grid-template-rows: auto 1fr; }
+  #contato .sec-head { grid-column: 1 / 6; grid-row: 1; }
+  .ct-canais { grid-column: 1 / 6; grid-row: 2; align-self: start; }
+  .ct-bloco { grid-column: 6 / -1; grid-row: 1 / span 2; align-self: start; }
+}
+
+/* Canais diretos: quatro linhas iguais (ícone, nome, valor, seta), separadas por linhas finas. */
+.ct-rot { margin: 0 0 var(--s-12); font: 400 0.75rem/1.4 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle); }
+.ct-canais ul { list-style: none; margin: 0; padding: 0; border-block: 1px solid var(--line-strong); }
+.ct-canais li + li { border-top: 1px solid var(--line); }
+.ct-canais a { display: grid; grid-template-columns: 20px minmax(0, 1fr) 16px; grid-template-areas: "ico nome seta" "ico valor seta"; align-items: center; column-gap: var(--s-16); row-gap: 2px; min-height: 64px; padding: var(--s-8) var(--s-12); color: var(--ink); text-decoration: none; }
+.ct-canais a:hover, .ct-canais a:focus-visible { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+.ct-canais a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.cn-ico { grid-area: ico; width: 20px; height: 20px; color: var(--subtle); }
+.cn-nome { grid-area: nome; font-weight: 500; }
+/* o valor nunca é cortado: abaixo de 1280px fica numa segunda linha, sob o nome, e ainda pode quebrar se faltar espaço */
+.cn-valor { grid-area: valor; min-width: 0; overflow-wrap: anywhere; font: 0.8125rem/1.4 var(--f-mono); color: var(--muted); }
+.cn-seta { grid-area: seta; width: 16px; height: 16px; color: var(--subtle); transition: transform var(--m-media) var(--e-saida); }
+.ct-canais a:hover .cn-seta, .ct-canais a:focus-visible .cn-seta { transform: translateX(4px); color: var(--accent); }
+@media (min-width: 1280px) {
+  .ct-canais a { grid-template-columns: 20px 6.5rem minmax(0, 1fr) 16px; grid-template-areas: "ico nome valor seta"; min-height: 56px; }
+}
+
+/* Bloco do formulário: papel um tom acima, borda fina e marcas de esquadro nos quatro cantos, por fora da borda. */
+.ct-bloco { position: relative; padding: var(--s-24) var(--s-16); background: var(--paper-2); border: 1px solid var(--line-strong); border-radius: 2px; }
+.ct-bloco::before { content: ""; position: absolute; inset: -6px; pointer-events: none; --e: linear-gradient(var(--ink), var(--ink));
+  background: var(--e) left top / 14px 1.5px, var(--e) left top / 1.5px 14px, var(--e) right top / 14px 1.5px, var(--e) right top / 1.5px 14px,
+    var(--e) left bottom / 14px 1.5px, var(--e) left bottom / 1.5px 14px, var(--e) right bottom / 14px 1.5px, var(--e) right bottom / 1.5px 14px;
+  background-repeat: no-repeat; }
+@media (min-width: 640px) { .ct-bloco { padding: var(--s-32); } }
+.c-tit { margin: 0; font: 600 var(--t-lg)/1.2 var(--f-display); letter-spacing: var(--track-xl); color: var(--ink); }
+.campos-2 { display: grid; gap: var(--s-24) var(--s-16); }
+@media (min-width: 640px) { .campos-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.campo { display: grid; gap: var(--s-8); min-width: 0; margin: 0; padding: 0; border: 0; }
+.campo > label, .campo > legend { padding: 0; font: 400 0.75rem/1.3 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--subtle); }
+.campo legend { margin-bottom: var(--s-8); }
+.campo input, .campo textarea { width: 100%; min-height: 48px; padding: var(--s-12); background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--ink); font: inherit; font-size: var(--t-sm); line-height: 1.5; outline: none; }
+.campo textarea { resize: vertical; min-height: calc(4 * 1.5em + 2 * var(--s-12) + 2px); }
+.campo :is(input, textarea)::placeholder { color: var(--subtle); opacity: 1; }
+.campo :is(input, textarea):hover { border-color: var(--ink); }
+.campo :is(input, textarea):focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.campo.ruim :is(input, textarea) { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
+.campo-erro { color: var(--danger); font-size: var(--t-xs); }
+.campo-erro:empty { display: none; }
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-8); }
+.chip { position: relative; display: inline-flex; cursor: pointer; }
+.chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chip span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--s-16); background: var(--paper); border: 1px solid var(--line-strong); border-radius: 999px; font-size: var(--t-sm); color: var(--ink); }
+.chip:hover span { border-color: var(--ink); }
+.chip input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-estado { margin: 0; color: var(--danger); font-size: var(--t-sm); }
+.c-estado:empty { display: none; }
+.c-enviar { width: 100%; min-height: 52px; justify-content: center; gap: 10px; }
+.c-enviar[disabled] { opacity: 0.75; cursor: progress; }
+.c-enviar .btn-aviao { width: 18px; height: 18px; transition: transform var(--m-media) var(--e-saida); }
+.c-enviar:hover .btn-aviao, .c-enviar:focus-visible .btn-aviao { transform: translate(3px, -3px); }
+.ct-bloco .c-ok { gap: var(--s-16); }
+@media (prefers-reduced-motion: reduce) { .cn-seta, .c-enviar .btn-aviao { transition: none; } }
+
+/* Rodapé: faixa compacta. Nome e ano à esquerda; "Voltar ao topo" e o carimbo pequeno à direita. */
+.site-footer { margin-top: var(--s-64); padding-block: var(--s-16); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-12) var(--s-24); }
+.foot-nome { margin: 0; font-size: var(--t-sm); color: var(--ink); }
+.foot-nome .mono { margin-left: var(--s-8); color: var(--subtle); }
+.foot-dir { display: flex; align-items: center; gap: var(--s-24); }
+.site-footer .carimbo-final { grid-column: auto; justify-self: auto; width: 92px; margin: 0; }

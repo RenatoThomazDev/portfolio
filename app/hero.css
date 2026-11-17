@@ -1,0 +1,330 @@
+/* Cabeçalho */
+.site-header { display: flex; align-items: center; gap: var(--s-32); height: 64px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+/* Cabeçalho sempre visível, fixo no topo. No topo da página é igual ao de antes (sem fundo, 64px); depois de 80px de
+   rolagem ganha fundo de papel translúcido com desfoque e encolhe para 52px (200ms). .hdr-espaco guarda os 64px no
+   fluxo: o cabeçalho é fixo, então mudar de altura não move a página (sem CLS). */
+.hdr-espaco { height: 64px; }
+.site-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; transition: height 200ms var(--ease), background-color 200ms var(--ease); }
+/* Vidro: papel a 70% com desfoque de 14px e saturação de 140%; linha inferior mais suave que a de antes.
+   Sem suporte a backdrop-filter, o fundo volta ao papel a 92% (sem desfoque, 70% deixaria o texto de trás legível demais). */
+.site-header[data-fixo] { height: 52px; background: color-mix(in srgb, var(--paper) 92%, transparent); border-bottom-color: color-mix(in srgb, var(--line) 60%, transparent); }
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .site-header[data-fixo] { background: color-mix(in srgb, var(--paper) 70%, transparent); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
+  /* "Folha" em cinza ficava abaixo de AA (3,4:1) com a foto escura passando por trás no celular: no vidro usa a tinta. */
+  .site-header[data-fixo] .sheet-no { color: var(--ink-2); }
+}
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
+/* Âncoras: param logo abaixo do cabeçalho fixo (52px), sem esconder o título. */
+section[id], footer[id] { scroll-margin-top: 52px; }
+/* Link da seção atual: sublinhado à mão, o mesmo traço do "à mão." do título. */
+.nav .link[aria-current]::after { height: 6px; bottom: -8px; background: var(--accent);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 15C46 9 92 17 140 12S236 7 296 13' fill='none' stroke='black' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 24' preserveAspectRatio='none'%3E%3Cpath d='M4 15C46 9 92 17 140 12S236 7 296 13' fill='none' stroke='black' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") center / 100% 100% no-repeat; }
+.logo { font: 600 var(--t-md)/1 var(--f-display); letter-spacing: var(--track-xl); color: var(--ink); text-decoration: none; }
+.nav { display: flex; gap: var(--s-32); margin-left: auto; font-size: var(--t-sm); }
+.sheet-no { margin-left: var(--s-32); }
+.theme { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius); background: none; color: var(--ink); cursor: pointer; transition: border-color var(--d-fast) var(--ease); }
+.theme:hover { border-color: var(--ink); }
+.theme svg { width: 16px; height: 16px; }
+@media (max-width: 767px) { .nav { display: none; } .sheet-no { margin-left: auto; } .site-header { gap: var(--s-16); } }
+
+/* Menu do celular: botão ao lado do tema; o painel desce do cabeçalho com as quatro folhas em links grandes. */
+.menu-m { display: none; }
+@media (max-width: 767px) {
+  .menu-m { display: block; }
+  .menu-btn { list-style: none; width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--ink); cursor: pointer; }
+  .menu-btn::-webkit-details-marker { display: none; }
+  .menu-btn:hover { border-color: var(--ink); }
+  .menu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .menu-btn svg { width: 18px; height: 18px; }
+  /* absoluto no cabeçalho (que é fixo): top 100% é a borda de baixo dele, nos 64px e nos 52px */
+  .menu-painel { position: absolute; top: 100%; left: 0; right: 0; display: grid; padding: var(--s-8) var(--margin) var(--s-24); background: var(--paper); border-bottom: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); }
+  .menu-m[open] .menu-painel { animation: menu-desce 200ms var(--e-saida) both; }
+  /* Véu atrás do painel, do cabeçalho até o fim da tela: mais leve no claro, preto a 40% no escuro. Absoluto no
+     cabeçalho (fixo), como o painel, porque o vidro do cabeçalho (backdrop-filter) prende os filhos fixos nele. */
+  .menu-veu { position: absolute; top: 100%; left: 0; right: 0; height: 100vh; background: var(--veu); cursor: pointer; }
+  .menu-m[open] .menu-veu { animation: menu-veu 200ms var(--e-saida) both; }
+}
+:root { --veu: color-mix(in srgb, #2A2620 18%, transparent); }
+:root[data-theme="dark"] { --veu: rgba(0, 0, 0, 0.4); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --veu: rgba(0, 0, 0, 0.4); } }
+html.menu-aberto { overflow: hidden; }
+@keyframes menu-veu { from { opacity: 0; } }
+@media (max-width: 767px) {
+  .menu-painel a { display: flex; align-items: baseline; gap: var(--s-16); min-height: 56px; padding-block: var(--s-12); border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font: 600 var(--t-xl)/1.1 var(--f-display); letter-spacing: var(--track-xl); }
+  .menu-painel a:last-child { border-bottom: 0; }
+  .menu-painel a .mono { font: 400 var(--t-xs)/1 var(--f-mono); color: var(--subtle); letter-spacing: 0.04em; }
+  .menu-painel a[aria-current] { color: var(--accent); }
+  .menu-painel a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+}
+@keyframes menu-desce { from { opacity: 0; transform: translate3d(0, -8px, 0); } }
+@media (prefers-reduced-motion: reduce) { .menu-m[open] :is(.menu-painel, .menu-veu) { animation: none; } }
+/* Celular: logo à esquerda; à direita o contador compacto ("01/04", a palavra "Folha" fica para o leitor de tela)
+   e o botão de tema com área de toque de 44px. Cabe inteiro de 320 a 430px. */
+@media (max-width: 479px) {
+  .site-header { gap: var(--s-12); }
+  .sheet-rot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .theme { width: 44px; height: 44px; flex: none; }
+}
+
+/* Hero: mobile primeiro (390) */
+.hero { padding-block: var(--s-48) var(--s-32); row-gap: var(--s-48); }
+.hero-copy, .diagram, .stamp { grid-column: 1 / -1; }
+.hero-title {
+  font: 600 clamp(3rem, 1.2rem + 5vw, 8.5rem)/0.95 var(--f-display);
+  letter-spacing: var(--track-display); word-spacing: var(--word-display); color: var(--ink);
+}
+.hero-title .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.hero-title .w > span { display: inline-block; }
+.hero-lead { margin-top: var(--s-24); max-width: 60ch; color: var(--muted); font-size: var(--t-base); }
+.hero-ctas { margin-top: var(--s-32); display: flex; flex-wrap: wrap; gap: var(--s-12); }
+@media (max-width: 479px) { .hero-ctas .btn { flex: 1 1 100%; } }
+
+.diagram { margin: 0; }
+.diagram svg { display: block; width: 100%; height: auto; overflow: visible; }
+.diagram .d-h { display: none; }
+.diagram figcaption { margin-top: var(--s-16); }
+.diagram .node rect { fill: var(--paper); stroke: var(--ink); stroke-width: 1.25; }
+.diagram .nt { font: 600 17px var(--f-text); fill: var(--ink); }
+.diagram .ns { font: 400 13px var(--f-mono); fill: var(--subtle); }
+.diagram .dt { font: 400 12px var(--f-mono); fill: var(--subtle); }
+.diagram .dim path { stroke: var(--subtle); stroke-width: 1; fill: none; }
+.diagram .wire { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.diagram .tip { fill: var(--accent); }
+
+.stamp { display: grid; grid-template-columns: max-content 1fr; column-gap: var(--s-24); row-gap: var(--s-8); margin: 0; padding-top: var(--s-16); border-top: 1px solid var(--line); }
+.stamp dd { margin: 0; color: var(--ink); }
+.stamp .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: var(--s-8); vertical-align: 1px; }
+
+/* 768: título largo, diagrama horizontal embaixo */
+@media (min-width: 768px) {
+  .hero { padding-block: var(--s-64) var(--s-32); row-gap: var(--s-64); }
+  .hero-title { grid-column: 1 / -1; }
+  .hero-lead { max-width: 52ch; }
+  .diagram { grid-column: 1 / 10; }
+  .diagram .d-h { display: block; }
+  .diagram .d-v { display: none; }
+  .stamp { grid-template-columns: repeat(3, max-content minmax(0, auto)); justify-content: space-between; column-gap: var(--s-16); }
+  .stamp dd { min-width: 0; overflow-wrap: anywhere; }
+}
+
+/* 1280: duas colunas, ocupa a primeira dobra */
+@media (min-width: 1024px) {
+  .hero { min-height: calc(100svh - 64px); align-content: end; padding-block: var(--s-96) var(--s-32); row-gap: var(--s-96); }
+  .hero { row-gap: var(--s-48); padding-block: var(--s-64) var(--s-48); }
+  .hero-copy { grid-column: 1 / 7; grid-row: 1 / 3; align-self: end; }
+  .diagram { grid-column: 7 / -1; grid-row: 1; align-self: end; }
+  /* Carimbo no canto inferior direito, como o selo de uma prancha */
+  .stamp { grid-column: 7 / -1; grid-row: 2; align-self: end; grid-template-columns: max-content 1fr; }
+}
+@media (min-width: 1920px) {
+    .hero-copy { grid-column: 1 / 8; }
+  .diagram, .stamp { grid-column: 9 / -1; }
+}
+
+/* Movimento: animações CSS que começam sozinhas quando o hero é pintado.
+   Não dependem de classe nem de requestAnimationFrame (que para em abas e painéis em segundo plano),
+   então o título nunca fica preso cortado. Sem JS (.js ausente) tudo aparece pronto. */
+@keyframes hero-rise { from { transform: translate3d(0, 105%, 0); } to { transform: none; } }
+@keyframes hero-fade { from { opacity: 0; transform: translate3d(0, 16px, 0); } to { opacity: 1; transform: none; } }
+@keyframes hero-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes hero-show { from { opacity: 0; } to { opacity: 1; } }
+/* O texto do hero nunca depende da animação para aparecer:
+   - parágrafo, botões e carimbo não são animados;
+   - o título e os fios só animam com .hero-anim, que o script inline põe antes da primeira pintura
+     (se o JS falhar ou chegar tarde, a classe não entra e tudo aparece pronto);
+   - .hero-fim, posta por timer em 700ms (título) e 2000ms (diagrama), corta qualquer animação
+     que tenha travado (painel em segundo plano, quadro perdido). */
+.hero-anim .hero-title .w > span { animation: hero-rise 360ms var(--ease) both; animation-delay: calc(var(--line, 0) * 40ms); }
+.hero-anim .diagram .dim path, .hero-anim .diagram .wire { stroke-dasharray: 1; animation: hero-draw var(--d-slow) var(--ease) both; }
+.hero-anim .diagram .dim path { animation-delay: 200ms; }
+.hero-anim .diagram .wire:nth-of-type(1) { animation-delay: 500ms; }
+.hero-anim .diagram .wire:nth-of-type(2) { animation-delay: 800ms; }
+.hero-anim .diagram .tip { animation: hero-show var(--d-fast) var(--ease) 1100ms both; }
+@media (max-width: 767px) { .hero-anim .hero-title .w > span { animation-duration: 240ms; animation-delay: calc(var(--line, 0) * 20ms); } }
+.hero-fim-t .hero-title .w > span, .hero-fim-d .diagram .dim path, .hero-fim-d .diagram .wire, .hero-fim-d .diagram .tip { animation: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-anim .hero-title .w > span, .hero-anim .diagram .dim path, .hero-anim .diagram .wire, .hero-anim .diagram .tip { animation: none; }
+}
+
+/* O fio do diagrama passa por trás dos textos do carimbo, como uma linha interrompida pelo rótulo. */
+.hero { position: relative; }
+.stamp dt, .stamp dd { position: relative; z-index: 1; justify-self: start; }
+.thread-old {}
+
+
+
+/* Reserva a altura do título com o número de linhas que a Clash Display ocupa em cada faixa.
+   Enquanto a fonte não chega, a substituta (mais estreita) usa menos linhas; sem a reserva o hero
+   cresce quando a Clash entra e a página pula (CLS). */
+.hero-title { min-height: calc(4 * 0.95em); }
+@media (max-width: 359px) { .hero-title { min-height: calc(5 * 0.95em); } }
+@media (min-width: 768px) { .hero-title { min-height: calc(3 * 0.95em); } }
+@media (min-width: 1024px) { .hero-title { min-height: calc(5 * 0.95em); } }
+@media (min-width: 1920px) { .hero-title { min-height: calc(4 * 0.95em); } }
+
+/* A linha que desce do hero passa por trás da legenda, como já passa pelo carimbo. */
+.cap-mask { position: relative; z-index: 1; background: var(--paper); box-shadow: 0 0 0 4px var(--paper); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+
+
+/* ===== Etapa 1: hero como peça de assinatura ===== */
+.hero-title { grid-column: 1 / -1; }
+.hero-copy { grid-column: 1 / -1; }
+.br-lg { display: none; }
+.hero-title .mao { position: relative; display: inline-block; white-space: nowrap; }
+.hero-title .w-serif { font-family: var(--f-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; font-size: 1.12em; line-height: 0.85; padding-right: 0.06em; }
+.hero-title .pencil { position: absolute; left: -0.04em; right: 0; bottom: -0.1em; width: 104%; height: 0.2em; overflow: visible; pointer-events: none; }
+.hero-title .pencil path { fill: none; stroke: var(--accent); stroke-width: 2.25; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hero-title .pencil path { stroke-width: 3; }
+
+@media (min-width: 1024px) {
+  .br-lg { display: inline; }
+  .hero { grid-template-rows: auto auto 1fr; row-gap: var(--s-48); }
+  .hero-title { grid-row: 1; font-size: min(9vw, 12rem); line-height: 0.9; min-height: calc(3 * 0.9em); }
+  .hero-copy { grid-column: 1 / 6; grid-row: 2; align-self: start; }
+  .diagram { grid-column: 6 / -1; grid-row: 2 / 4; align-self: start; position: relative; }
+  .stamp { grid-column: 1 / 6; grid-row: 3; align-self: end; }
+}
+@media (min-width: 1920px) {
+  .hero-copy, .stamp { grid-column: 1 / 6; }
+  .diagram { grid-column: 7 / -1; }
+}
+
+/* Linha de chamada e pontos de luz */
+.diagram .callout path { fill: none; stroke: var(--subtle); stroke-width: 1; }
+.diagram .callout circle { fill: var(--ink); }
+.diagram .pulse { opacity: 0; fill: var(--accent); }
+.diagram .pulse .halo { opacity: 0.22; }
+@keyframes pulse-x { 0% { opacity: 0; transform: translateX(0); } 6% { opacity: 1; } 34% { opacity: 1; transform: translateX(100px); } 40%, 100% { opacity: 0; transform: translateX(104px); } }
+@keyframes pulse-y { 0%, 42% { opacity: 0; transform: translateY(0); } 48% { opacity: 1; } 76% { opacity: 1; transform: translateY(100px); } 82%, 100% { opacity: 0; transform: translateY(104px); } }
+@keyframes pulse-yv { 0% { opacity: 0; transform: translateY(0); } 6% { opacity: 1; } 34% { opacity: 1; transform: translateY(60px); } 40%, 100% { opacity: 0; transform: translateY(64px); } }
+@keyframes pulse-yv2 { 0%, 42% { opacity: 0; transform: translateY(0); } 48% { opacity: 1; } 76% { opacity: 1; transform: translateY(60px); } 82%, 100% { opacity: 0; transform: translateY(64px); } }
+.pulsing .diagram .p-a { animation: pulse-x 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.pulsing .diagram .p-b { animation: pulse-y 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.pulsing .diagram .pv-a { animation: pulse-yv 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.pulsing .diagram .pv-b { animation: pulse-yv2 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+
+/* Traço de lápis: desenha depois do título; .hero-fim-d garante o estado final. */
+@keyframes pencil { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+/* "à mão." é escrito de 120ms a ~560ms (dentro do tempo do título); o sublinhado vem quando a palavra termina. */
+.hero-anim .hero-title { --b: 120ms; }
+.hero-anim .diagram .note { --b: 900ms; } /* a anotação do diagrama começa logo depois de o título ficar pronto */
+.hero-anim .hero-title .pencil path { stroke-dasharray: 1; animation: pencil 700ms cubic-bezier(.6,.05,.3,1) 560ms both; }
+.hero-anim .hero-title .pencil path + path { animation-delay: 760ms; animation-duration: 500ms; }
+.hero-fim-t .hero-title .escrita :is(path, rect) { animation: none !important; }
+.hero-fim-d .hero-title .pencil path { animation: none !important; }
+
+/* Mira sobre o diagrama */
+.diagram { position: relative; }
+.crosshair { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity var(--d-fast) var(--ease); }
+.crosshair.on { opacity: 1; }
+.crosshair .ch-v, .crosshair .ch-h { position: absolute; background: var(--accent); opacity: 0.55; }
+.crosshair .ch-v { top: 0; bottom: 0; left: 0; width: 1px; transform: translateX(var(--x)); }
+.crosshair .ch-h { left: 0; right: 0; top: 0; height: 1px; transform: translateY(var(--y)); }
+.crosshair .ch-l { position: absolute; left: 0; top: 0; transform: translate(calc(var(--x) + 10px), calc(var(--y) + 10px)); color: var(--accent); background: var(--paper); padding: 2px 6px; white-space: pre; }
+.in-diagram .cursor { opacity: 0 !important; }
+.in-diagram .diagram { cursor: crosshair; }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .diagram .pulse { animation: none !important; opacity: 0; }
+  .hero-anim .hero-title .pencil path { animation: none; }
+}
+@media (min-width: 768px) and (max-width: 959px) { .hero-title { font-size: 9.4vw; line-height: 0.92; min-height: calc(3 * 0.92em); } }
+.hero-lead { margin-top: 0; }
+@media (max-width: 959px) { .hero-copy { margin-top: calc(var(--s-24) - var(--s-48)); } }
+@media (min-width: 768px) and (max-width: 959px) { .hero-copy { margin-top: calc(var(--s-24) - var(--s-64)); } }
+
+/* A partir de 960px: título e diagrama inteiro cabem juntos na primeira tela, também em telas baixas
+   (1009x609, 1280x720). O título é limitado pela altura e o diagrama encolhe para o espaço que sobra. */
+@media (min-width: 960px) {
+  .hero { --hp: clamp(16px, 4.5vh, 64px); --hg: clamp(20px, 4.5vh, 48px); --tfs: min(9vw, 12.5vh);
+    min-height: calc(100svh - 64px); align-content: start; grid-template-rows: auto auto 1fr;
+    padding-block: var(--hp) var(--s-32); row-gap: var(--hg); }
+  .br-lg { display: inline; }
+  .hero-title { grid-column: 1 / -1; grid-row: 1; font-size: var(--tfs); line-height: 0.9; min-height: calc(3 * 0.9em); }
+  .hero-copy { grid-column: 1 / 6; grid-row: 2; align-self: start; margin-top: 0; }
+  .diagram { grid-column: 6 / -1; grid-row: 2 / 4; align-self: start; }
+  .stamp { grid-column: 1 / 6; grid-row: 3; align-self: end; grid-template-columns: max-content 1fr; justify-content: start; column-gap: var(--s-24); }
+  .diagram .d-h { width: min(100%, calc((100svh - 64px - var(--hp) - 2.7 * var(--tfs) - var(--hg) - 88px) * 520 / 440)); }
+}
+@media (min-width: 1920px) { .diagram { grid-column: 7 / -1; } }
+.diagram .d-w { display: none; }
+@keyframes pulse-xw { 0% { opacity: 0; transform: translateX(0); } 6% { opacity: 1; } 34% { opacity: 1; transform: translateX(56px); } 40%, 100% { opacity: 0; transform: translateX(60px); } }
+@keyframes pulse-xw2 { 0%, 42% { opacity: 0; transform: translateX(0); } 48% { opacity: 1; } 76% { opacity: 1; transform: translateX(56px); } 82%, 100% { opacity: 0; transform: translateX(60px); } }
+.pulsing .diagram .pw-a { animation: pulse-xw 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.pulsing .diagram .pw-b { animation: pulse-xw2 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+/* Telas baixas (até 860px de altura): diagrama em linha, que usa a largura em vez da altura. */
+@media (min-width: 960px) and (max-height: 860px) {
+  .diagram .d-h { display: none; }
+  .diagram .d-w { display: block; width: min(100%, calc((100svh - 64px - var(--hp) - 2.7 * var(--tfs) - var(--hg) - 72px) * 760 / 248)); }
+}
+/* Diagrama em linha: textos e cotas ~18% maiores (legíveis na escala reduzida). */
+.diagram .d-w .nt { font-size: 20px; }
+.diagram .d-w .ns { font-size: 15px; }
+.diagram .d-w .dt { font-size: 14px; }
+.diagram .d-w .node rect { stroke-width: 1.5; }
+.diagram .d-w .wire { stroke-width: 1.75; }
+@media (min-width: 960px) and (max-height: 860px) {
+  .hero-copy, .stamp { grid-column: 1 / 5; }
+  .diagram { grid-column: 5 / -1; }
+}
+/* Botões sempre lado a lado a partir de 960px, mesmo com o parágrafo em 4 colunas. */
+@media (min-width: 960px) {
+  .hero-ctas { flex-wrap: nowrap; width: max-content; position: relative; z-index: 2; }
+  .hero-ctas .btn { flex: none; }
+}
+@media (min-width: 960px) and (max-width: 1099px) { .hero-ctas .btn { padding-inline: var(--s-16); } }
+
+/* ===== Papel de engenharia ===== */
+/* Traço de caneta técnica: leve variação de espessura nos contornos e no fluxo; cotas continuam finas e exatas. */
+.diagram .node rect { filter: url(#pena); }
+.diagram .wire { stroke-linecap: round; }
+.diagram .node rect { stroke-width: 1.4; }
+/* Anotação à mão do hero: só no desenho horizontal. */
+.diagram .note-a { fill: none; stroke: var(--accent); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.hero-anim .diagram .note-a { stroke-dasharray: 1; animation: hero-draw 900ms cubic-bezier(.6,.05,.3,1) 2100ms both; }
+@media (prefers-reduced-motion: reduce) { .hero-anim .diagram .note-a { animation: none; } }
+
+/* ===== A partir de 1280px: L compacto à direita do título, alinhado ao topo da 1ª linha =====
+   O título ocupa 8 colunas (6,2vw cabe "Automatizo o que" nelas); parágrafo, botões e carimbo ficam abaixo dele.
+   O desenho nunca passa da altura do bloco do título (3 linhas x 0,9 do corpo = 2,7 x --tfs). */
+.diagram .d-l { display: none; }
+@media (min-width: 1280px) {
+  .hero { --tfs: min(6.2vw, 12.5vh); grid-template-rows: auto auto 1fr; }
+  .hero-title { grid-column: 1 / 9; grid-row: 1; }
+  .diagram { grid-column: 9 / -1; grid-row: 1; align-self: start; justify-self: end; --lw: min(100%, calc(var(--tfs) * 2.5 * 480 / 232)); /* caixas (y 40 a 272) cabem no bloco do título */ width: var(--lw);
+    /* Topo das caixas (y=40 de 480 de largura) na altura do topo das letras da 1ª linha (~0,17 do corpo); a cota fica acima.
+       Margem em % resolve pela largura da área do grid, a mesma base de --lw. */
+    margin-top: calc(var(--tfs) * 0.17 - var(--lw) * 40 / 480); }
+  .diagram .d-h, .diagram .d-w { display: none; }
+  .diagram .d-l { display: block; width: 100%; }
+  .diagram figcaption { margin-top: var(--s-12); }
+  .hero-copy { grid-column: 1 / 7; grid-row: 2; }
+  .stamp { grid-column: 1 / 7; grid-row: 3; }
+}
+@media (min-width: 1920px) {
+  .hero-copy, .stamp { grid-column: 1 / 6; }
+  .diagram { grid-column: 9 / -1; }
+}
+@keyframes pulse-xl { 0% { opacity: 0; transform: translateX(0); } 6% { opacity: 1; } 34% { opacity: 1; transform: translateX(100px); } 40%, 100% { opacity: 0; transform: translateX(104px); } }
+@keyframes pulse-yl { 0%, 42% { opacity: 0; transform: translateY(0); } 48% { opacity: 1; } 76% { opacity: 1; transform: translateY(68px); } 82%, 100% { opacity: 0; transform: translateY(72px); } }
+.pulsing .diagram .pl-a { animation: pulse-xl 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.pulsing .diagram .pl-b { animation: pulse-yl 4.8s cubic-bezier(.45,0,.55,1) 0s infinite; }
+.diagram .d-l .nt { font-size: 19px; }
+.diagram .d-l .ns { font-size: 14px; }
+.diagram .d-l .dt { font-size: 13px; }
+/* Anotação do hero: escrita com caneta de 900ms a 3900ms (Escrita.tsx, frase de 3000ms), depois a seta. */
+.diagram .note .escrita { color: var(--accent); }
+.hero-anim .diagram .note-a { animation-delay: 3900ms; }
+/* O fio azul sai do centro da caixa WhatsApp (74% da largura do desenho) e desce: a legenda termina antes dele. */
+@media (min-width: 960px) { .diagram figcaption { max-width: calc(var(--dw, 100%) * 0.66); } } /* --dw: largura real do desenho visível, medida em Hero.tsx */
+
+/* A partir de 1280px o hero não ocupa a tela inteira: ~72px dos botões ao carimbo e ~96px do carimbo à abertura de
+   Projetos (que já tem 128px de respiro no topo, daí a margem negativa de 32px). */
+@media (min-width: 1280px) {
+  .hero { min-height: 0; grid-template-rows: auto auto auto; padding-bottom: 0; margin-bottom: 0; }
+  .stamp { align-self: start; margin-top: calc(72px - var(--hg)); }
+  /* O diagrama ocupa a altura do título mais parágrafo e botões, centralizado nela: a coluna da direita deixa de ficar
+     vazia embaixo do desenho. A largura continua limitada pela coluna (o desenho não cresce para cima do título). */
+  .diagram { grid-row: 1 / 3; align-self: center; margin-top: 0; }
+}
