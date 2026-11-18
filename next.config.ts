@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
   images: { formats: ["image/avif", "image/webp"], deviceSizes: [390, 640, 768, 1024, 1280, 1600, 1920], qualities: [75] },
   // Endereços antigos das demonstrações (quando eram arquivos em /public) continuam funcionando.
   redirects: async () => [{ source: "/demos/:demo/index.html", destination: "/demos/:demo", permanent: true }],
+  // A rota das demos lê site/demos/*.html com readFile: o rastreamento de arquivos não enxerga isso sozinho, então
+  // os HTML vão junto explicitamente com a função (Vercel), caso ela precise rodar fora do pré-render do build.
+  outputFileTracingIncludes: { "/demos/[demo]": ["./demos/**/*"] },
 };
 
 export default nextConfig;

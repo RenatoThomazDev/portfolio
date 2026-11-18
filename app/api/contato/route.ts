@@ -12,9 +12,35 @@ import { montarEmail } from "./email";
 export const dynamic = "force-dynamic";
 
 const JANELA_MS = 10 * 60 * 1000, MAX_ENVIOS = 3;
-// Limite simples em memória: zera quando o servidor reinicia e não é dividido entre instâncias. Suficiente contra
-// cliques repetidos e robôs simples; atrás de várias instâncias seria preciso um armazenamento compartilhado.
+// Limite em duas camadas.
+// 1. Map em memória (sempre): primeira barreira contra cliques repetidos e robôs simples. Em serverless (Vercel) NÃO é
+//    confiável sozinho: cada instância tem o seu Map, e ele zera a cada instância nova (cold start). Um robô que caia
+//    em instâncias diferentes passa dele.
+// 2. Redis da Upstash (opcional, integração da Vercel), pela API REST, sem SDK: contador por IP com validade da
+//    janela, dividido entre todas as instâncias. Só liga se UPSTASH_REDIS_REST_URL e UPSTASH_REDIS_REST_TOKEN (ou os
+//    nomes KV_REST_API_URL e KV_REST_API_TOKEN, que a integração também cria) existirem. Sem elas, ou se o Redis
+//    falhar, vale só o Map: o envio nunca depende do Redis, e o build também não.
 const envios = new Map<string, number[]>();
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+// Quantos envios este IP já fez na janela, contando este (INCR; a validade é posta só no primeiro). null = sem Redis.
+async function contarNoRedis(ip: string): Promise<number | null> {
+  if (!REDIS_URL || !REDIS_TOKEN) return null;
+  try {
+    const chave = `contato:${ip}`;
+    const r = await fetch(`${REDIS_URL.replace(/\/$/, "")}/pipeline`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify([["INCR", chave], ["EXPIRE", chave, String(JANELA_MS / 1000), "NX"]]),
+      signal: AbortSignal.timeout(1500),
+    });
+    if (!r.ok) return null;
+    const [incr] = (await r.json()) as { result?: number }[];
+    return typeof incr?.result === "number" ? incr.result : null;
+  } catch {
+    return null;
+  }
+}
 
 const LIMITES = { nome: [2, 80], email: [5, 120], mensagem: [10, 2000] } as const;
 // Opções dos chips do formulário (ContactForm.tsx). Vazio = não escolheu; qualquer outro valor é recusado.
@@ -84,6 +110,9 @@ export async function POST(req: Request) {
 
   const chave = process.env.RESEND_API_KEY;
   if (!chave) return erro("indisponivel");
+  // segunda camada (Redis, se configurado): conta a tentativa entre todas as instâncias
+  const noRedis = await contarNoRedis(ip);
+  if (noRedis !== null && noRedis > MAX_ENVIOS) return erro("limite");
 
   const email = d.email.trim();
   const { assunto, texto, html } = montarEmail({ nome: d.nome.trim(), email, tipo: d.tipo, mensagem: d.mensagem.trim() });

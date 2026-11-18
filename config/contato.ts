@@ -15,8 +15,11 @@ export const WHATSAPP_URL = `https://wa.me/${CONTATO.whatsapp}?text=${encodeURIC
 
 // Endereço público do site, sem barra no fim. Vem de NEXT_PUBLIC_SITE_URL (defina na hospedagem com o domínio
 // final, ver .env.example): é o metadataBase e entra no canonical, no og:image, no sitemap, no robots, no JSON-LD
-// e nas tags das demos. Sem a variável, vale http://localhost:3010, que só serve para testar localmente.
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3010").replace(/\/$/, "");
+// e nas tags das demos. Sem ela, na Vercel vale o endereço de produção do projeto (VERCEL_PROJECT_PRODUCTION_URL,
+// que a Vercel define no build), para nunca publicar canonical e og:image apontando para localhost. Fora da Vercel e
+// sem a variável, vale http://localhost:3010, que só serve para testar localmente.
+const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "http://localhost:3010")).replace(/\/$/, "");
 
 
 export const DEMOS = ["clinica", "orcamentos", "automacao"] as const;
