@@ -202,7 +202,7 @@
     Promise.race([c ? c.img.decode() : Promise.resolve(), new Promise(function (ok) { setTimeout(ok, 250); })]).then(function () { pousar(slug); }, function () { pousar(slug); });
   }
   function pousar(slug) {
-    var p = document.querySelector('.project[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
+    var p = document.querySelector('[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
     if (!media || !frame) { r.classList.remove('folha-volta'); return; }
     frame.classList.remove('levanta');
     frame.classList.add('colado', 'ja', 'pousando');
@@ -254,10 +254,8 @@
     // de volta pelo botão do navegador com a página em cache: a folha ainda cobre a tela; ela pousa no card
     saindo = false; clearTimeout(espera);
     document.querySelectorAll('.folha-voo, .folha-veu, .folha-carregando').forEach(function (x) { x.remove(); });
-    var m = document.querySelector('.p-frame.levanta .p-media'), slug = m && m.closest('.project').dataset.demo;
+    var m = document.querySelector('.p-frame.levanta .p-media'), slug = m && m.closest('[data-demo]').dataset.demo;
     if (m) m.style.opacity = '';
-    // página de projeto: não há pouso, a imagem só reaparece
-    document.querySelectorAll('.pg-media').forEach(function (x) { x.style.opacity = ''; });
     if (slug && pode()) pousar(slug); else document.querySelectorAll('.p-frame.levanta').forEach(function (x) { x.classList.remove('levanta'); });
   });
 

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
-import FolhaLink from "../../components/FolhaLink";
 import { notFound } from "next/navigation";
-import Pagina, { Seta } from "../../components/Pagina";
+import Pagina, { Bloco, Seta } from "../../components/Pagina";
+import Prancha from "../../components/Prancha";
+import FolhaLink from "../../components/FolhaLink";
 import { PROJETOS, projeto, servico } from "../../../config/paginas";
 import { SITE_URL } from "../../../config/contato";
 
@@ -32,53 +31,55 @@ export default async function ProjetoPage({ params }: Props) {
     "@type": "CreativeWork", name: p.seoTitulo, description: p.descricao, url: `${SITE_URL}/projetos/${p.slug}`,
     image: `${SITE_URL}${p.img}`, inLanguage: "pt-BR", keywords: p.tags.join(", "), author: { "@id": `${SITE_URL}/#renato` },
   };
+  const caso = [["A", "Problema", p.problema], ["B", "O que fiz", p.feito], ["C", "Resultado", p.resultado]];
   return (
-    <Pagina folha={`Folha ${p.id}`} trilha={[{ nome: "Projetos", href: "/#projetos" }, { nome: p.title }]} jsonLd={jsonLd}>
-      {/* data-demo: bloco que public/folha.js reconhece (prefetch da demo e voo da folha a partir da imagem) */}
-      <div className="pg-demo" data-demo={p.slug}>
-        <header className="pg-cab">
-          <span className="mono">Projeto / {p.kind}</span>
-          <h1>{p.seoTitulo}</h1>
-          <p className="pg-lead">{p.descricao}</p>
-          <div className="pg-acoes">
-            <FolhaLink className="btn btn-primary p-link" href={p.href}>Abrir demonstração</FolhaLink>
-            <Link className="btn btn-secondary" href="/#contato">Quero algo assim</Link>
-          </div>
-        </header>
-
-        <figure className="pg-fig">
-          {/* a imagem repete o botão "Abrir demonstração": fora da ordem do Tab e do leitor de tela */}
-          <FolhaLink className="pg-media" href={p.href} tabIndex={-1} aria-hidden="true">
-            <Image className="pg-img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 80vw, 100vw" priority />
-            <Image className="pg-img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 80vw, 100vw" />
-          </FolhaLink>
-        </figure>
-      </div>
-
-      <section className="pg-bloco pg-texto" aria-labelledby="caso-t">
-        <h2 id="caso-t">O caso</h2>
-        <dl className="p-caso">
-          <div><dt className="mono">Problema</dt><dd>{p.problema}</dd></div>
-          <div><dt className="mono">O que fiz</dt><dd>{p.feito}</dd></div>
-          <div><dt className="mono">Resultado</dt><dd>{p.resultado}</dd></div>
+    <Pagina
+      folha={`Folha ${p.id}`} atual={`/projetos/${p.slug}`} demo={p.slug}
+      trilha={[{ nome: "Projetos", href: "/#projetos" }, { nome: p.title }]} jsonLd={jsonLd}
+      carimbo={{ folha: p.id, titulo: p.title }}
+      cabecalho={<>
+        <span className="mono">Folha {p.id} / Projeto</span>
+        {/* h1 curto (o nome do projeto); o título longo, para a busca, fica no <title> */}
+        <h1>{p.title}</h1>
+        <p className="pg-lead">{p.descricao}</p>
+      </>}
+      lateral={<>
+        <dl className="pg-ficha">
+          <div><dt className="mono">Tipo</dt><dd>{p.kind}</dd></div>
+          <div><dt className="mono">Tecnologias</dt><dd><ul className="p-tags mono">{p.tags.map((t) => <li key={t}>{t}</li>)}</ul></dd></div>
         </dl>
-      </section>
+        <p className="pg-nota">É uma demonstração: os dados são de exemplo.</p>
+        <div className="pg-acoes">
+          {/* .p-link: o link que public/folha.js usa no prefetch da demo */}
+          <FolhaLink className="btn btn-primary p-link" href={p.href}>Abrir demonstração</FolhaLink>
+          <a className="btn btn-secondary" href="#contato">Quero algo assim</a>
+        </div>
+      </>}
+    >
+      <Prancha p={p} demo sizes="(min-width: 1024px) 60vw, 100vw" />
 
-      <section className="pg-bloco pg-texto" aria-labelledby="mostra-t">
-        <h2 id="mostra-t">O que a demonstração mostra</h2>
+      <Bloco n={`${p.id}-A`} id="caso-t" titulo="O caso">
+        <ol className="steps pg-caso">
+          {caso.map(([n, t, d]) => (
+            <li key={n} className="step">
+              <span className="step-n mono" aria-hidden="true">{n}</span>
+              <h3>{t}</h3>
+              <p>{d}</p>
+            </li>
+          ))}
+        </ol>
+      </Bloco>
+
+      <Bloco n={`${p.id}-B`} id="mostra-t" titulo="O que a demonstração mostra">
         <ul className="pg-lista">{p.mostra.map((m) => <li key={m}>{m}</li>)}</ul>
-        <ul className="p-tags mono" aria-label="Tecnologias">{p.tags.map((t) => <li key={t}>{t}</li>)}</ul>
-        <p className="mono">É uma demonstração: os dados são de exemplo.</p>
-      </section>
+      </Bloco>
 
-      <section className="pg-bloco pg-texto" aria-labelledby="servico-t">
-        <h2 id="servico-t">Para o seu negócio</h2>
+      <Bloco n={`${p.id}-C`} id="servico-t" titulo="Para o seu negócio">
         <p>{s.intro}</p>
         <div className="pg-ligado">
           <a className="link p-link" href={`/servicos/${s.slug}`}>Ver o serviço: {s.nome} <Seta /></a>
-          <Link className="link p-link" href="/#contato">Pedir orçamento <Seta /></Link>
         </div>
-      </section>
+      </Bloco>
     </Pagina>
   );
 }

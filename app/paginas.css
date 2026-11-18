@@ -1,43 +1,108 @@
-/* Páginas de projeto e de serviço (/projetos/[slug], /servicos/[slug]). Mesmo papel, mesma malha e mesmos tokens da
-   home, sem as animações dela: são páginas de leitura, que precisam aparecer prontas (e rápidas para a busca). */
-.pg { row-gap: var(--s-32); padding-block: var(--s-48) var(--s-64); }
+/* Páginas de projeto e de serviço (/projetos/[slug], /servicos/[slug]). Mesmo papel, malha, tokens e moldura de
+   prancha da home; sem as revelações ao rolar no conteúdo (páginas de leitura, aparecem prontas). A Folha 04 (contato)
+   no fim é a da home, com as animações dela.
+   Linhas de cota: --line-strong (3,2:1 ou mais sobre o papel nos dois temas, acima dos 3:1 de elementos gráficos).
+   Rótulos mono: --muted (AA para texto pequeno nos dois temas). */
+.pg { row-gap: var(--s-32); padding-block: var(--s-24) var(--s-48); }
 .pg > * { grid-column: 1 / -1; min-width: 0; }
-@media (min-width: 1024px) { .pg > * { grid-column: 2 / 12; } .pg > .pg-texto { grid-column: 2 / 9; } }
 
+/* Cota: linha fina com as marcas a 45 graus nas pontas, como as cotas da home. Usada nas divisórias. */
+.pg-cab, .pg-bloco, .pg-indice, .pg-lado > * + * { position: relative; padding-top: var(--s-24); }
+.pg-cab::before, .pg-bloco::before, .pg-indice::before, .pg-lado > * + *::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 9px; transform: translateY(-4px);
+  background:
+    linear-gradient(var(--line-strong), var(--line-strong)) 0 50% / 100% 1px no-repeat,
+    linear-gradient(45deg, transparent calc(50% - 0.6px), var(--line-strong) calc(50% - 0.6px), var(--line-strong) calc(50% + 0.6px), transparent calc(50% + 0.6px)) 0 0 / 9px 9px no-repeat,
+    linear-gradient(45deg, transparent calc(50% - 0.6px), var(--line-strong) calc(50% - 0.6px), var(--line-strong) calc(50% + 0.6px), transparent calc(50% + 0.6px)) 100% 0 / 9px 9px no-repeat;
+}
+
+/* Topo: trilha colada no rótulo da folha */
 .pg-trilha ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-4) var(--s-8); font-size: var(--t-sm); color: var(--muted); }
-.pg-trilha li + li::before { content: "/"; margin-right: var(--s-8); color: var(--subtle); }
+.pg-trilha li + li::before { content: "/"; margin-right: var(--s-8); color: var(--muted); }
 .pg-trilha a { color: var(--muted); }
+.pg-trilha + .pg-cab { margin-top: calc(-1 * var(--s-16)); }
+.pg-cab { display: grid; gap: var(--s-12); }
+.pg-cab > .mono { color: var(--muted); }
+/* No máximo 2 linhas no desktop e 3 no celular para os títulos das páginas (o maior tem 62 caracteres). */
+.pg-cab h1 { margin: 0; font: 600 clamp(1.75rem, 1.05rem + 2.6vw, 3.5rem)/1.06 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 34ch; overflow-wrap: break-word; text-wrap: balance; }
+/* 30em no corpo de 20px: cerca de 60 a 65 caracteres por linha */
+.pg-lead { margin: 0; font-size: var(--t-md); color: var(--ink-2); max-width: 30em; }
 
-.pg-cab { display: grid; gap: var(--s-16); padding-top: var(--s-16); border-top: 1px solid var(--line); }
-.pg-cab .mono { color: var(--muted); }
-.pg-cab h1 { margin: 0; font: 600 var(--t-2xl)/1.05 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 20ch; overflow-wrap: break-word; hyphens: auto; }
-.pg-lead { margin: 0; font-size: var(--t-md); color: var(--ink-2); max-width: 56ch; }
-
-.pg-demo { display: grid; gap: var(--s-32); }
-.pg .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
-.pg-media { display: block; }
-.pg-fig { margin: 0; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; background: var(--paper-2); }
-.pg-fig img { display: block; width: 100%; height: auto; }
-.pg-fig .pg-img-d { display: none; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pg-fig .pg-img-l { display: none; } :root:not([data-theme="light"]) .pg-fig .pg-img-d { display: block; } }
-:root[data-theme="dark"] .pg-fig .pg-img-l { display: none; }
-:root[data-theme="dark"] .pg-fig .pg-img-d { display: block; }
-
-.pg-bloco { display: grid; gap: var(--s-12); padding-top: var(--s-16); border-top: 1px solid var(--line); }
-.pg-bloco h2 { margin: 0; font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); color: var(--ink); }
-.pg-bloco p { margin: 0; max-width: 62ch; }
-.pg-bloco .p-caso dd { margin: 0; max-width: 62ch; }
-.pg-lista { margin: 0; padding-left: 1.2em; list-style: disc; display: grid; gap: var(--s-8); max-width: 62ch; }
-.pg-lista li::marker { color: var(--accent); }
-
+/* Lateral: ficha, CTA e (no serviço) o exemplo. No celular, um bloco logo depois do cabeçalho. */
+.pg-lado { display: grid; gap: var(--s-24); align-content: start; }
+.pg-lado-t, .pg-ficha dt, .pg-indice h2 { margin: 0 0 var(--s-8); font-size: var(--t-xs); font-weight: 400; color: var(--muted); }
+.pg-ficha { margin: 0; display: grid; gap: var(--s-16); }
+.pg-ficha dd { margin: 0; }
+/* tags na fonte do texto (pré-carregada): na mono, a quebra mudava quando a fonte chegava e a lateral pulava no celular */
+.pg-ficha .p-tags { margin: 0; font-family: var(--f-text); font-size: var(--t-xs); letter-spacing: 0; }
+/* Fonte do texto, não a mono: a Geist Mono não é pré-carregada e, ao chegar, mudava a quebra desta linha no celular
+   (a lateral fica na primeira tela e o salto contava no CLS). */
+.pg-nota { margin: 0; font-size: var(--t-sm); color: var(--muted); }
+.pg-lado p { margin: 0; color: var(--muted); }
+.pg-lado p strong { color: var(--ink); font-weight: 600; }
+.pg-lado .pg-prancha { margin-block: var(--s-8) var(--s-12); }
 .pg-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); }
-.pg-ligado { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); }
+.pg .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
+.pg-ligado { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); margin-top: var(--s-12); }
 .pg-ligado .p-link { margin-top: 0; }
 
-.pg .steps { margin-top: var(--s-8); }
+/* Corpo: blocos numerados */
+.pg-corpo { display: grid; gap: var(--s-48); align-content: start; }
+.pg-bloco { display: grid; gap: var(--s-16); }
+.pg-bh { display: grid; gap: var(--s-4); }
+.pg-bh > .mono { font-size: var(--t-xs); color: var(--muted); }
+.pg-bh h2 { margin: 0; font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); color: var(--ink); }
+.pg-bloco > p { margin: 0; max-width: 62ch; }
+.pg-lista { margin: 0; padding-left: 1.2em; list-style: disc; display: grid; gap: var(--s-8); max-width: 62ch; }
+.pg-lista li::marker { color: var(--accent); }
 .pg .step h3 { margin: 0; font: 600 var(--t-md)/1.3 var(--f-text); color: var(--ink); }
-.pg-rodape { margin-top: var(--s-32); padding-block: var(--s-16); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-12) var(--s-24); font-size: var(--t-sm); }
-.pg-rodape nav { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); }
+
+/* Moldura de prancha da home, estática. A proporção vem da captura (--pg-ar, Prancha.tsx) a partir de 768px. */
+.pg-prancha { width: 100%; }
+@media (min-width: 768px) { .pg-prancha .p-media { aspect-ratio: var(--pg-ar, 16 / 10); } }
+.pg-prancha .p-media img { filter: none; }
+.pg-prancha .p-sombra { opacity: 1; }
+.pg-lado .pg-prancha { grid-template-columns: 20px minmax(0, 1fr); grid-template-rows: 20px auto auto; }
+.pg-lado .pg-prancha figcaption { font-size: var(--t-xs); }
+
+/* "O caso": as etapas de "Como trabalho" (.steps/.step), lado a lado no desktop, ligadas por uma linha horizontal */
+@media (min-width: 1024px) {
+  .pg-caso.steps { grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--s-32); }
+  .pg-caso .step { padding-left: 0; padding-top: var(--s-48); }
+  .pg-caso .step::before { left: 32px; right: calc(-1 * var(--s-32) + 8px); top: 12px; bottom: auto; width: auto; height: 1px; }
+}
+
+/* Carimbo de legenda: canto inferior direito, como num desenho técnico */
+.pg-carimbo { justify-self: end; margin: 0; display: grid; grid-template-columns: auto auto; border: 1px solid var(--line-strong); font-size: var(--t-xs); width: min(100%, 26rem); }
+.pg-carimbo > div { display: grid; gap: 2px; padding: var(--s-8) var(--s-12); border-top: 1px solid var(--line-strong); min-width: 0; }
+.pg-carimbo > div:nth-child(-n + 2) { border-top: 0; }
+.pg-carimbo > div:nth-child(even) { border-left: 1px solid var(--line-strong); }
+.pg-carimbo dt { color: var(--muted); }
+.pg-carimbo dd { margin: 0; color: var(--ink); overflow-wrap: anywhere; }
+
+/* Índice das outras folhas, em dois grupos */
+.pg-indice { display: grid; gap: var(--s-32); }
+.pg-indice ol { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-8); }
+.pg-indice :is(a, .pg-i-atual) { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-4) var(--s-12); padding: var(--s-12) var(--s-16); border: 1px solid var(--line-strong); border-radius: var(--radius); color: var(--ink); text-decoration: none; }
+.pg-indice a:hover { border-color: var(--accent); color: var(--accent); }
+.pg-indice a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pg-indice :is(a, .pg-i-atual) > .mono:first-child { min-width: 3.2em; font-size: var(--t-xs); color: var(--muted); }
+.pg-i-atual { border-style: dashed !important; background: var(--paper-2); }
+.pg-i-aqui { margin-left: auto; font-size: var(--t-xs); color: var(--muted); }
+@media (min-width: 768px) { .pg-indice { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--gutter); } }
+
+/* Desktop: corpo à esquerda (8 colunas), lateral fixa à direita (4). O topo ocupa as 12. */
+.pg-miolo { display: grid; gap: var(--s-32); }
+@media (min-width: 1024px) {
+  .pg-miolo { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
+  .pg-corpo { grid-column: 1 / 9; grid-row: 1; }
+  .pg-lado { grid-column: 9 / -1; grid-row: 1; align-self: start; }
+  .pg-lado > :first-child { padding-top: var(--s-24); }
+  .pg-lado > :first-child::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--line-strong); }
+  .pg-lado > :first-child { position: relative; }
+}
+/* sticky só quando a lateral cabe na altura da tela */
+@media (min-width: 1024px) and (min-height: 760px) { .pg-lado { position: sticky; top: 76px; } }
 
 /* Links de serviço no rodapé da home */
 .foot-servicos { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); font-size: var(--t-sm); }
