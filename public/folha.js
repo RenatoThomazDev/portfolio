@@ -182,6 +182,9 @@
         }, VOO + ASSENTA);
       }, DESCOLA);
     }
+    // Carrossel da home: card cortado na borda do trilho entra inteiro antes (sem animação), e a folha sai da
+    // posição real dele.
+    noTrilho(media);
     // No celular o "Abrir demonstração" fica abaixo do texto e a miniatura costuma estar fora da tela: antes de
     // descolar, a página rola (300ms, easeOutCubic) até deixar a folha inteira à vista.
     var q = media.getBoundingClientRect();
@@ -192,6 +195,17 @@
       scrollTo({ top: de + (para - de) * (1 - Math.pow(1 - k, 3)), behavior: 'instant' });
       if (k < 1) requestAnimationFrame(passo); else sair();
     })(t0);
+  }
+
+  // Se o card estiver no trilho do carrossel (.car-trilho) e não couber inteiro nele, rola o trilho até o card ficar
+  // no início (a mesma posição do snap), sem animação. Fora do carrossel não faz nada.
+  function noTrilho(el) {
+    var t = el.closest('.car-trilho'), s = el.closest('.car-trilho > .project');
+    if (!t || !s) return;
+    var a = s.getBoundingClientRect(), b = t.getBoundingClientRect();
+    if (a.left >= b.left - 1 && a.right <= b.right + 1) return;
+    var pad = parseFloat(getComputedStyle(t).scrollPaddingLeft) || 0;
+    t.scrollTo({ left: t.scrollLeft + a.left - b.left - pad, behavior: 'instant' });
   }
 
   /* ---------- Volta ---------- */
@@ -207,7 +221,9 @@
     if (!media || !frame) { r.classList.remove('folha-volta'); return; }
     frame.classList.remove('levanta');
     frame.classList.add('colado', 'ja', 'pousando');
-    media.scrollIntoView({ block: 'center', behavior: 'instant' });
+    // carrossel: primeiro o trilho vai até o card desta demo (sem animação), depois a página centraliza
+    noTrilho(media);
+    media.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
     var f = montar(media, slug), c = f.card, t = f.tela, enc = 0.7;
     media.style.opacity = '0';
     r.classList.remove('folha-volta');

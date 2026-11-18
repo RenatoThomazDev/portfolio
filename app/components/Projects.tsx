@@ -7,6 +7,7 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
+import Carrossel from "./Carrossel";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -34,9 +35,15 @@ export default function Projects() {
       </div>
 
       <Colar />
-      <ol className="projects">
-        {DEMOS.map((p) => (
-          <li key={p.id} className="project" data-demo={p.slug} data-cotas>
+      {/* Carrossel: o trilho é CSS puro (scroll-snap), rola com dedo, trackpad e teclado mesmo sem JS. Com JS entram
+          os controles (Carrossel.tsx), num espaço já reservado. Sem autoplay. */}
+      <section className="car" aria-roledescription="carrossel" aria-label="Demonstrações">
+      <Carrossel itens={DEMOS.map((p) => ({ id: p.id, title: p.title }))} />
+      {/* div, não lista: cada slide é role="group" com o rótulo "Projeto n de 3", o que <li> não aceita.
+          data-lenis-prevent-horizontal: o Lenis (SmoothScroll.tsx) não trata gesto horizontal no trilho. */}
+      <div className="projects car-trilho" tabIndex={0} data-lenis-prevent-horizontal aria-label="Demonstrações. Use as setas para passar de uma a outra.">
+        {DEMOS.map((p, i) => (
+          <div key={p.id} className="project" data-demo={p.slug} data-cotas role="group" aria-roledescription="slide" aria-label={`Projeto ${i + 1} de ${DEMOS.length}: ${p.title}`}>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
@@ -75,9 +82,10 @@ export default function Projects() {
                 {p.code &&<a className="link p-link" href={p.code} target="_blank" rel="noopener noreferrer">Ver código<span className="sr-only">: {p.title} (abre em nova aba)</span> <Arrow /></a>}
               </div>
             </div>
-          </li>
+          </div>
         ))}
-      </ol>
+      </div>
+      </section>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">
