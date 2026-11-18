@@ -13,8 +13,12 @@ const geist = Geist({ variable: "--font-geist", subsets: ["latin"], display: "sw
 // serviço, rótulos, cotas e legenda da moldura). Com "swap", a troca da substituta mudava a largura desses textos e
 // somava CLS; com preload, ela disputava banda com as fontes do título e a home caía abaixo de 95 no Lighthouse.
 // "optional" nunca troca depois de pintar: se não chegou a tempo, a página fica na substituta e a próxima já usa a
-// Geist Mono do cache.
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], display: "optional", preload: false });
+// Geist Mono do cache. A substituta é uma mono do sistema (sem a gerada pelo Next, que imita a Arial e não é
+// monoespaçada): na primeira visita o texto já sai em mono.
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono", subsets: ["latin"], display: "optional", preload: false,
+  adjustFontFallback: false, fallback: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", "monospace"],
+});
 // Clash Display hospedada no projeto (Fontshare, ITF Free Font License) e pré-carregada:
 // chega junto com a primeira pintura. "block" porque o arquivo tem 15 KB e vem do próprio site: em vez de
 // mostrar a substituta e trocar (o título mudava de linhas e a página pulava), espera a fonte.

@@ -109,6 +109,13 @@
 /* Legenda da moldura: espaço à direita do tamanho da fita do canto (largura máxima dela, 96px), para o texto nunca
    ficar embaixo da fita */
 .pg-prancha figcaption { padding-right: 96px; }
+/* Textos mono da primeira tela: a mono do sistema (substituta) e a Geist Mono têm larguras diferentes. Os rótulos
+   curtos não quebram, e a legenda reserva a altura das linhas que pode ocupar (3 no celular, 2 a partir de 768px),
+   para nada mudar de lugar se a fonte for trocada. */
+.sheet-no, .pg-cab > .mono, .pg-bh > .mono, .pf-w, .pf-h, .step-n, .pg-lado-t, .pg-ficha dt, .pg-carimbo dt,
+.pg-indice h2, .pg-i-aqui, .pg-indice :is(a, .pg-i-atual) > .mono:first-child { white-space: nowrap; }
+.pg-prancha figcaption { min-height: calc(3 * 1.4em); }
+@media (min-width: 768px) { .pg-prancha figcaption { min-height: calc(2 * 1.4em); } }
 .pg-prancha .p-link svg, .pg .seta-d { transform: none; }
 .pg .p-link:hover .seta-d { transform: translateX(3px); }
 @media (min-width: 1024px) {
