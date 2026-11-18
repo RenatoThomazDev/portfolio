@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Header from "./components/Header";
 
-export const metadata = { title: "Folha não encontrada | Renato Thomaz" };
+export const metadata = { title: "Folha não encontrada" };
 
 export default function NotFound() {
   return (

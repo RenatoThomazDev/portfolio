@@ -8,48 +8,10 @@ import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
 
-/* Cada demonstração: o problema de quem contrata, o que foi feito e o resultado, em linguagem de cliente.
-   Sem números: são demonstrações, não há métrica real para citar. "code" é o endereço do repositório, quando
-   existir (o botão "Ver código" só aparece com ele preenchido). */
-type Demo = { id: string; slug: string; kind: string; title: string; problema: string; feito: string; resultado: string; tags: string[]; href: string; img: string; code?: string };
-const DEMOS: Demo[] = [
-  {
-    id: "02.1",
-    slug: "clinica",
-    kind: "Landing page",
-    title: "Clínica odontológica",
-    problema: "Quem pesquisa um dentista à noite ou no intervalo do trabalho não quer ligar. Se o site não deixa marcar, a pessoa vai para o próximo.",
-    feito: "Página com tratamentos, preços iniciais, dúvidas e os horários da semana. O paciente escolhe dia e horário e a mensagem para o WhatsApp já sai pronta.",
-    resultado: "O paciente chega ao WhatsApp sabendo o que quer. A recepção só precisa confirmar.",
-    tags: ["HTML", "CSS", "JavaScript"],
-    href: "/demos/clinica",
-    img: "/projetos/clinica.png",
-  },
-  {
-    id: "02.2",
-    slug: "orcamentos",
-    kind: "Sistema web",
-    title: "Gerador de orçamentos",
-    problema: "Orçamento montado no Word ou na planilha demora, sai cada vez de um jeito e depois ninguém acha a última versão.",
-    feito: "Sistema com catálogo de serviços, itens e desconto calculados na hora, histórico dos orçamentos e PDF pronto para enviar.",
-    resultado: "O orçamento sai em poucos minutos, numerado e sempre com a mesma apresentação.",
-    tags: ["JavaScript", "Histórico no navegador", "PDF"],
-    href: "/demos/orcamentos",
-    img: "/projetos/orcamentos.png",
-  },
-  {
-    id: "02.3",
-    slug: "automacao",
-    kind: "Automação",
-    title: "Formulário para planilha e WhatsApp",
-    problema: "Contato do site que cai só no e-mail fica dias sem resposta, e alguém ainda precisa copiar os dados para a planilha.",
-    feito: "Cada envio do formulário vira uma linha na planilha e um aviso no WhatsApp da equipe. A demonstração mostra cada etapa acontecendo.",
-    resultado: "Ninguém copia dados à mão, e a equipe responde enquanto o cliente ainda está interessado.",
-    tags: ["JavaScript", "Planilha (simulada)", "WhatsApp (simulado)"],
-    href: "/demos/automacao",
-    img: "/projetos/automacao.png",
-  },
-];
+import { PROJETOS as DEMOS } from "../../config/paginas";
+
+/* Cada demonstração: o problema de quem contrata, o que foi feito e o resultado, em linguagem de cliente. Os
+   textos ficam em config/paginas.ts, os mesmos das páginas /projetos/[slug]. */
 
 const ERP = [
   { t: "Venda", s: "pedido aprovado" },
@@ -109,7 +71,8 @@ export default function Projects() {
               </ul>
               <div className="p-acoes">
                 <ProjectLink href={p.href}>Abrir demonstração<span className="sr-only">: {p.title}</span> <Arrow /></ProjectLink>
-                {p.code && <a className="link p-link" href={p.code} target="_blank" rel="noopener noreferrer">Ver código<span className="sr-only">: {p.title} (abre em nova aba)</span> <Arrow /></a>}
+                <a className="link p-link" href={`/projetos/${p.slug}`}>Ver detalhes<span className="sr-only"> do projeto {p.title}</span> <Arrow /></a>
+                {p.code &&<a className="link p-link" href={p.code} target="_blank" rel="noopener noreferrer">Ver código<span className="sr-only">: {p.title} (abre em nova aba)</span> <Arrow /></a>}
               </div>
             </div>
           </li>

@@ -1,0 +1,43 @@
+/* Páginas de projeto e de serviço (/projetos/[slug], /servicos/[slug]). Mesmo papel, mesma malha e mesmos tokens da
+   home, sem as animações dela: são páginas de leitura, que precisam aparecer prontas (e rápidas para a busca). */
+.pg { row-gap: var(--s-32); padding-block: var(--s-48) var(--s-64); }
+.pg > * { grid-column: 1 / -1; min-width: 0; }
+@media (min-width: 1024px) { .pg > * { grid-column: 2 / 12; } .pg > .pg-texto { grid-column: 2 / 9; } }
+
+.pg-trilha ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-4) var(--s-8); font-size: var(--t-sm); color: var(--muted); }
+.pg-trilha li + li::before { content: "/"; margin-right: var(--s-8); color: var(--subtle); }
+.pg-trilha a { color: var(--muted); }
+
+.pg-cab { display: grid; gap: var(--s-16); padding-top: var(--s-16); border-top: 1px solid var(--line); }
+.pg-cab .mono { color: var(--muted); }
+.pg-cab h1 { margin: 0; font: 600 var(--t-2xl)/1.05 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 20ch; overflow-wrap: break-word; hyphens: auto; }
+.pg-lead { margin: 0; font-size: var(--t-md); color: var(--ink-2); max-width: 56ch; }
+
+.pg-demo { display: grid; gap: var(--s-32); }
+.pg .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
+.pg-media { display: block; }
+.pg-fig { margin: 0; border: 1px solid var(--line-strong); border-radius: 4px; overflow: hidden; background: var(--paper-2); }
+.pg-fig img { display: block; width: 100%; height: auto; }
+.pg-fig .pg-img-d { display: none; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pg-fig .pg-img-l { display: none; } :root:not([data-theme="light"]) .pg-fig .pg-img-d { display: block; } }
+:root[data-theme="dark"] .pg-fig .pg-img-l { display: none; }
+:root[data-theme="dark"] .pg-fig .pg-img-d { display: block; }
+
+.pg-bloco { display: grid; gap: var(--s-12); padding-top: var(--s-16); border-top: 1px solid var(--line); }
+.pg-bloco h2 { margin: 0; font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); color: var(--ink); }
+.pg-bloco p { margin: 0; max-width: 62ch; }
+.pg-bloco .p-caso dd { margin: 0; max-width: 62ch; }
+.pg-lista { margin: 0; padding-left: 1.2em; list-style: disc; display: grid; gap: var(--s-8); max-width: 62ch; }
+.pg-lista li::marker { color: var(--accent); }
+
+.pg-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); }
+.pg-ligado { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); }
+.pg-ligado .p-link { margin-top: 0; }
+
+.pg .steps { margin-top: var(--s-8); }
+.pg .step h3 { margin: 0; font: 600 var(--t-md)/1.3 var(--f-text); color: var(--ink); }
+.pg-rodape { margin-top: var(--s-32); padding-block: var(--s-16); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-12) var(--s-24); font-size: var(--t-sm); }
+.pg-rodape nav { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); }
+
+/* Links de serviço no rodapé da home */
+.foot-servicos { display: flex; flex-wrap: wrap; gap: var(--s-8) var(--s-24); font-size: var(--t-sm); }

@@ -3,6 +3,7 @@
 @import "./hero.css";
 @import "./sections.css";
 @import "./vida.css";
+@import "./paginas.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;

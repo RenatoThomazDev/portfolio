@@ -1,6 +1,7 @@
 import Split from "./Split";
 import ContactForm from "./ContactForm";
 import { CONTATO, WHATSAPP_URL } from "../../config/contato";
+import { SERVICOS } from "../../config/paginas";
 
 /* Folha 04: duas colunas na malha de 12 (5 + 7) a partir de 1024px. À esquerda, título, apoio e canais diretos; à
    direita, o bloco do formulário. A ordem do DOM é a do celular: título, formulário, canais (sections.css, "Folha 04"). */
@@ -59,6 +60,10 @@ export default function Contact() {
       {/* Faixa final: nome e ano à esquerda; "Voltar ao topo" e o carimbo pequeno à direita. */}
       <footer className="site-footer wrap" data-reveal>
         <p className="foot-nome">Renato Thomaz <span className="mono">{new Date().getFullYear()}</span></p>
+        {/* Links para as páginas de serviço: a home também aponta para elas (busca e quem quer ler mais). */}
+        <nav className="foot-servicos" aria-label="Serviços">
+          {SERVICOS.map((s) => <a key={s.slug} className="link" href={`/servicos/${s.slug}`}>{s.nome}</a>)}
+        </nav>
         <div className="foot-dir">
           <a href="#topo" className="link foot-top">Voltar ao topo <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M8 13V3M4 7l4-4 4 4" /></svg></a>
           {/* Carimbo: bate no papel quando o fim da página entra na tela (vida.css); a tinta irregular vem do filtro

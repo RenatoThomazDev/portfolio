@@ -1,6 +1,7 @@
 import Split from "./Split";
 import SecN from "./SecN";
-const STEPS = [
+// Também nas páginas de serviço (app/servicos/[slug]).
+export const STEPS = [
   { t: "Conversa", d: "Você me conta o problema. Pergunto até entender como o seu dia a dia funciona." },
   { t: "Proposta", d: "Envio escopo, prazo e valor por escrito antes de começar." },
   { t: "Entregas parciais", d: "Você acompanha o projeto por um link e pede ajustes ao longo do caminho." },

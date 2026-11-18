@@ -138,12 +138,14 @@
   var saindo = false, espera = 0;
   function decolar(media, href) {
     if (saindo) return; saindo = true;
-    var frame = media.closest('.p-frame'), slug = media.closest('.project').dataset.demo;
+    // [data-demo]: o card da home (.project) ou o bloco da página do projeto (/projetos/[slug], sem moldura .p-frame
+    // nem fita: lá a folha só voa)
+    var frame = media.closest('.p-frame'), slug = media.closest('[data-demo]').dataset.demo;
     // clique sem passar o mouse antes (teclado, ou toque que não gerou touchstart): o prefetch e a captura começam
     // aqui, no início da animação; a captura só entra se ficar pronta a tempo
-    prefetch(media.closest('.project'));
+    prefetch(media.closest('[data-demo]'));
     function sair() {
-      frame.classList.add('levanta');
+      if (frame) frame.classList.add('levanta');
       setTimeout(function () {
         var f = montar(media, slug), c = f.card, t = f.tela, fim = VOO / (VOO + ASSENTA);
         media.style.opacity = '0';
@@ -254,6 +256,8 @@
     document.querySelectorAll('.folha-voo, .folha-veu, .folha-carregando').forEach(function (x) { x.remove(); });
     var m = document.querySelector('.p-frame.levanta .p-media'), slug = m && m.closest('.project').dataset.demo;
     if (m) m.style.opacity = '';
+    // página de projeto: não há pouso, a imagem só reaparece
+    document.querySelectorAll('.pg-media').forEach(function (x) { x.style.opacity = ''; });
     if (slug && pode()) pousar(slug); else document.querySelectorAll('.p-frame.levanta').forEach(function (x) { x.classList.remove('levanta'); });
   });
 
@@ -263,7 +267,7 @@
   var buscadas = {};
   function prefetch(alvo) {
     if (alvo && alvo.target) alvo = alvo.target;
-    var p = alvo && alvo.closest && alvo.closest('.project'), a = p && p.querySelector('.p-link');
+    var p = alvo && alvo.closest && alvo.closest('[data-demo]'), a = p && p.querySelector('.p-link');
     if (!a) return;
     preparar(p.dataset.demo); // a captura da tela que vai abrir (por tamanho e tema de agora)
     if (buscadas[a.href]) return; buscadas[a.href] = 1;
