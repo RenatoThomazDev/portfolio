@@ -19,7 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: s.seoTitulo,
     description: s.descricao,
     alternates: { canonical: url },
-    openGraph: { title: s.seoTitulo, description: s.descricao, url },
+    // openGraph próprio substitui o da raiz inteiro, inclusive a imagem: repete a imagem de compartilhamento do site
+    openGraph: { title: s.seoTitulo, description: s.descricao, url, images: [{ url: "/opengraph-image.png", width: 1200, height: 630 }] },
   };
 }
 
