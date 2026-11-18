@@ -138,9 +138,10 @@
   var saindo = false, espera = 0;
   function decolar(media, href) {
     if (saindo) return; saindo = true;
-    // [data-demo]: o card da home (.project) ou o bloco da página do projeto (/projetos/[slug], sem moldura .p-frame
-    // nem fita: lá a folha só voa)
+    // [data-demo]: o card da home (.project) ou o bloco das páginas de projeto e de serviço
     var frame = media.closest('.p-frame'), slug = media.closest('[data-demo]').dataset.demo;
+    // de onde saiu: o "Voltar ao portfólio" da demo usa quando não houver referrer (app/demos/[demo]/route.ts)
+    try { sessionStorage.setItem('folha-origem', location.pathname); } catch (e) {}
     // clique sem passar o mouse antes (teclado, ou toque que não gerou touchstart): o prefetch e a captura começam
     // aqui, no início da animação; a captura só entra se ficar pronta a tempo
     prefetch(media.closest('[data-demo]'));
@@ -240,7 +241,8 @@
   // tira o "#projetos" do endereço (senão o navegador rola até a âncora e a folha não pousa no centro) e pousa
   // quando a página estiver lida. Recarregar a página não repete o pouso.
   var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
-  var vem = location.pathname === '/' && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
+  // na home ou nas páginas de projeto e de serviço (a demo volta para a página de onde saiu)
+  var vem = /^\/((projetos|servicos)\/[a-z-]+)?$/.test(location.pathname) && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
   if (vem && DEMOS[vem[1]] && pode()) {
     r.classList.add('folha-volta');
     r.style.setProperty('--folha-capa', corDemo(vem[1]));

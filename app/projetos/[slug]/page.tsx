@@ -41,7 +41,8 @@ export default async function ProjetoPage({ params }: Props) {
         <span className="mono">Folha {p.id} / Projeto</span>
         {/* h1 curto (o nome do projeto); o título longo, para a busca, fica no <title> */}
         <h1>{p.title}</h1>
-        <p className="pg-lead">{p.descricao}</p>
+        {/* o ganho em uma frase (o "resultado"); a descrição longa fica só na meta description */}
+        <p className="pg-lead">{p.resultado}</p>
       </>}
       lateral={<>
         <dl className="pg-ficha">

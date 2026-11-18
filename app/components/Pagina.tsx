@@ -45,7 +45,7 @@ export default function Pagina({ folha, trilha, jsonLd, atual, demo, cabecalho, 
           </nav>
           <header className="pg-cab">{cabecalho}</header>
           {/* lateral e corpo num bloco só: a lateral fixa (sticky) para no fim do corpo, sem cobrir o carimbo e o índice */}
-          <div className="pg-miolo">
+          <div className={`pg-miolo${demo && atual.startsWith("/projetos/") ? " pg-miolo-proj" : ""}`}>
             <aside className="pg-lado" aria-label="Resumo e contato">{lateral}</aside>
             <div className="pg-corpo">{children}</div>
           </div>
@@ -93,6 +93,7 @@ export function Bloco({ n, id, titulo, className, children }: { n: string; id: s
   );
 }
 
+// Seta para a direita: links internos (a diagonal fica para os que saem do site)
 export const Seta = () => (
-  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" /></svg>
+  <svg className="seta-d" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" /></svg>
 );

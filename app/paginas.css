@@ -24,7 +24,7 @@
 .pg-cab { display: grid; gap: var(--s-12); }
 .pg-cab > .mono { color: var(--muted); }
 /* No máximo 2 linhas no desktop e 3 no celular para os títulos das páginas (o maior tem 62 caracteres). */
-.pg-cab h1 { margin: 0; font: 600 clamp(1.75rem, 1.05rem + 2.6vw, 3.5rem)/1.06 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 34ch; overflow-wrap: break-word; text-wrap: balance; }
+.pg-cab h1 { margin: 0; font: 600 clamp(1.5rem, 1.05rem + 2.6vw, 3.5rem)/1.06 var(--f-display); letter-spacing: var(--track-2xl); word-spacing: var(--word-2xl); color: var(--ink); max-width: 34ch; overflow-wrap: break-word; text-wrap: balance; }
 /* 30em no corpo de 20px: cerca de 60 a 65 caracteres por linha */
 .pg-lead { margin: 0; font-size: var(--t-md); color: var(--ink-2); max-width: 30em; }
 
@@ -93,6 +93,24 @@
 
 /* Desktop: corpo à esquerda (8 colunas), lateral fixa à direita (4). O topo ocupa as 12. */
 .pg-miolo { display: grid; gap: var(--s-32); }
+/* Projeto abaixo de 1024px: a figura logo depois da abertura, os botões embaixo dela e a ficha depois. Lateral e
+   corpo "somem" da caixa (display: contents) para os filhos entrarem nessa ordem; no desktop voltam a ser colunas. */
+@media (max-width: 1023px) {
+  .pg-miolo-proj { display: flex; flex-direction: column; gap: var(--s-32); }
+  .pg-miolo-proj > :is(.pg-lado, .pg-corpo) { display: contents; }
+  .pg-miolo-proj .pg-prancha { order: 1; }
+  .pg-miolo-proj .pg-acoes { order: 2; margin-top: calc(-1 * var(--s-16)); padding-top: 0; }
+  .pg-miolo-proj .pg-acoes::before { display: none; }
+  .pg-miolo-proj .pg-ficha { order: 3; }
+  .pg-miolo-proj .pg-nota { order: 4; margin-top: calc(-1 * var(--s-16)); padding-top: 0; }
+  .pg-miolo-proj .pg-nota::before { display: none; }
+  .pg-miolo-proj .pg-bloco { order: 5; margin-top: var(--s-16); }
+}
+/* Legenda da moldura: espaço à direita do tamanho da fita do canto (largura máxima dela, 96px), para o texto nunca
+   ficar embaixo da fita */
+.pg-prancha figcaption { padding-right: 96px; }
+.pg-prancha .p-link svg, .pg .seta-d { transform: none; }
+.pg .p-link:hover .seta-d { transform: translateX(3px); }
 @media (min-width: 1024px) {
   .pg-miolo { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); }
   .pg-corpo { grid-column: 1 / 9; grid-row: 1; }
