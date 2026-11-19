@@ -354,6 +354,11 @@ export default function Scribble() {
     function mostrarDica(e: PointerEvent) {
       if (!dica) { dica = document.createElement("span"); dica.className = "scribble-tip mono"; dica.textContent = "segure e arraste para rabiscar"; dica.setAttribute("aria-hidden", "true"); document.body.appendChild(dica); }
       dica.style.left = e.clientX + 18 + "px"; dica.style.top = e.clientY + 18 + "px";
+      // Nunca em tela de toque, e nunca em cima de texto: se algum canto ou o meio da etiqueta cair sobre um
+      // elemento com texto (ou que bloqueia o rabisco), ela não aparece ali. A etiqueta não recebe ponteiro.
+      const q = dica.getBoundingClientRect();
+      const pontos = [[q.left, q.top], [q.right, q.top], [q.left, q.bottom], [q.right, q.bottom], [(q.left + q.right) / 2, (q.top + q.bottom) / 2]];
+      if (!matchMedia("(hover: hover)").matches || pontos.some(([x, y]) => !vazio(document.elementFromPoint(x, y)))) { dica.classList.remove("on"); return; }
       dica.classList.add("on");
       clearTimeout(dicaT); dicaT = window.setTimeout(() => esconderDica(true), 2500); // só na primeira vez da sessão
     }

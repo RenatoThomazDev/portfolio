@@ -3,7 +3,8 @@
 // que não exista. São demonstrações, então não há métrica real para citar.
 
 export type Projeto = {
-  id: string; slug: string; kind: string; title: string;
+  // curto: o nome na aba da home ("02.1 Clínica")
+  id: string; slug: string; kind: string; title: string; curto: string;
   problema: string; feito: string; resultado: string;
   tags: string[]; href: string; img: string; code?: string;
   // página própria: título para a busca, descrição curta e a lista do que a demonstração mostra
@@ -16,6 +17,7 @@ export const PROJETOS: Projeto[] = [
     slug: "clinica",
     kind: "Landing page",
     title: "Clínica odontológica",
+    curto: "Clínica",
     problema: "Quem pesquisa um dentista à noite ou no intervalo do trabalho não quer ligar. Se o site não deixa marcar, a pessoa vai para o próximo.",
     feito: "Página com tratamentos, preços iniciais, dúvidas e os horários da semana. O paciente escolhe dia e horário e a mensagem para o WhatsApp já sai pronta.",
     resultado: "O paciente chega ao WhatsApp sabendo o que quer. A recepção só precisa confirmar.",
@@ -32,6 +34,7 @@ export const PROJETOS: Projeto[] = [
     slug: "orcamentos",
     kind: "Sistema web",
     title: "Gerador de orçamentos",
+    curto: "Orçamentos",
     problema: "Orçamento montado no Word ou na planilha demora, sai cada vez de um jeito e depois ninguém acha a última versão.",
     feito: "Sistema com catálogo de serviços, itens e desconto calculados na hora, histórico dos orçamentos e PDF pronto para enviar.",
     resultado: "O orçamento sai em poucos minutos, numerado e sempre com a mesma apresentação.",
@@ -48,6 +51,7 @@ export const PROJETOS: Projeto[] = [
     slug: "automacao",
     kind: "Automação",
     title: "Formulário para planilha e WhatsApp",
+    curto: "Automação",
     problema: "Contato do site que cai só no e-mail fica dias sem resposta, e alguém ainda precisa copiar os dados para a planilha.",
     feito: "Cada envio do formulário vira uma linha na planilha e um aviso no WhatsApp da equipe. A demonstração mostra cada etapa acontecendo.",
     resultado: "Ninguém copia dados à mão, e a equipe responde enquanto o cliente ainda está interessado.",

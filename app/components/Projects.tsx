@@ -21,6 +21,10 @@ const ERP = [
   { t: "Painel", s: "tempo real" },
 ];
 
+// → para links internos, como nas páginas de projeto (Pagina.tsx)
+const Seta = () => (
+  <svg className="seta-d" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" /></svg>
+);
 const Arrow = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" /></svg>
 );
@@ -30,7 +34,7 @@ export default function Projects() {
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
       {/* Abas numeradas + molduras empilhadas (Pilha.tsx, pilha.css). Sem JS, os três projetos em sequência. */}
-      <Pilha itens={DEMOS.map((p) => ({ id: p.id, title: p.title }))} cabecalho={
+      <Pilha itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
           {/* ".n" do projeto ativo: só com JS (pilha.css), atualizado por Pilha.tsx */}
@@ -58,6 +62,8 @@ export default function Projects() {
               <Tape side="a" />
               <Tape side="b" />
               <figcaption className="mono">fig. {p.id}: {p.title.toLowerCase()}, tela inicial da demonstração.</figcaption>
+              {/* Só com JS, na moldura de trás (pilha.css): o nome da folha seguinte, ao passar o mouse. */}
+              <span className="pj-tras mono" aria-hidden="true">Próximo: {p.title} →</span>
             </figure>
             <div className="p-body" data-reveal>
               <dl className="p-stamp mono">
@@ -65,17 +71,15 @@ export default function Projects() {
                 <dt>tipo</dt><dd>{p.kind}</dd>
               </dl>
               <h3>{p.title}</h3>
-              <dl className="p-caso">
-                <div><dt className="mono">Problema</dt><dd>{p.problema}</dd></div>
-                <div><dt className="mono">O que fiz</dt><dd>{p.feito}</dd></div>
-                <div><dt className="mono">Resultado</dt><dd>{p.resultado}</dd></div>
-              </dl>
+              {/* Resumo: só o resultado. Problema, o que foi feito e o resultado completos ficam em /projetos/[slug]. */}
+              <p className="p-resumo">{p.resultado}</p>
               <ul className="p-tags mono" aria-label="Tecnologias">
                 {p.tags.map((t) => <li key={t}>{t}</li>)}
               </ul>
               <div className="p-acoes">
-                <ProjectLink href={p.href}>Abrir demonstração<span className="sr-only">: {p.title}</span> <Arrow /></ProjectLink>
-                <a className="link p-link" href={`/projetos/${p.slug}`}>Ver detalhes<span className="sr-only"> do projeto {p.title}</span> <Arrow /></a>
+                {/* links internos com →; o ↗ fica só para o link externo (código) */}
+                <ProjectLink href={p.href}>Abrir demonstração<span className="sr-only">: {p.title}</span> <Seta /></ProjectLink>
+                <a className="link p-link" href={`/projetos/${p.slug}`}>Ver detalhes<span className="sr-only"> do projeto {p.title}</span> <Seta /></a>
                 {p.code &&<a className="link p-link" href={p.code} target="_blank" rel="noopener noreferrer">Ver código<span className="sr-only">: {p.title} (abre em nova aba)</span> <Arrow /></a>}
               </div>
             </div>
