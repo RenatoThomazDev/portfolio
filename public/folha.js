@@ -182,10 +182,8 @@
         }, VOO + ASSENTA);
       }, DESCOLA);
     }
-    // Carrossel da home: card cortado na borda do trilho entra inteiro antes (sem animação), e a folha sai da
-    // posição real dele.
-    noTrilho(media);
-    // No celular o "Abrir demonstração" fica abaixo do texto e a miniatura costuma estar fora da tela: antes de
+    // Na home a folha sai sempre da moldura da frente da pilha: o "Abrir demonstração" é do projeto ativo, e as
+    // molduras de trás são inertes (Pilha.tsx). No celular o "Abrir demonstração" fica abaixo do texto e a miniatura costuma estar fora da tela: antes de
     // descolar, a página rola (300ms, easeOutCubic) até deixar a folha inteira à vista.
     var q = media.getBoundingClientRect();
     if (q.top >= CAB && q.bottom <= innerHeight) { sair(); return; }
@@ -197,15 +195,19 @@
     })(t0);
   }
 
-  // Se o card estiver no trilho do carrossel (.car-trilho) e não couber inteiro nele, rola o trilho até o card ficar
-  // no início (a mesma posição do snap), sem animação. Fora do carrossel não faz nada.
-  function noTrilho(el) {
-    var t = el.closest('.car-trilho'), s = el.closest('.car-trilho > .project');
-    if (!t || !s) return;
-    var a = s.getBoundingClientRect(), b = t.getBoundingClientRect();
-    if (a.left >= b.left - 1 && a.right <= b.right + 1) return;
-    var pad = parseFloat(getComputedStyle(t).scrollPaddingLeft) || 0;
-    t.scrollTo({ left: t.scrollLeft + a.left - b.left - pad, behavior: 'instant' });
+  // Pilha de projetos da home (Pilha.tsx): põe o projeto do card na frente, sem animação (.pj-sem por dois quadros).
+  // Roda antes da hidratação; o Pilha lê o data-pos do DOM ao montar. Fora da pilha não faz nada.
+  function naFrente(p) {
+    var pj = p.closest('.pj'); if (!pj) return;
+    var ps = Array.prototype.slice.call(pj.querySelectorAll('.projects > .project')), k = ps.indexOf(p), n = ps.length;
+    if (k < 0 || p.dataset.pos === '0') return;
+    pj.classList.add('pj-sem');
+    ps.forEach(function (x, i) { x.dataset.pos = String((i - k + n) % n); });
+    var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
+    pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
+    dispatchEvent(new CustomEvent('pilha-ativar', { detail: k }));
+    void pj.offsetWidth;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem'); }); });
   }
 
   /* ---------- Volta ---------- */
@@ -221,8 +223,8 @@
     if (!media || !frame) { r.classList.remove('folha-volta'); return; }
     frame.classList.remove('levanta');
     frame.classList.add('colado', 'ja', 'pousando');
-    // carrossel: primeiro o trilho vai até o card desta demo (sem animação), depois a página centraliza
-    noTrilho(media);
+    // pilha da home: a moldura desta demo vem para a frente (sem animação), depois a página centraliza
+    naFrente(p);
     media.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
     var f = montar(media, slug), c = f.card, t = f.tela, enc = 0.7;
     media.style.opacity = '0';

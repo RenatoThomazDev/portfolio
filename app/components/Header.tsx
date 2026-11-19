@@ -30,7 +30,22 @@ export default function Header({ sheet }: { sheet?: string }) {
   }, [sheet]);
   // Na página inicial as âncoras ficam relativas (o Lenis rola suave); fora dela voltam para "/".
   const base = sheet ? "/" : "";
+  // Na folha 02 o contador mostra também o projeto ativo das abas (Pilha.tsx): "02.2".
+  const [proj, setProj] = useState("1");
+  useEffect(() => {
+    if (sheet) return;
+    const w = window as unknown as { projetoAtivo?: string };
+    if (w.projetoAtivo) setProj(w.projetoAtivo);
+    const ouvir = (e: Event) => setProj((e as CustomEvent<string>).detail);
+    addEventListener("projeto-ativo", ouvir);
+    return () => removeEventListener("projeto-ativo", ouvir);
+  }, [sheet]);
   const num = String(atual + 1).padStart(2, "0");
+  /* O ".n" fica sempre no layout (invisível fora da folha 02) e o "/04" é puxado para trás dele com transform: assim
+     nenhum texto do cabeçalho muda de posição no layout quando o ".n" aparece (sem CLS). A largura é medida. */
+  const sub = useRef<HTMLSpanElement>(null);
+  const [pw, setPw] = useState("2ch");
+  useEffect(() => { if (sub.current) setPw(sub.current.offsetWidth + "px"); }, []);
   // A rolagem só entra quando a folha muda depois da montagem; na primeira pintura o número já aparece pronto.
   const montou = useRef(false);
   const [rolar, setRolar] = useState(false);
@@ -103,7 +118,7 @@ export default function Header({ sheet }: { sheet?: string }) {
       </nav>
       {/* Contador de folha: o número troca rolando, como um contador mecânico. */}
       <span className="mono sheet-no" aria-live="off">
-        {sheet ?? <><span className="sheet-rot">Folha </span><span className={`sheet-d${rolar ? " rolar" : ""}`}><span key={num}>{num}</span></span>/04</>}
+        {sheet ?? <><span className="sheet-rot">Folha </span><span className={`sheet-d${rolar ? " rolar" : ""}`}><span key={num}>{num}</span></span><span ref={sub} className={`sheet-d sheet-p${rolar ? " rolar" : ""}`} data-oculto={atual !== 1 || undefined}><span key={proj}>.{proj}</span></span><span className="sheet-t" data-curto={atual !== 1 || undefined} style={{ "--pw": pw } as React.CSSProperties}>/04</span></>}
       </span>
       <button type="button" className="theme" aria-label="Alternar tema claro e escuro">
         <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" /><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor" /></svg>

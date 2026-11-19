@@ -7,7 +7,7 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-import Carrossel from "./Carrossel";
+import Pilha from "./Pilha";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -28,22 +28,19 @@ const Arrow = () => (
 export default function Projects() {
   return (
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
-      <div className="sec-head" data-reveal>
-          <SecN n="02" />
-        <span className="mono">Folha 02 / Projetos</span>
-        <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
-      </div>
-
       <Colar />
-      {/* Carrossel: o trilho é CSS puro (scroll-snap), rola com dedo, trackpad e teclado mesmo sem JS. Com JS entram
-          os controles (Carrossel.tsx), num espaço já reservado. Sem autoplay. */}
-      <section className="car" aria-roledescription="carrossel" aria-label="Demonstrações">
-      <Carrossel itens={DEMOS.map((p) => ({ id: p.id, title: p.title }))} />
-      {/* div, não lista: cada slide é role="group" com o rótulo "Projeto n de 3", o que <li> não aceita.
-          data-lenis-prevent-horizontal: o Lenis (SmoothScroll.tsx) não trata gesto horizontal no trilho. */}
-      <div className="projects car-trilho" tabIndex={0} data-lenis-prevent-horizontal aria-label="Demonstrações. Use as setas para passar de uma a outra.">
+      {/* Abas numeradas + molduras empilhadas (Pilha.tsx, pilha.css). Sem JS, os três projetos em sequência. */}
+      <Pilha itens={DEMOS.map((p) => ({ id: p.id, title: p.title }))} cabecalho={
+        <div className="sec-head" data-reveal>
+            <SecN n="02" />
+          {/* ".n" do projeto ativo: só com JS (pilha.css), atualizado por Pilha.tsx */}
+          <span className="mono">Folha 02<span className="pj-sub">.1</span> / Projetos</span>
+          <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
+        </div>
+      }>
+      <div className="projects">
         {DEMOS.map((p, i) => (
-          <div key={p.id} className="project" data-demo={p.slug} data-cotas role="group" aria-roledescription="slide" aria-label={`Projeto ${i + 1} de ${DEMOS.length}: ${p.title}`}>
+          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
@@ -52,8 +49,8 @@ export default function Projects() {
               <span className="p-sombra" aria-hidden="true" />
               {/* A imagem repete o link "Abrir demonstração": fica fora da ordem do Tab e do leitor de tela. */}
               <ProjectMedia href={p.href} folha={p.id}>
-              <Image className="img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 58vw, 100vw" />
-              <Image className="img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 58vw, 100vw" />
+              <Image className="img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 52vw, 100vw" />
+              <Image className="img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 52vw, 100vw" />
               {/* Abaixo de 768px: recorte ampliado do topo da demo, legível na largura do celular. */}
               <Image className="img-lm" src={p.img.replace(".png", "-recorte.png")} alt="" width={1600} height={1000} sizes="100vw" />
               <Image className="img-dm" src={p.img.replace(".png", "-recorte-escuro.png")} alt="" width={1600} height={1000} sizes="100vw" />
@@ -85,7 +82,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
-      </section>
+      </Pilha>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">

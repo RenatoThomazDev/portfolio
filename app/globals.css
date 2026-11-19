@@ -4,7 +4,7 @@
 @import "./sections.css";
 @import "./vida.css";
 @import "./paginas.css";
-@import "./carrossel.css";
+@import "./pilha.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;
