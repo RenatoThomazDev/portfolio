@@ -56,24 +56,37 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
 .cc-ponto:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--muted); font-size: var(--t-xs); }
 
-/* Setas: círculo cheio na cor do texto (escuro no claro, claro no escuro), sem borda, com o chevron na cor do
-   papel. No hover e no foco o fundo vira a cor de destaque e o chevron fica na cor do texto sobre ela (as cores do
-   .btn-primary). Chevron de ~40% do diâmetro (19px em 48, 22px em 56), traço de 2,25px, pontas arredondadas.
-   Ajuste óptico: o desenho é 1px deslocado para dentro, no sentido contrário da ponta; no hover desliza 2px para
-   o lado da ponta. Sombra leve, a mesma das molduras. */
-.cc-seta { --dx: 0px; flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: var(--paper); cursor: pointer;
-  box-shadow: 0 1px 1px color-mix(in srgb, #5A4320 18%, transparent), 0 3px 6px -2px color-mix(in srgb, #5A4320 22%, transparent);
-  transition: background-color 150ms var(--ease), color 150ms var(--ease), transform 150ms var(--ease); }
-.cc-seta svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round;
+/* Setas: "etiqueta de prancheta". Quadrado sem arredondar, borda de 1,5px na cor do texto, 44px no celular e 48px
+   no desktop, sem sombra. "Anterior" no papel com a seta na cor do texto; "Próximo" cheio na cor do texto com a
+   seta na cor do papel (é a ação mais comum). No hover e no foco os dois viram a cor de destaque, com a seta na
+   cor de texto sobre ela (--on-accent, as cores do .btn-primary). Seta de cota em SVG (haste + ponta), 18px, traço
+   de 1,75px, pontas retas; no hover desliza 2px para o lado dela. Marcas de corte em L de 6px nos quatro cantos,
+   por fora da borda, na cor das bordas de interface (--line-strong, 3:1 ou mais), feitas como as das folhas
+   (sections.css): gradientes num ::before, que no hover cresce para afastá-las 2px de cada canto. */
+.cc-seta { --dx: 0px; position: relative; flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  border: 1.5px solid var(--ink); border-radius: 0; background: var(--paper); color: var(--ink); cursor: pointer;
+  transition: background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease); }
+.cc-prox { background: var(--ink); color: var(--paper); }
+.cc-seta::before { --cm: var(--line-strong); --a: 6px; --t: 1.5px; content: ""; position: absolute; inset: calc(-1.5px - 3px - var(--t)); pointer-events: none;
+  background:
+    linear-gradient(var(--cm), var(--cm)) left top / var(--a) var(--t), linear-gradient(var(--cm), var(--cm)) left top / var(--t) var(--a),
+    linear-gradient(var(--cm), var(--cm)) right top / var(--a) var(--t), linear-gradient(var(--cm), var(--cm)) right top / var(--t) var(--a),
+    linear-gradient(var(--cm), var(--cm)) left bottom / var(--a) var(--t), linear-gradient(var(--cm), var(--cm)) left bottom / var(--t) var(--a),
+    linear-gradient(var(--cm), var(--cm)) right bottom / var(--a) var(--t), linear-gradient(var(--cm), var(--cm)) right bottom / var(--t) var(--a);
+  background-repeat: no-repeat; transition: transform 150ms var(--ease); }
+/* 2px a mais de cada lado: escala = (lado + 4) / lado. O ::before mede o interior do botão (sem a borda) + 12px:
+   53px no de 44, 57px no de 48 (--sc no bloco do desktop). */
+.cc-seta { --sc: calc(57 / 53); }
+.cc-seta:hover::before, .cc-seta:focus-visible::before { transform: scale(var(--sc)); }
+.cc-seta svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: square; stroke-linejoin: miter;
   transform: translateX(var(--dx)); transition: transform 150ms var(--ease); }
-.cc-ant { --dx: 1px; }
-.cc-prox { --dx: -1px; }
-.cc-seta:hover, .cc-seta:focus-visible { background: var(--accent); color: var(--on-accent); }
-.cc-ant:hover, .cc-ant:focus-visible { --dx: -1px; }
-.cc-prox:hover, .cc-prox:focus-visible { --dx: 1px; }
-.cc-seta:active { transform: scale(0.96); }
-/* border-radius de novo: o :focus-visible global (globals.css) zera o arredondamento */
-.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
+.cc-seta:hover, .cc-seta:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.cc-ant:hover, .cc-ant:focus-visible { --dx: -2px; }
+.cc-prox:hover, .cc-prox:focus-visible { --dx: 2px; }
+.cc-seta:active { transform: translateY(1px); }
+/* Foco: por fora das marcas de canto. Elas ficam de 3 a 4,5px da borda (até 6,5px no foco, afastadas): com 4px de
+   offset o contorno passava por cima delas, então o offset é de 9px (2,5px além das marcas afastadas). */
+.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 9px; border-radius: 0; }
 
 /* Botões do card: "Abrir demonstração" é o .btn-primary (cheio), "Ver detalhes" o .btn-secondary (com borda), da
    mesma altura e com no mínimo 44px. Lado a lado; no celular, se não couberem, cada um ocupa a largura toda. */
@@ -89,13 +102,14 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
 
 @media (prefers-reduced-motion: reduce) {
   html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span, .cc-seta, .cc-seta svg, .cc .p-acoes .btn .seta-d { transition: none !important; }
-  /* sem o deslize do chevron no hover: ele fica no ajuste óptico de repouso */
-  .cc-ant:hover, .cc-ant:focus-visible { --dx: 1px; }
-  .cc-prox:hover, .cc-prox:focus-visible { --dx: -1px; }
+  /* sem deslocamento: a seta não desliza, as marcas não se afastam, e pressionar não desce o botão */
+  .cc-seta::before { transition: none !important; }
+  .cc-ant:hover, .cc-ant:focus-visible, .cc-prox:hover, .cc-prox:focus-visible { --dx: 0px; }
+  .cc-seta:hover::before, .cc-seta:focus-visible::before, .cc-seta:active { transform: none; }
 }
 
-/* ----- Desktop: card em duas colunas (moldura | texto). Setas de 56px nas laterais, no meio da altura da captura;
-   a linha dos pontos vai para baixo do card. Tudo calculado pela largura (cqw), sem medir nada no JS. ----- */
+/* ----- Desktop: card em duas colunas (moldura | texto). A linha de controles inteira (setas, pontos e contador)
+   vai para baixo do card: as setas não disputam espaço com a moldura nem com o texto. ----- */
 @media (min-width: 1024px) {
   html.js .cc { --vis: 7vw; display: flex; flex-direction: column; }
   html.js .cc > .cc-nav { order: 2; justify-content: flex-start; margin: var(--s-24) 0 0; }
@@ -104,16 +118,10 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
   html.js .cc .projects > .project > .p-frame { grid-column: 1; grid-row: 1; }
   html.js .cc .projects > .project > .p-body { grid-column: 2; grid-row: 1; align-self: center; }
   .cc-fantasma-m { margin-left: 28px; width: calc(55% - 28px); }
-  /* altura: cota de 28px em cima; imagem 16:10 (altura = 0,625 x largura) na coluna de 55% do card */
-  html.js .cc-seta { position: absolute; z-index: 4; width: 56px; height: 56px; top: calc(28px + ((100cqw + var(--margin) - var(--vis) - var(--gap)) * 0.55 - 28px) * 0.3125); transform: translateY(-50%); }
-  html.js .cc-seta:active { transform: translateY(-50%) scale(0.96); }
-  .cc-seta svg { width: 22px; height: 22px; }
-  /* esquerda: metade para fora da borda esquerda do card (sobre a margem, onde não há nada) */
-  html.js .cc-ant { left: -28px; }
-  /* direita: dentro do card, encostada na borda direita dele; não cobre o pedaço do vizinho, e o texto guarda 80px
-     à direita (56 da seta + 24 de distância) */
-  html.js .cc-prox { left: calc(100cqw + var(--margin) - var(--vis) - var(--gap) - 56px); }
-  html.js .cc .projects > .project > .p-body { padding-right: 80px; }
+  /* setas de 48px na própria linha, abaixo da moldura: ← [traços] 02.1 / 02.3 →, alinhada à esquerda com a
+     imagem (a coluna da cota vertical tem 28px) */
+  html.js .cc > .cc-nav { gap: var(--s-16); padding-left: 28px; }
+  .cc-seta { width: 48px; height: 48px; --sc: calc(61 / 57); }
   /* no desktop os botões ficam do tamanho do texto, lado a lado */
   .cc .p-acoes .btn { flex: none; }
 }
