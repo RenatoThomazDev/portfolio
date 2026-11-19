@@ -10,7 +10,6 @@ import Tape from "./Tape";
 // A seção é um carrossel em faixa de largura total, com troca em fade (Classico.tsx, classico.css).
 import Classico from "./Classico";
 import { RASGO_VARS } from "./Rasgo";
-import Fundo from "./Fundo";
 import { Fragment } from "react";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
@@ -48,9 +47,6 @@ export default function Projects() {
       <div className="projects">
         {DEMOS.map((p, i) => (
           <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
-            {/* Sem JS cada slide é uma folha azul, com o próprio fundo e o rasgado embaixo (máscara, classico.css).
-                Com JS a folha é o carrossel inteiro (Classico.tsx) e este fundo fica escondido. */}
-            <Fundo img={p.img} />
             <div className="p-topo">
               <p className="p-rot mono">Folha {p.id} · {p.kind}</p>
               {/* palavra por palavra, para a entrada em sequência (--w: a posição da palavra) */}

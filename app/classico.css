@@ -13,7 +13,7 @@
 .cc-prancha { grid-column: 1 / -1; min-width: 0; position: relative; rotate: -0.4deg;
   filter: drop-shadow(0 1px 1px color-mix(in srgb, #5A4320 18%, transparent)) drop-shadow(0 3px 6px color-mix(in srgb, #5A4320 22%, transparent)); }
 .cc { min-width: 0; position: relative; isolation: isolate; }
-html:not(.js) :is(.cc-nav, .cc > .cc-fundos, .cc-fita), html.js .cc .project > .p-fundo { display: none; }
+html:not(.js) :is(.cc-nav, .cc > .cc-fundos, .cc-fita) { display: none; }
 html.js .cc .project > .cotas { display: none; }
 
 /* Cores da cópia. --azul: o azul de prancheta escurecido (no claro, ~ --accent com --ink: #1E2B6B; no escuro, mais
@@ -55,37 +55,12 @@ html:not(.js) .cc .projects > .project { background: var(--cianotipia); padding-
 html:not(.js) .cc .projects { row-gap: var(--s-24); }
 html.js .cc .projects > .project { grid-area: 1 / 1; }
 
-/* Fundo da cópia. Com JS: uma camada da folha inteira (.cc-fundos, inset: 0), atrás da faixa e dos controles; sem
-   JS, um em cada slide. A captura entra como traço: em cinza, a 14%, num grupo em mix-blend-mode: screen, que só
-   clareia o azul (azul escuro → papel claro), sem desfoque. Do lado do texto ela é apagada (máscara): a 6% atrás da
-   coluna do texto no desktop e a 30% no celular (onde o texto ocupa a largura toda); com 25% ainda se lia o título
-   da demo atrás do título do slide. No tema escuro as capturas são escuras: entram invertidas, para
-   desenhar o mesmo traço. Por cima, a textura de papel (ruído em SVG, ~6%). */
-.cc-fundos { position: absolute; z-index: -1; inset: 0; overflow: clip; background: var(--cianotipia); pointer-events: none; }
-.p-fundo { position: absolute; inset: 0; z-index: -1; overflow: clip; mix-blend-mode: screen; }
-.cc-fundos > .p-fundo { z-index: auto; }
-/* max-width: none: o img global tem max-width 100% */
-.p-fundo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: top; opacity: 0.14;
-  filter: grayscale(1) contrast(1.1);
-  -webkit-mask-image: linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.3)); mask-image: linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.3)); }
-.p-fundo :is(.pf-d, .pf-dm) { filter: grayscale(1) invert(1) contrast(1.1); }
-.p-fundo::after { content: ""; position: absolute; inset: 0; opacity: 0.06;
+/* Fundo da cópia: só o azul sólido, o quadriculado claro e a textura leve de papel (ruído em SVG, 6%), no mesmo tom
+   na folha inteira, sem gradiente nem faixa. A captura do projeto aparece só dentro da moldura. Com JS, uma camada
+   da folha inteira (.cc-fundos, inset: 0), atrás da faixa e dos controles; sem JS, o fundo de cada slide. */
+.cc-fundos { position: absolute; z-index: -1; inset: 0; background: var(--cianotipia); pointer-events: none; }
+.cc-fundos::after, html:not(.js) .cc .projects > .project::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.06; pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-/* uma imagem por tema e por largura: a captura inteira a partir de 768px, o recorte do topo abaixo */
-.p-fundo img { display: none; }
-.p-fundo .pf-lm { display: block; }
-:root[data-theme="dark"] .p-fundo .pf-lm { display: none; }
-:root[data-theme="dark"] .p-fundo .pf-dm { display: block; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo .pf-lm { display: none; } :root:not([data-theme="light"]) .p-fundo .pf-dm { display: block; } }
-@media (min-width: 768px) {
-  .p-fundo :is(.pf-lm, .pf-dm) { display: none !important; }
-  .p-fundo .pf-l { display: block; }
-  :root[data-theme="dark"] .p-fundo .pf-l { display: none; }
-  :root[data-theme="dark"] .p-fundo .pf-d { display: block; }
-  /* em duas colunas o texto fica à esquerda: a captura apaga daquele lado */
-  .p-fundo img { -webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.06) 0 48%, #000 78%); mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.06) 0 48%, #000 78%); }
-}
-@media (min-width: 768px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo .pf-l { display: none; } :root:not([data-theme="light"]) .p-fundo .pf-d { display: block; } }
 
 /* Texto: rótulo mono em azul claro, título grande na fonte display na cor do papel, a frase e os botões. */
 .cc .p-topo, .cc .p-base { display: flex; flex-direction: column; gap: var(--s-16); min-width: 0; }
@@ -127,10 +102,6 @@ html.js .cc .projects > .project { grid-area: 1 / 1; }
 /* o slide: fade de 600ms; o de trás fica invisível e fora do Tab (inert, Classico.tsx) */
 html.js .cc .projects > .project { transition: opacity 600ms var(--ease), visibility 0s; }
 html.js .cc .projects > .project:not([data-pos="0"]) { opacity: 0; visibility: hidden; transition: opacity 600ms var(--ease), visibility 0s linear 600ms; }
-/* o fundo troca junto com o slide (fade de 600ms); o do novo faz um zoom de 1,06 para 1 em 1,2s, e o de trás volta
-   para 1,06 só depois de sumir */
-.cc-fundos > .p-fundo { opacity: 0; transform: scale(1.06); transition: opacity 600ms var(--ease), transform 0s 600ms; }
-.cc-fundos > .p-fundo[data-on] { opacity: 1; transform: none; transition: opacity 600ms var(--ease), transform 1200ms cubic-bezier(0.22, 1, 0.36, 1); }
 /* O texto do novo entra em sequência (rótulo, título palavra por palavra a cada 60ms, frase, botões) e a moldura
    por último. No de trás tudo volta para o começo só depois de ele sumir (atraso de 600ms, sem transição). */
 html.js .cc .project :is(.p-rot, .p-pal, .p-resumo, .p-acoes) { transition: opacity 450ms var(--ease) var(--d), translate 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--d); }
@@ -142,7 +113,7 @@ html.js .cc .project:not([data-pos="0"]) :is(.p-rot, .p-pal, .p-resumo, .p-acoes
 html.js .cc .projects > .project > .p-frame { transition: opacity 500ms var(--ease) 880ms, translate 700ms cubic-bezier(0.22, 1, 0.36, 1) 880ms, rotate 700ms cubic-bezier(0.22, 1, 0.36, 1) 880ms; }
 html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { opacity: 0; translate: 0 16px; rotate: -3deg; transition: opacity 0s 600ms, translate 0s 600ms, rotate 0s 600ms; }
 /* volta da demo: public/folha.js põe .cc-sem por dois quadros, e o slide da demo já fica ativo, sem animação */
-.cc-sem .project, .cc-sem .project *, .cc-sem .cc-fundos > .p-fundo { transition: none !important; }
+.cc-sem .project, .cc-sem .project * { transition: none !important; }
 
 /* ----- Controles. Celular e tablet: a linha (seta, pontos, contador, pausa, seta) no alto da folha, alinhada com o
    texto. Com JS a folha guarda embaixo a altura do rasgado, para ele não cortar nada. ----- */
@@ -156,11 +127,10 @@ html.js .cc { padding-top: 20px; padding-bottom: var(--rh); }
 .cc-ponto:hover span { background: var(--sobre); }
 .cc-ponto:focus-visible { outline: 2px solid var(--sobre); outline-offset: -4px; }
 /* progresso da troca automática: uma linha de cota que preenche em 6s embaixo do ponto ativo (com marcas nas
-   pontas); pausa junto com a troca */
+   pontas); só existe com a troca ligada (Classico.tsx), e nas esperas ela some e recomeça do zero */
 .cc-prog { position: absolute; left: 4px; bottom: 9px; width: 20px; height: 1.5px; background: var(--sobre); transform-origin: 0 50%; animation: cc-prog 6s linear forwards; }
 .cc-prog::before, .cc-prog::after { content: ""; position: absolute; top: -2.5px; width: 1px; height: 6px; background: color-mix(in srgb, var(--sobre) 55%, transparent); }
 .cc-prog::before { left: 0; } .cc-prog::after { right: 0; }
-.cc-pausado .cc-prog { animation-play-state: paused; }
 @keyframes cc-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 /* .cc na frente: o .mono global (cor --subtle) vem depois no CSS e ganhava */
 .cc .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--sobre-2); font-size: var(--t-xs); }
@@ -190,10 +160,8 @@ html.js .cc { padding-top: 20px; padding-bottom: var(--rh); }
 .cc-pausa svg { width: 16px; height: 16px; }
 
 @media (prefers-reduced-motion: reduce) {
-  /* só o cross-fade de 200ms: sem zoom no fundo e sem entrada em sequência */
-  html.js .cc .projects > .project, html.js .cc .projects > .project:not([data-pos="0"]) { transition-duration: 200ms; }
-  html.js .cc .projects > .project:not([data-pos="0"]) { transition: opacity 200ms var(--ease), visibility 0s linear 200ms; }
-  .cc-fundos > .p-fundo, .cc-fundos > .p-fundo[data-on] { transform: none; transition: opacity 200ms var(--ease); }
+  /* troca instantânea: sem fade e sem entrada em sequência (a troca automática continua ligada) */
+  html.js .cc .projects > .project, html.js .cc .projects > .project:not([data-pos="0"]) { transition: none; }
   html.js .cc .project :is(.p-rot, .p-pal, .p-resumo, .p-acoes), html.js .cc .project:not([data-pos="0"]) :is(.p-rot, .p-pal, .p-resumo, .p-acoes),
   html.js .cc .projects > .project > .p-frame, html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { opacity: 1; translate: none; transition: none; }
   html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { rotate: -1.5deg; }

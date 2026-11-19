@@ -204,13 +204,12 @@
   }
 
   // Faixa de Projetos da home (.cc, Classico.tsx): põe o slide da demo como ativo, sem fade nem entrada (.cc-sem por
-  // dois quadros), e marca data-voltou: a troca automática fica parada. Roda antes da hidratação; o carrossel lê o
-  // data-pos e o data-voltou do DOM ao montar e também ouve "carrossel-ativar". Fora do carrossel não faz nada.
+  // dois quadros); a contagem da troca automática recomeça dali. Roda antes da hidratação; o carrossel lê o data-pos
+  // do DOM ao montar e também ouve "carrossel-ativar". Fora do carrossel não faz nada.
   function naFrente(p) {
     var cc = p.closest('.cc'); if (!cc) return;
     var ps = Array.prototype.slice.call(cc.querySelectorAll('.projects > .project')), k = ps.indexOf(p);
     if (k < 0) return;
-    cc.dataset.voltou = '1';
     cc.classList.add('cc-sem');
     ps.forEach(function (x, i) { x.dataset.pos = i === k ? '0' : '1'; });
     cc.dispatchEvent(new CustomEvent('carrossel-ativar', { detail: k, bubbles: true }));
