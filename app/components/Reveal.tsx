@@ -2,7 +2,8 @@
 import { useEffect } from "react";
 
 /* Revelação ao rolar, no idioma de "desenho sendo feito" (estilos em sections.css, sob html.js-reveal).
-   Marca [data-reveal] com .in quando ~30% dele entra na tela, acima dos 10% de baixo; cada elemento uma vez só.
+   Marca [data-reveal] com .in assim que qualquer pedaço dele entra na tela; cada elemento uma vez só. (Com 30%
+   do elemento visível, um bloco alto, como o diagrama do ERP, ficava um vazio grande até descer bastante.)
    O que já está na tela ao abrir (ou ao voltar no histórico / abrir com âncora) entra com .pronto: aparece no
    estado final sem transição, e .pronto sai dois quadros depois (os valores já são os finais, nada anima). */
 export default function Reveal() {
@@ -27,11 +28,11 @@ export default function Reveal() {
         el.classList.add("in");
         io.unobserve(el);
       });
-    }, { threshold: 0.3, rootMargin: "0px 0px -10% 0px" });
+    }, { threshold: 0 });
     // Já na tela (ou acima dela): pronto, sem animar.
     const visiveis = () => els.forEach((e) => {
       if (e.classList.contains("in")) return;
-      if (e.getBoundingClientRect().top < innerHeight * 0.9) { e.classList.add("in", "pronto"); tirar(e); io.unobserve(e); }
+      if (e.getBoundingClientRect().top < innerHeight) { e.classList.add("in", "pronto"); tirar(e); io.unobserve(e); }
     });
     visiveis();
     els.forEach((e) => { if (e.classList.contains("pronto")) tirar(e); else if (!e.classList.contains("in")) io.observe(e); });
@@ -61,7 +62,7 @@ export default function Reveal() {
         if (el.classList.contains("in")) return;
         const r = el.getBoundingClientRect(), y = r.top + scrollY;
         if (y + r.height <= topo) { el.classList.add("in", "pronto"); tirar(el); }
-        else if (y < topo + innerHeight * 0.9) { el.style.setProperty("--stagger", "0ms"); el.classList.add("in"); }
+        else if (y < topo + innerHeight) { el.style.setProperty("--stagger", "0ms"); el.classList.add("in"); }
         else return;
         io.unobserve(el);
       });

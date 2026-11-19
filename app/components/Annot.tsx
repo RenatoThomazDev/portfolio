@@ -19,7 +19,7 @@ export default function Annot({ text, escrita, tone = "pen", className = "", arr
       el.classList.add("armed");
       void el.getBoundingClientRect();
       requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add("on")));
-    }, { rootMargin: "0px 0px -15% 0px" });
+    }, { threshold: 0 }); // escreve assim que a anotação aparece na tela
     io.observe(el);
     return () => io.disconnect();
   }, []);

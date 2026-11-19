@@ -68,7 +68,7 @@ const themeScript = `(function(){var r=document.documentElement;r.classList.add(
    aparece pronto, sem animar nem piscar. Também mede a linha de base dos números grandes de folha (SVG). */
 const readyScript = `(function(){var r=document.documentElement;if(!r.classList.contains('js-reveal'))return;
 document.querySelectorAll('.sec-n').forEach(function(n){var b=n.querySelector('.bl'),t=n.querySelector('text');if(b&&t)t.setAttribute('y',b.offsetTop)});
-var h=innerHeight;document.querySelectorAll('[data-reveal],[data-colar]').forEach(function(e){if(e.getBoundingClientRect().top<h*0.9){if(e.hasAttribute('data-colar'))e.classList.add('colado','ja');else e.classList.add('in','pronto')}})})()`;
+var h=innerHeight;document.querySelectorAll('[data-reveal],[data-colar]').forEach(function(e){if(e.getBoundingClientRect().top<h){if(e.hasAttribute('data-colar'))e.classList.add('colado','ja');else e.classList.add('in','pronto')}})})()`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

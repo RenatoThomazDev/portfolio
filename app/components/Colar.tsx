@@ -13,7 +13,7 @@ export default function Colar() {
     }
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("colado"); io.unobserve(e.target); } });
-    }, { threshold: 0.5, rootMargin: "0px 0px -15% 0px" }); // metade da miniatura visível, acima dos 15% de baixo da tela
+    }, { threshold: 0 }); // assim que qualquer pedaço da miniatura aparece (com metade visível, ela ficava vazia na tela)
     els.forEach((e) => io.observe(e));
     return () => io.disconnect();
   }, []);
