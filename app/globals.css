@@ -7,6 +7,7 @@
 @import "./pilha.css";
 @import "./destaque.css";
 @import "./lista.css";
+@import "./classico.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;

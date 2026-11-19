@@ -7,10 +7,11 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-/* Layout da seção em teste: "lista com prévia" (Lista.tsx, lista.css). As variações anteriores continuam guardadas
-   para comparar: abas + molduras empilhadas (Pilha.tsx, pilha.css) e destaque + 2 menores (Destaque.tsx,
-   destaque.css). Para trocar, mude o import abaixo e o JSX (as três recebem as mesmas props). */
-import Lista from "./Lista";
+/* Layout da seção em teste: "carrossel clássico" (Classico.tsx, classico.css). As outras variações continuam
+   guardadas para comparar: lista com prévia (Lista.tsx, lista.css; a candidata), abas + molduras empilhadas
+   (Pilha.tsx, pilha.css) e destaque + 2 menores (Destaque.tsx, destaque.css). Para trocar, mude o import abaixo e o
+   JSX (todas recebem as mesmas props). */
+import Classico from "./Classico";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -36,8 +37,8 @@ export default function Projects() {
   return (
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
-      {/* Lista com prévia (Lista.tsx, lista.css). Sem JS, os três projetos completos, em sequência. */}
-      <Lista itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
+      {/* Carrossel clássico (Classico.tsx, classico.css). Sem JS, os três cards completos, em sequência. */}
+      <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
           {/* Na lista cada item já mostra o seu número: o rótulo do bloco fica "Folha 02". (O ".n" dinâmico,
@@ -90,7 +91,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
-      </Lista>
+      </Classico>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">

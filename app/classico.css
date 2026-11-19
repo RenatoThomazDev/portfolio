@@ -1,0 +1,82 @@
+/* Projetos da home, variação "carrossel clássico" (Classico.tsx).
+   Com JS: a .cc-janela recorta (overflow: clip, não rola, nem por script) e o .projects vira o trilho, com os cards
+   lado a lado. O trilho anda com transform (--k e --arraste); cada card ocupa a largura menos o pedaço do próximo
+   (--peek). O trilho tem a altura do card mais alto, então trocar não mexe no layout (sem CLS).
+   Sem JS: os três cards em sequência, completos, sem setas nem pontos (o layout de antes, de sections.css). */
+.cc { grid-column: 1 / -1; min-width: 0; position: relative; }
+html:not(.js) :is(.cc-nav, .cc-fantasma) { display: none; }
+.cc > .cc-janela > .projects { grid-column: 1 / -1; }
+html.js .cc .project > .cotas { display: none; }
+
+/* --peek conta o vão entre os cards: aparecem ~12% do vizinho no celular e ~8% no desktop */
+html.js .cc { container-type: inline-size; --peek: 16%; --gap: var(--gutter); }
+html.js .cc-janela { position: relative; overflow: clip; touch-action: pan-y; outline: none; }
+html.js .cc-janela:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+html.js .cc .projects { display: flex; gap: var(--gap); row-gap: 0;
+  transform: translate3d(calc(var(--k, 0) * -1 * (100% - var(--peek) + var(--gap)) + var(--arraste, 0px)), 0, 0);
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1); }
+html.js .cc-arrasta .projects { transition: none; cursor: grabbing; }
+/* volta da demo: public/folha.js põe .cc-sem por dois quadros, e o trilho vai direto para o card */
+.cc-sem .projects, .cc-sem .project > .p-body, .cc-sem .cc-fantasma { transition: none !important; }
+html.js .cc .projects > .project { flex: 0 0 calc(100% - var(--peek)); min-width: 0; display: flex; flex-direction: column; gap: var(--s-24); user-select: none; }
+html.js .cc .projects > .project > .p-frame { flex: none; width: 100%; margin: 0; }
+html.js .cc .projects > .project > .p-body { margin: 0; }
+/* do card vizinho aparece só a moldura: o texto dos inativos fica invisível */
+html.js .cc .project > .p-body { transition: opacity 250ms var(--ease) 120ms, visibility 0s; }
+html.js .cc .project:not([data-pos="0"]) > .p-body { opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
+html.js .cc .project:not([data-pos="0"]) { cursor: pointer; }
+/* abaixo de 768px a coluna da cota vertical (28px) ocuparia quase todo o pedaço do vizinho: encolhe */
+@media (max-width: 767px) {
+  html.js .cc .p-frame { grid-template-columns: 8px minmax(0, 1fr); }
+  html.js .cc .p-frame .pf-h { display: none; }
+}
+
+/* moldura do primeiro projeto na borda, depois do último (circular) */
+.cc-fantasma { position: absolute; top: 0; left: calc(100% - var(--peek) + var(--gap)); width: calc(100% - var(--peek)); pointer-events: none; opacity: 0; transition: opacity 300ms var(--ease); }
+.cc-fantasma[data-on] { opacity: 1; }
+.cc-fantasma-m { display: block; margin: 28px 0 0 8px; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius); border: 6px solid var(--paper-2); box-shadow: 0 0 0 1px var(--line); background: var(--paper-2); }
+.cc-fantasma-m img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.85) contrast(1.04); }
+.cc-fantasma .img-d { display: none; }
+:root[data-theme="dark"] .cc-fantasma .img-l { display: none; }
+:root[data-theme="dark"] .cc-fantasma .img-d { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cc-fantasma .img-l { display: none; } :root:not([data-theme="light"]) .cc-fantasma .img-d { display: block; } }
+
+/* ----- Controles: no celular abaixo do card (seta, pontos e contador, seta) ----- */
+.cc-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s-12); margin-top: var(--s-24); min-height: 48px; }
+.cc-pontos { display: flex; align-items: center; gap: var(--s-4); min-width: 0; }
+.cc-ponto { width: 28px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+.cc-ponto span { width: 20px; height: 2px; background: var(--line-strong); transition: background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease); }
+.cc-ponto[aria-current="true"] span { background: var(--accent); transform: scaleY(2); }
+.cc-ponto:hover span { background: var(--ink); }
+.cc-ponto[aria-current="true"]:hover span { background: var(--accent); }
+.cc-ponto:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+.cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--muted); font-size: var(--t-xs); }
+.cc-seta { flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); cursor: pointer; transition: border-color var(--d-fast) var(--ease), color var(--d-fast) var(--ease); }
+.cc-seta svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
+.cc-seta:hover { border-color: var(--accent); color: var(--accent); }
+.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* setas → dos links internos */
+.cc .p-acoes .p-link .seta-d { transform: none; }
+.cc .p-acoes .p-link:hover .seta-d { transform: translateX(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span { transition: none !important; }
+}
+
+/* ----- Desktop: card em duas colunas (moldura | texto); setas circulares nas laterais, no meio da altura da
+   captura. A posição sai da largura (cqw), sem medir nada no JS. ----- */
+@media (min-width: 1024px) {
+  html.js .cc { --peek: 10%; }
+  html.js .cc .projects > .project { display: grid; grid-template-columns: 58% minmax(0, 1fr); column-gap: clamp(32px, 4vw, 72px); align-items: center; }
+  html.js .cc .projects > .project > .p-frame { grid-column: 1; grid-row: 1; }
+  html.js .cc .projects > .project > .p-body { grid-column: 2; grid-row: 1; align-self: center; }
+  .cc-fantasma-m { width: 58%; margin-left: 28px; width: calc(58% - 28px); }
+  .cc-nav { justify-content: flex-start; }
+  /* captura: cota de 28px em cima e à esquerda; a imagem tem 16:10 (altura = 0,625 x largura) */
+  html.js .cc-seta { position: absolute; z-index: 4; top: calc(28px + (90cqw * 0.58 - 28px) * 0.3125); transform: translateY(-50%); box-shadow: 0 2px 6px -2px rgba(40, 28, 10, 0.25); }
+  html.js .cc-ant { left: -24px; }
+  /* a seta "próximo" fica no meio do pedaço visível do vizinho, longe do texto do card */
+  html.js .cc-prox { left: calc(95cqw - 24px); }
+  html.js .cc .projects > .project > .p-body { padding-right: var(--s-24); }
+}

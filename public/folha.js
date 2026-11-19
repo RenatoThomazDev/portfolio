@@ -201,18 +201,21 @@
   // montar e também ouve "pilha-ativar". Fora deles não faz nada.
   function naFrente(p) {
     // .ls: lista com prévia (Lista.tsx, a variação em uso), igual ao destaque: o projeto ativo tem data-pos "0"
-    var pj = p.closest('.pj, .dq, .ls'); if (!pj) return;
-    var ls = pj.classList.contains('ls'), dq = ls || pj.classList.contains('dq');
+    // .cc: carrossel clássico (Classico.tsx, a variação em uso): além do data-pos, o trilho vai direto para o card
+    // (--k), sem deslizar
+    var pj = p.closest('.pj, .dq, .ls, .cc'); if (!pj) return;
+    var cc = pj.classList.contains('cc'), ls = pj.classList.contains('ls') || cc, dq = ls || pj.classList.contains('dq');
     var ps = Array.prototype.slice.call(pj.querySelectorAll('.projects > .project')), k = ps.indexOf(p), n = ps.length;
     if (k < 0 || p.dataset.pos === '0') return;
-    pj.classList.add(ls ? 'ls-sem' : dq ? 'dq-sem' : 'pj-sem');
+    pj.classList.add(cc ? 'cc-sem' : ls ? 'ls-sem' : dq ? 'dq-sem' : 'pj-sem');
+    if (cc) { var tr = pj.querySelector('.projects'); if (tr) tr.style.setProperty('--k', String(k)); }
     ps.forEach(function (x, i) { x.dataset.pos = dq ? (i === k ? '0' : '1') : String((i - k + n) % n); });
     if (dq) pj.querySelectorAll('.dq-item').forEach(function (li, i) { li.hidden = i === k; });
     var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
     pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
     dispatchEvent(new CustomEvent('pilha-ativar', { detail: k }));
     void pj.offsetWidth;
-    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem', 'ls-sem'); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem', 'ls-sem', 'cc-sem'); }); });
   }
 
   /* ---------- Volta ---------- */
