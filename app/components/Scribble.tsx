@@ -119,8 +119,6 @@ export default function Scribble() {
     let grupos: Grupo[] = []; // à espera, do mais antigo para o mais novo
     let ativa: Varredura | null = null;         // a que a borracha está percorrendo
     const terminando: Varredura[] = [];        // primeira passada feita, segunda ainda andando
-    let dica: HTMLSpanElement | null = null, dicaFeita = false;
-    try { dicaFeita = sessionStorage.getItem("rabisco-dica") === "1"; } catch {}
     // diagnóstico: só registra se a página tiver window.__borrachaLog (criado por quem está medindo)
     const log = (window as unknown as { __borrachaLog?: unknown[] }).__borrachaLog;
 
@@ -336,12 +334,10 @@ export default function Scribble() {
       montar();
       document.documentElement.classList.add("scribbling");
       atual = novoTraco({ x: e.pageX, y: e.pageY, t: performance.now() });
-      esconderDica(true);
     };
+    // Sem o rótulo "segure e arraste para rabiscar" que seguia o cursor: ele caía em cima do texto.
     const move = (e: PointerEvent) => {
-      if (atual) { somar(atual, { x: e.pageX, y: e.pageY, t: performance.now() }); return; }
-      if (!dicaFeita && e.pointerType === "mouse" && vazio(e.target as Element)) mostrarDica(e);
-      else if (dica) dica.classList.remove("on");
+      if (atual) somar(atual, { x: e.pageX, y: e.pageY, t: performance.now() });
     };
     const up = () => {
       if (!atual) return;
@@ -350,29 +346,12 @@ export default function Scribble() {
       agendar();
     };
 
-    let dicaT = 0;
-    function mostrarDica(e: PointerEvent) {
-      if (!dica) { dica = document.createElement("span"); dica.className = "scribble-tip mono"; dica.textContent = "segure e arraste para rabiscar"; dica.setAttribute("aria-hidden", "true"); document.body.appendChild(dica); }
-      dica.style.left = e.clientX + 18 + "px"; dica.style.top = e.clientY + 18 + "px";
-      // Nunca em tela de toque, e nunca em cima de texto: se algum canto ou o meio da etiqueta cair sobre um
-      // elemento com texto (ou que bloqueia o rabisco), ela não aparece ali. A etiqueta não recebe ponteiro.
-      const q = dica.getBoundingClientRect();
-      const pontos = [[q.left, q.top], [q.right, q.top], [q.left, q.bottom], [q.right, q.bottom], [(q.left + q.right) / 2, (q.top + q.bottom) / 2]];
-      if (!matchMedia("(hover: hover)").matches || pontos.some(([x, y]) => !vazio(document.elementFromPoint(x, y)))) { dica.classList.remove("on"); return; }
-      dica.classList.add("on");
-      clearTimeout(dicaT); dicaT = window.setTimeout(() => esconderDica(true), 2500); // só na primeira vez da sessão
-    }
-    function esconderDica(feita: boolean) {
-      if (dica) dica.classList.remove("on");
-      if (feita && !dicaFeita) { dicaFeita = true; try { sessionStorage.setItem("rabisco-dica", "1"); } catch {} }
-    }
-
     document.addEventListener("pointerdown", down);
     addEventListener("pointermove", move, { passive: true });
     addEventListener("pointerup", up); addEventListener("blur", up);
     return () => {
       document.removeEventListener("pointerdown", down); removeEventListener("pointermove", move); removeEventListener("pointerup", up); removeEventListener("blur", up);
-      cancelAnimationFrame(raf); clearTimeout(espera); sv?.remove(); dica?.remove(); clearTimeout(dicaT);
+      cancelAnimationFrame(raf); clearTimeout(espera); sv?.remove();
     };
   }, []);
   return null;

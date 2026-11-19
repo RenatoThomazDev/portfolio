@@ -7,7 +7,10 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-import Pilha from "./Pilha";
+/* Layout da seção em teste: "destaque + 2 menores" (Destaque.tsx). O carrossel anterior (abas + molduras empilhadas)
+   continua guardado em Pilha.tsx e pilha.css: para voltar, troque Destaque por Pilha no import abaixo e no JSX
+   (as duas recebem as mesmas props). */
+import Destaque from "./Destaque";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -33,18 +36,18 @@ export default function Projects() {
   return (
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
-      {/* Abas numeradas + molduras empilhadas (Pilha.tsx, pilha.css). Sem JS, os três projetos em sequência. */}
-      <Pilha itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto }))} cabecalho={
+      {/* Destaque + 2 menores (Destaque.tsx, destaque.css). Sem JS, os três projetos em sequência. */}
+      <Destaque itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
-          {/* ".n" do projeto ativo: só com JS (pilha.css), atualizado por Pilha.tsx */}
+          {/* ".n" do projeto ativo: só com JS (pilha.css), atualizado por Destaque.tsx */}
           <span className="mono">Folha 02<span className="pj-sub">.1</span> / Projetos</span>
           <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
         </div>
       }>
       <div className="projects">
         {DEMOS.map((p, i) => (
-          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
+          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i} style={{ "--vt": `dq-${p.id.replace(".", "-")}` } as React.CSSProperties}>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
@@ -86,7 +89,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
-      </Pilha>
+      </Destaque>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">

@@ -195,19 +195,23 @@
     })(t0);
   }
 
-  // Pilha de projetos da home (Pilha.tsx): põe o projeto do card na frente, sem animação (.pj-sem por dois quadros).
-  // Roda antes da hidratação; o Pilha lê o data-pos do DOM ao montar. Fora da pilha não faz nada.
+  // Projetos da home: põe o projeto da demo na frente, sem animação (.pj-sem/.dq-sem por dois quadros). Vale para
+  // o layout em uso, "destaque + 2 menores" (.dq, Destaque.tsx: o projeto vai para o destaque e sai da lateral), e
+  // para o carrossel guardado (.pj, Pilha.tsx). Roda antes da hidratação; o componente lê o data-pos do DOM ao
+  // montar e também ouve "pilha-ativar". Fora deles não faz nada.
   function naFrente(p) {
-    var pj = p.closest('.pj'); if (!pj) return;
+    var pj = p.closest('.pj, .dq'); if (!pj) return;
+    var dq = pj.classList.contains('dq');
     var ps = Array.prototype.slice.call(pj.querySelectorAll('.projects > .project')), k = ps.indexOf(p), n = ps.length;
     if (k < 0 || p.dataset.pos === '0') return;
-    pj.classList.add('pj-sem');
-    ps.forEach(function (x, i) { x.dataset.pos = String((i - k + n) % n); });
+    pj.classList.add(dq ? 'dq-sem' : 'pj-sem');
+    ps.forEach(function (x, i) { x.dataset.pos = dq ? (i === k ? '0' : '1') : String((i - k + n) % n); });
+    if (dq) pj.querySelectorAll('.dq-item').forEach(function (li, i) { li.hidden = i === k; });
     var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
     pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
     dispatchEvent(new CustomEvent('pilha-ativar', { detail: k }));
     void pj.offsetWidth;
-    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem'); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem'); }); });
   }
 
   /* ---------- Volta ---------- */
