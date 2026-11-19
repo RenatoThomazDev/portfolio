@@ -89,9 +89,11 @@
   /* Monta a folha e devolve as poses "card" (na posição da miniatura) e "tela" (cobrindo a tela) de cada camada. */
   function montar(media, slug) {
     var W = innerWidth, H = innerHeight, b = media.getBoundingClientRect(), cs = getComputedStyle(r);
-    // A moldura pode estar girada (grade da home: -1°, 0,5°, -0,5°, propriedade rotate). O retângulo da folha é o
-    // da miniatura sem giro nem escala (offsetWidth/Height), centrado onde ela está; o giro entra na pose "card".
-    var fr = media.closest('.p-frame'), g0 = fr ? parseFloat(getComputedStyle(fr).rotate) || 0 : 0;
+    // A moldura pode estar girada (propriedade rotate), e o que está em volta dela também (a folha azul da faixa de
+    // projetos da home, -0,4°): soma os giros da moldura e dos ancestrais. O retângulo da folha é o da miniatura sem
+    // giro nem escala (offsetWidth/Height), centrado onde ela está; o giro entra na pose "card".
+    var fr = media.closest('.p-frame'), g0 = 0;
+    for (var a = fr; a && a !== document.body; a = a.parentElement) g0 += parseFloat(getComputedStyle(a).rotate) || 0;
     var mw = media.offsetWidth || b.width, mh = media.offsetHeight || b.height, cx0 = b.left + b.width / 2, cy0 = b.top + b.height / 2;
     var q = { left: cx0 - mw / 2, top: cy0 - mh / 2, right: cx0 + mw / 2, bottom: cy0 + mh / 2, width: mw, height: mh };
     var raio = getComputedStyle(media).borderTopLeftRadius || '0px';

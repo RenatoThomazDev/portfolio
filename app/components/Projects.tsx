@@ -9,7 +9,7 @@ import SecN from "./SecN";
 import Tape from "./Tape";
 // A seção é um carrossel em faixa de largura total, com troca em fade (Classico.tsx, classico.css).
 import Classico from "./Classico";
-import Rasgo from "./Rasgo";
+import { RASGO_VARS } from "./Rasgo";
 import Fundo from "./Fundo";
 import { Fragment } from "react";
 
@@ -35,7 +35,7 @@ const Arrow = () => (
 
 export default function Projects() {
   return (
-    <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
+    <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t" style={RASGO_VARS}>
       <Colar />
       {/* Sem JS, os três cards aparecem completos, em sequência. */}
       <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, img: p.img }))} cabecalho={
@@ -48,10 +48,9 @@ export default function Projects() {
       <div className="projects">
         {DEMOS.map((p, i) => (
           <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
-            {/* Sem JS cada slide tem o próprio fundo e o rasgado embaixo. Com JS os dois ficam no carrossel inteiro
-                (Classico.tsx), atrás também da linha de controles, e estes aqui ficam escondidos (classico.css). */}
+            {/* Sem JS cada slide é uma folha azul, com o próprio fundo e o rasgado embaixo (máscara, classico.css).
+                Com JS a folha é o carrossel inteiro (Classico.tsx) e este fundo fica escondido. */}
             <Fundo img={p.img} />
-            <Rasgo />
             <div className="p-topo">
               <p className="p-rot mono">Folha {p.id} · {p.kind}</p>
               {/* palavra por palavra, para a entrada em sequência (--w: a posição da palavra) */}

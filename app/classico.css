@@ -1,46 +1,76 @@
-/* Projetos da home: faixa de largura total com troca em fade (Classico.tsx).
-   O carrossel inteiro (.cc: a faixa dos slides e a linha de controles) tem de fundo a captura do projeto ativo, de
-   borda a borda da tela e de cima até embaixo, desfocada e escurecida por uma camada de tinta. A .cc-janela sai da
-   coluna de conteúdo (margem negativa) e recorta ali com overflow-x: clip, então a página não ganha rolagem
-   horizontal. Por cima do fundo, o texto em cor clara e a moldura de prancheta, levemente girada. Em cima a faixa
-   começa reta; embaixo, a borda de papel rasgado (Rasgo.tsx), que continua no papel da seção seguinte.
-   Com JS: os slides ficam empilhados na mesma célula de um grid (a faixa tem a altura do maior: trocar não mexe no
-   layout); o atual some em fade enquanto o novo aparece, junto com o fundo dele (que faz um zoom curto), e o texto do
-   novo entra em sequência, com a moldura por último. O rasgado fica parado, por cima de tudo.
-   Sem JS: os três slides em sequência, completos, cada um com o próprio fundo, rasgado, texto, moldura e links. */
-.cc { grid-column: 1 / -1; min-width: 0; position: relative; isolation: isolate; }
-html:not(.js) :is(.cc-nav, .cc > .cc-fundos, .cc > .rasgo), html.js .cc .project > :is(.rasgo, .p-fundo) { display: none; }
+/* Projetos da home: uma folha de cópia heliográfica (blueprint) presa na prancheta, com troca em fade (Classico.tsx).
+   A folha fica dentro da área de desenho, como as outras seções: as réguas, a margem vermelha e o quadriculado da
+   página continuam visíveis em volta. O invólucro (.cc-prancha) gira a folha -0,4°, faz a sombra leve das molduras e
+   segura as duas fitas dos cantos de cima. A folha (.cc) é azul de cianotipia, com o próprio quadriculado claro, a
+   captura do projeto como traço da cópia (cinza clareando o azul, sem desfoque) e uma textura leve de papel. Em cima
+   a borda é reta, como papel cortado na régua; embaixo, o rasgado (Rasgo.tsx) é uma máscara: os dentes ficam vazados
+   e mostram a página por trás. Por cima, o texto claro e a moldura de prancheta (papel claro, com fita), levemente
+   girada, onde a captura aparece nítida.
+   Com JS: os slides ficam empilhados na mesma célula de um grid (a folha tem a altura do maior: trocar não mexe no
+   layout); o atual some em fade enquanto o novo aparece, junto com o fundo dele, e o texto do novo entra em
+   sequência, com a moldura por último.
+   Sem JS: os três slides em sequência, cada um uma folha azul completa, com o rasgado embaixo. */
+.cc-prancha { grid-column: 1 / -1; min-width: 0; position: relative; rotate: -0.4deg;
+  filter: drop-shadow(0 1px 1px color-mix(in srgb, #5A4320 18%, transparent)) drop-shadow(0 3px 6px color-mix(in srgb, #5A4320 22%, transparent)); }
+.cc { min-width: 0; position: relative; isolation: isolate; }
+html:not(.js) :is(.cc-nav, .cc > .cc-fundos, .cc-fita), html.js .cc .project > .p-fundo { display: none; }
 html.js .cc .project > .cotas { display: none; }
 
-/* Cor do texto sobre o fundo escuro: o papel no tema claro, a tinta (clara) no escuro. --sobre-2: texto de apoio. */
-/* Véu: --ink a 76% no claro (com 72% o texto de apoio ficava em 4,3:1 sobre uma captura branca), --paper-3 a 76%
-   no escuro. Contraste no pior caso (imagem toda branca atrás): título 5,9:1 e apoio 4,7:1 no claro.
-   --base: o tom sólido por baixo da imagem (o mesmo da tinta do véu). */
-.cc { --sobre: var(--paper); --veu: color-mix(in srgb, var(--ink) 76%, transparent); --base: var(--ink); }
-:root[data-theme="dark"] .cc { --sobre: var(--ink); --veu: color-mix(in srgb, var(--paper-3) 76%, transparent); --base: var(--paper-3); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cc { --sobre: var(--ink); --veu: color-mix(in srgb, var(--paper-3) 76%, transparent); --base: var(--paper-3); } }
-.cc { --sobre-2: color-mix(in srgb, var(--sobre) 84%, transparent); }
-.cc-janela { position: relative; margin-inline: calc(-1 * var(--margin)); overflow-x: clip; outline: none; }
+/* Cores da cópia. --azul: o azul de prancheta escurecido (no claro, ~ --accent com --ink: #1E2B6B; no escuro, mais
+   fechado: #151C40). --sobre: a cor do papel (#F7F1E3, o --paper-2 do tema claro, nos dois temas: o --paper-2 do
+   escuro é quase preto e sumiria no azul). --ciano: o azul claro do rótulo mono e das cotas. Contraste sobre o
+   azul (claro / escuro): --sobre 11,6:1 / 14,7:1; --sobre-2 8,9:1 / 11,1:1; --ciano 6,7:1 / 8,5:1. */
+.cc, .cc-prancha { --azul: #1E2B6B; --sobre: #F7F1E3; --ciano: #A9B6FF; --sobre-2: color-mix(in srgb, var(--sobre) 86%, var(--azul)); --base: var(--azul);
+  --rh: 36px; --rasgo: var(--rasgo-m); }
+:root[data-theme="dark"] :is(.cc, .cc-prancha) { --azul: #151C40; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(.cc, .cc-prancha) { --azul: #151C40; } }
+/* o fundo da cópia: azul, quadriculado claro no passo da página (8px, a ~8%) e uma linha mais forte a cada 5 quadros */
+.cc, .cc-prancha { --cianotipia:
+  linear-gradient(rgb(255 255 255 / 0.13) 1px, transparent 1px) -1px -1px / 40px 40px,
+  linear-gradient(90deg, rgb(255 255 255 / 0.13) 1px, transparent 1px) -1px -1px / 40px 40px,
+  linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px) -1px -1px / 8px 8px,
+  linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px) -1px -1px / 8px 8px,
+  var(--azul); }
+/* A borda rasgada embaixo: máscara com o retângulo da folha até a linha do rasgo mais o desenho do rasgo (só a
+   parte de cima da linha). Com JS, na folha inteira; sem JS, em cada slide. 36px no celular, 64px a partir de 1024px. */
+html.js .cc, html:not(.js) .cc .projects > .project {
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - var(--rh) + 1px) no-repeat, var(--rasgo) bottom center / 100% var(--rh) no-repeat;
+  mask: linear-gradient(#000 0 0) top / 100% calc(100% - var(--rh) + 1px) no-repeat, var(--rasgo) bottom center / 100% var(--rh) no-repeat; }
+@media (min-width: 1024px) { .cc, .cc-prancha { --rh: 64px; --rasgo: var(--rasgo-d); } }
+
+.cc-janela { position: relative; outline: none; }
 html.js .cc-janela { touch-action: pan-y; }
-html.js .cc-janela:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+html.js .cc-janela:focus-visible { outline: 2px solid var(--sobre); outline-offset: -4px; }
+
+/* fita crepe nos dois cantos de cima da folha (o mesmo componente das molduras), fora da máscara */
+.cc-fita { position: absolute; z-index: 5; top: -2px; pointer-events: none; --ta: -24deg; }
+.cc-fita-a { left: clamp(20px, 4%, 56px); }
+.cc-fita-b { right: clamp(20px, 4%, 56px); scale: -1 1; }
+.cc-fita .tape { display: block; width: clamp(64px, 6vw, 96px); height: 22px; }
 
 /* ----- Slide ----- */
 .cc .projects { display: grid; row-gap: 0; }
 .cc .projects > .project { position: relative; isolation: isolate; display: flex; flex-direction: column; gap: var(--s-24); padding: 48px var(--margin) 40px; user-select: none; }
-html:not(.js) .cc .projects > .project { padding-bottom: 76px; } /* sem JS, o rasgado de cada slide fica embaixo dele */
+html:not(.js) .cc .projects > .project { background: var(--cianotipia); padding-bottom: calc(40px + var(--rh)); }
+html:not(.js) .cc .projects { row-gap: var(--s-24); }
 html.js .cc .projects > .project { grid-area: 1 / 1; }
 
-/* Fundo: elemento absoluto que cobre tudo (inset: 0), com overflow: clip. A imagem cobre (object-fit: cover) e fica
-   ampliada 1,08x, para a borda do desfoque não clarear as beiradas; escurecida pelo ::after. Desfoque de 8px: com
-   6px os títulos da captura ainda se liam atrás do título do slide, como texto duplicado.
-   Com JS os fundos ficam numa camada do carrossel inteiro (.cc-fundos), sangrando até as bordas da tela, atrás da
-   faixa e da linha de controles; sem JS, um em cada slide. */
-.cc-fundos { position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(-1 * var(--margin)); right: calc(-1 * var(--margin)); overflow: clip; background: var(--base); pointer-events: none; }
-.p-fundo { position: absolute; inset: 0; z-index: -1; overflow: clip; background: var(--base); }
+/* Fundo da cópia. Com JS: uma camada da folha inteira (.cc-fundos, inset: 0), atrás da faixa e dos controles; sem
+   JS, um em cada slide. A captura entra como traço: em cinza, a 14%, num grupo em mix-blend-mode: screen, que só
+   clareia o azul (azul escuro → papel claro), sem desfoque. Do lado do texto ela é apagada (máscara): a 6% atrás da
+   coluna do texto no desktop e a 30% no celular (onde o texto ocupa a largura toda); com 25% ainda se lia o título
+   da demo atrás do título do slide. No tema escuro as capturas são escuras: entram invertidas, para
+   desenhar o mesmo traço. Por cima, a textura de papel (ruído em SVG, ~6%). */
+.cc-fundos { position: absolute; z-index: -1; inset: 0; overflow: clip; background: var(--cianotipia); pointer-events: none; }
+.p-fundo { position: absolute; inset: 0; z-index: -1; overflow: clip; mix-blend-mode: screen; }
 .cc-fundos > .p-fundo { z-index: auto; }
 /* max-width: none: o img global tem max-width 100% */
-.p-fundo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: top; filter: blur(8px); transform: scale(1.08); }
-.p-fundo::after { content: ""; position: absolute; inset: 0; background: var(--veu); }
+.p-fundo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: top; opacity: 0.14;
+  filter: grayscale(1) contrast(1.1);
+  -webkit-mask-image: linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.3)); mask-image: linear-gradient(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.3)); }
+.p-fundo :is(.pf-d, .pf-dm) { filter: grayscale(1) invert(1) contrast(1.1); }
+.p-fundo::after { content: ""; position: absolute; inset: 0; opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1.6 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 /* uma imagem por tema e por largura: a captura inteira a partir de 768px, o recorte do topo abaixo */
 .p-fundo img { display: none; }
 .p-fundo .pf-lm { display: block; }
@@ -52,65 +82,53 @@ html.js .cc .projects > .project { grid-area: 1 / 1; }
   .p-fundo .pf-l { display: block; }
   :root[data-theme="dark"] .p-fundo .pf-l { display: none; }
   :root[data-theme="dark"] .p-fundo .pf-d { display: block; }
+  /* em duas colunas o texto fica à esquerda: a captura apaga daquele lado */
+  .p-fundo img { -webkit-mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.06) 0 48%, #000 78%); mask-image: linear-gradient(90deg, rgb(0 0 0 / 0.06) 0 48%, #000 78%); }
 }
 @media (min-width: 768px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo .pf-l { display: none; } :root:not([data-theme="light"]) .p-fundo .pf-d { display: block; } }
 
-/* Texto: rótulo mono, título grande na fonte display, a frase de resultado e os botões. */
+/* Texto: rótulo mono em azul claro, título grande na fonte display na cor do papel, a frase e os botões. */
 .cc .p-topo, .cc .p-base { display: flex; flex-direction: column; gap: var(--s-16); min-width: 0; }
-.cc .p-rot { margin: 0; color: var(--sobre-2); font-size: var(--t-xs); }
+.cc .p-rot { margin: 0; color: var(--ciano); font-size: var(--t-xs); }
 .cc .projects > .project h3 { margin: 0; color: var(--sobre); font: 600 clamp(2.25rem, 1rem + 4.4vw, 5.5rem)/1.02 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); text-wrap: balance; }
 .cc .p-pal { display: inline-block; }
 .cc .projects > .project .p-resumo { margin: 0; color: var(--sobre-2); max-width: 46ch; }
-/* Botões: "Abrir demonstração" é o .btn-primary (cheio); "Ver detalhes" o secundário com borda, claro sobre o
-   fundo escuro. Altura mínima de 44px; no celular, se não couberem lado a lado, cada um ocupa a largura toda. */
+/* Botões: "Abrir demonstração" cheio na cor do papel com texto azul escuro; "Ver detalhes" com borda na cor do papel
+   e texto claro. Altura mínima de 44px; no celular, se não couberem lado a lado, cada um ocupa a largura toda. */
 .cc .p-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); margin-top: var(--s-8); }
 .cc .p-acoes .btn { min-height: 44px; flex: 1 1 auto; }
 .cc .p-acoes .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
-.cc .p-acoes .btn-secondary { color: var(--sobre); border-color: color-mix(in srgb, var(--sobre) 72%, transparent); }
-.cc .p-acoes .btn-secondary:hover, .cc .p-acoes .btn-secondary:focus-visible { border-color: var(--sobre); background: color-mix(in srgb, var(--sobre) 12%, transparent); }
+.cc .p-acoes .btn-primary { background: var(--sobre); color: var(--azul); }
+.cc .p-acoes .btn-primary:hover, .cc .p-acoes .btn-primary:focus-visible { background: #fff; }
+.cc .p-acoes .btn-secondary { color: var(--sobre); border-color: var(--sobre); }
+.cc .p-acoes .btn-secondary:hover, .cc .p-acoes .btn-secondary:focus-visible { background: color-mix(in srgb, var(--sobre) 14%, transparent); }
+.cc .p-acoes .btn:focus-visible { outline-color: var(--sobre); }
 /* a seta → desliza 4px no hover (as regras de .p-link de sections.css a deixavam na diagonal) */
 .cc .p-acoes .btn .seta-d { transform: none; }
 .cc .p-acoes .btn:hover .seta-d, .cc .p-acoes .btn:focus-visible .seta-d { transform: translateX(4px); }
 /* o link externo ("Ver código"), quando existir, continua link de texto com ↗ */
 .cc .p-acoes .link.p-link { align-self: center; margin-top: 0; color: var(--sobre); }
 
-/* Moldura sobre o fundo, girada -1,5° (propriedade rotate: é o giro que public/folha.js lê para sair e pousar).
-   Cotas e legenda claras, para aparecerem no fundo escuro. */
-.cc .projects > .project > .p-frame { margin: 0; width: 100%; min-width: 0; rotate: -1.5deg; --c: color-mix(in srgb, var(--sobre) 55%, transparent); }
-.cc .p-frame :is(.pf-w, .pf-h, figcaption) { color: var(--sobre-2); }
-/* o número da cota tem um fundo que interrompe a linha: aqui ele é o tom do fundo escuro (o papel virava uma
-   pílula clara com o número claro em cima, ilegível) */
-.cc .p-frame :is(.pf-w, .pf-h) > span { background: var(--base); }
+/* Moldura: papel claro com fita, por cima da cópia azul (a captura real aparece nítida ali), girada -1,5°
+   (propriedade rotate: é o giro que public/folha.js lê para sair e pousar). Cotas em azul claro, legenda clara. */
+.cc .projects > .project > .p-frame { margin: 0; width: 100%; min-width: 0; rotate: -1.5deg; --c: color-mix(in srgb, var(--ciano) 75%, transparent); }
+.cc .p-frame :is(.pf-w, .pf-h) { color: var(--ciano); }
+.cc .p-frame figcaption { color: var(--sobre-2); }
+.cc .p-frame:hover { --c: var(--sobre); }
+.cc .p-frame:hover :is(.pf-w, .pf-h) { color: var(--sobre); }
+/* o número da cota tem um fundo que interrompe a linha: aqui ele é o azul da cópia */
+.cc .p-frame :is(.pf-w, .pf-h) > span { background: var(--azul); }
 @media (max-width: 767px) {
   .cc .p-frame { grid-template-columns: 8px minmax(0, 1fr); }
   .cc .p-frame .pf-h { display: none; }
-}
-
-/* ----- Borda de papel rasgado, só embaixo: papel claro (--paper) arrancado por cima da foto. 36px no celular e
-   64px a partir de 1024px; um desenho longo, sem repetição, que nunca estica (Rasgo.tsx). Sombra curta e suave
-   logo acima da linha, caindo sobre a foto; por trás, o brilho da fibra, 1px acima, mais claro. ----- */
-.rasgo { position: absolute; z-index: 3; bottom: -1px; left: 0; right: 0; height: 36px; pointer-events: none; }
-.cc > .rasgo { left: calc(-1 * var(--margin)); right: calc(-1 * var(--margin)); }
-.rasgo svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 -2px 3px rgba(40, 28, 10, 0.25)); }
-:root[data-theme="dark"] .rasgo svg { filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.45)); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rasgo svg { filter: drop-shadow(0 -2px 3px rgba(0, 0, 0, 0.45)); } }
-.rasgo-papel { fill: var(--paper); }
-.rasgo-brilho { fill: color-mix(in srgb, var(--paper) 55%, #fff); opacity: 0.35; }
-:root[data-theme="dark"] .rasgo-brilho { fill: color-mix(in srgb, var(--paper) 80%, #fff); opacity: 0.3; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rasgo-brilho { fill: color-mix(in srgb, var(--paper) 80%, #fff); opacity: 0.3; } }
-.rasgo-d { display: none; }
-@media (min-width: 1024px) {
-  .rasgo { height: 64px; }
-  .rasgo-d { display: block; }
-  .rasgo-m { display: none; }
 }
 
 /* ----- Troca (só com JS) ----- */
 /* o slide: fade de 600ms; o de trás fica invisível e fora do Tab (inert, Classico.tsx) */
 html.js .cc .projects > .project { transition: opacity 600ms var(--ease), visibility 0s; }
 html.js .cc .projects > .project:not([data-pos="0"]) { opacity: 0; visibility: hidden; transition: opacity 600ms var(--ease), visibility 0s linear 600ms; }
-/* o fundo troca junto com o slide (fade de 600ms); o do novo faz um zoom de 1,06 para 1 em 1,2s (por cima da
-   ampliação de 1,08 da imagem), e o de trás volta para 1,06 só depois de sumir */
+/* o fundo troca junto com o slide (fade de 600ms); o do novo faz um zoom de 1,06 para 1 em 1,2s, e o de trás volta
+   para 1,06 só depois de sumir */
 .cc-fundos > .p-fundo { opacity: 0; transform: scale(1.06); transition: opacity 600ms var(--ease), transform 0s 600ms; }
 .cc-fundos > .p-fundo[data-on] { opacity: 1; transform: none; transition: opacity 600ms var(--ease), transform 1200ms cubic-bezier(0.22, 1, 0.36, 1); }
 /* O texto do novo entra em sequência (rótulo, título palavra por palavra a cada 60ms, frase, botões) e a moldura
@@ -126,47 +144,47 @@ html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { opacity: 0; tr
 /* volta da demo: public/folha.js põe .cc-sem por dois quadros, e o slide da demo já fica ativo, sem animação */
 .cc-sem .project, .cc-sem .project *, .cc-sem .cc-fundos > .p-fundo { transition: none !important; }
 
-/* ----- Controles. Celular e tablet: a linha (seta, pontos, contador, pausa, seta) no alto do carrossel, já sobre o
-   fundo escuro. Com JS o .cc guarda embaixo a altura do rasgado, para ele não cobrir nada. ----- */
-html.js .cc { padding-top: 20px; padding-bottom: 36px; }
-.cc-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s-12); min-height: 48px; }
+/* ----- Controles. Celular e tablet: a linha (seta, pontos, contador, pausa, seta) no alto da folha, alinhada com o
+   texto. Com JS a folha guarda embaixo a altura do rasgado, para ele não cortar nada. ----- */
+html.js .cc { padding-top: 20px; padding-bottom: var(--rh); }
+.cc-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s-12); min-height: 48px; padding-inline: var(--margin); }
 .cc-pontos { display: flex; align-items: center; gap: var(--s-4); min-width: 0; }
-/* pontos, progresso e contador na cor clara (--sobre), legíveis sobre o fundo escuro nos dois temas */
+/* pontos, progresso, contador e pausa na cor do papel */
 .cc-ponto { position: relative; width: 28px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
-.cc-ponto span { width: 20px; height: 2px; background: color-mix(in srgb, var(--sobre) 50%, transparent); transition: background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease); }
+.cc-ponto span { width: 20px; height: 2px; background: color-mix(in srgb, var(--sobre) 55%, transparent); transition: background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease); }
 .cc-ponto[aria-current="true"] span { background: var(--sobre); transform: scaleY(2); }
 .cc-ponto:hover span { background: var(--sobre); }
 .cc-ponto:focus-visible { outline: 2px solid var(--sobre); outline-offset: -4px; }
 /* progresso da troca automática: uma linha de cota que preenche em 6s embaixo do ponto ativo (com marcas nas
    pontas); pausa junto com a troca */
 .cc-prog { position: absolute; left: 4px; bottom: 9px; width: 20px; height: 1.5px; background: var(--sobre); transform-origin: 0 50%; animation: cc-prog 6s linear forwards; }
-.cc-prog::before, .cc-prog::after { content: ""; position: absolute; top: -2.5px; width: 1px; height: 6px; background: color-mix(in srgb, var(--sobre) 50%, transparent); }
+.cc-prog::before, .cc-prog::after { content: ""; position: absolute; top: -2.5px; width: 1px; height: 6px; background: color-mix(in srgb, var(--sobre) 55%, transparent); }
 .cc-prog::before { left: 0; } .cc-prog::after { right: 0; }
 .cc-pausado .cc-prog { animation-play-state: paused; }
 @keyframes cc-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-/* .cc na frente: o .mono global (cor --subtle) vem depois no CSS e ganhava, deixando o contador apagado no escuro */
+/* .cc na frente: o .mono global (cor --subtle) vem depois no CSS e ganhava */
 .cc .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--sobre-2); font-size: var(--t-xs); }
 /* abaixo de 400px a linha (2 setas, 3 pontos, contador e pausa) não cabe: o contador sai; os pontos já dizem qual
    é o slide (e o contador é aria-hidden) */
 @media (max-width: 399px) { .cc-cont { display: none; } .cc-nav { gap: var(--s-8); } }
 
-/* Setas: quadrado de papel translúcido com borda fina e um chevron. No hover e no foco, o quadrado gira 360° (a da
-   esquerda para trás) virando círculo na cor de destaque, e o chevron cresce e fica na cor do papel. O fundo e a
-   borda ficam no ::after, por baixo do SVG, para o giro não girar a seta. 44px no celular e 52px no desktop. */
+/* Setas: quadrado azul escuro translúcido com borda na cor do papel e um chevron claro. No hover e no foco, o
+   quadrado gira 360° (a da esquerda para trás) virando círculo na cor do papel, e o chevron cresce e fica azul. O
+   fundo e a borda ficam no ::after, por baixo do SVG, para o giro não girar a seta. 44px no celular e 52px no desktop. */
 .cc-seta { position: relative; isolation: isolate; flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
-  border: 0; border-radius: 0; background: none; color: var(--ink); cursor: pointer; transition: color 450ms ease-in-out; }
-.cc-seta::after { content: ""; position: absolute; inset: 0; z-index: -1; border: 1px solid var(--ink); border-radius: 0;
-  background: color-mix(in srgb, var(--paper-2) 88%, transparent); transition: transform 450ms ease-in-out, border-radius 450ms ease-in-out, background-color 450ms ease-in-out, border-color 450ms ease-in-out; }
+  border: 0; border-radius: 0; background: none; color: var(--sobre); cursor: pointer; transition: color 450ms ease-in-out; }
+.cc-seta::after { content: ""; position: absolute; inset: 0; z-index: -1; border: 1px solid var(--sobre); border-radius: 0;
+  background: color-mix(in srgb, var(--azul) 72%, transparent); transition: transform 450ms ease-in-out, border-radius 450ms ease-in-out, background-color 450ms ease-in-out, border-color 450ms ease-in-out; }
 .cc-seta svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
   transition: transform 450ms ease-in-out; }
-.cc-seta:hover, .cc-seta:focus-visible { color: var(--on-accent); }
-.cc-seta:hover::after, .cc-seta:focus-visible::after { border-radius: 50%; background-color: var(--accent); border-color: var(--accent); }
+.cc-seta:hover, .cc-seta:focus-visible { color: var(--azul); }
+.cc-seta:hover::after, .cc-seta:focus-visible::after { border-radius: 50%; background-color: var(--sobre); border-color: var(--sobre); }
 .cc-ant:hover::after, .cc-ant:focus-visible::after { transform: rotate(-360deg); }
 .cc-prox:hover::after, .cc-prox:focus-visible::after, .cc-pausa:hover::after, .cc-pausa:focus-visible::after { transform: rotate(360deg); }
 .cc-seta:hover svg, .cc-seta:focus-visible svg { transform: scale(1.35); }
 .cc-seta:active svg { transform: scale(1.2); }
 /* foco: além do círculo, um contorno; border-radius de novo porque o :focus-visible global muda o arredondamento */
-.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
+.cc-seta:focus-visible { outline: 2px solid var(--sobre); outline-offset: 3px; border-radius: 50%; }
 /* Pausar/continuar: o mesmo estilo das setas, em quadrado pequeno, perto dos pontos. */
 .cc-seta.cc-pausa { width: 36px; height: 36px; margin-left: var(--s-12); }
 .cc-pausa svg { width: 16px; height: 16px; }
@@ -188,25 +206,23 @@ html.js .cc { padding-top: 20px; padding-bottom: 36px; }
 /* ----- Tablet e desktop: duas colunas. Esquerda (~5/12): rótulo e título em cima, frase e botões embaixo, centrados
    na altura; direita (~6/12): a moldura. ----- */
 @media (min-width: 768px) {
-  .cc .projects > .project { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: 1fr auto auto 1fr; column-gap: var(--gutter); row-gap: var(--s-24); align-items: center; min-height: 560px; padding-block: 48px 40px; }
+  .cc .projects > .project { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: 1fr auto auto 1fr; column-gap: var(--gutter); row-gap: var(--s-24); align-items: center; min-height: 520px; padding-block: 48px 40px; }
   .cc .projects > .project > .p-topo { grid-column: 1 / 6; grid-row: 2; align-self: end; }
   .cc .projects > .project > .p-base { grid-column: 1 / 6; grid-row: 3; align-self: start; }
   /* até 720px de largura: em telas muito largas a moldura passava dos 640px de altura da faixa */
   .cc .projects > .project > .p-frame { grid-column: 7 / -1; grid-row: 1 / -1; max-width: 720px; justify-self: end; }
 }
-/* Desktop: a faixa com min(44vw, 640px) de altura; setas nas laterais da faixa, no meio da altura dela, sobre o
-   fundo; os pontos, o contador e a pausa ficam sozinhos embaixo, alinhados com o texto. O conteúdo guarda 100px de
-   cada lado (24 + 52 da seta + 24 de folga). */
+/* Desktop: a faixa com min(44vw, 600px) de altura; setas nas laterais da folha, no meio da altura da faixa; os
+   pontos, o contador e a pausa ficam sozinhos embaixo, alinhados com a coluna do texto, a 8px do começo do rasgado.
+   O conteúdo guarda max(margem, 88px) de cada lado: 16 + 52 da seta + 20 de folga. */
 @media (min-width: 1024px) {
-  /* embaixo: a linha de controles (48px) e, depois dela, a altura do rasgado (64) mais 24 de folga */
-  html.js .cc { display: flex; flex-direction: column; padding-top: 0; padding-bottom: 88px; }
-  html.js .cc > .cc-nav { order: 2; justify-content: flex-start; height: 48px; padding-left: calc(max(var(--margin), 100px) - var(--margin)); }
-  .cc .projects > .project { min-height: min(44vw, 640px); padding-inline: max(var(--margin), 100px); padding-block: 72px 24px; }
-  html:not(.js) .cc .projects > .project { padding-bottom: 104px; }
-  /* no meio da faixa: o 100% é o .cc inteiro, menos a linha de controles (48) e o espaço do rasgado (88) */
-  html.js .cc :is(.cc-ant, .cc-prox) { position: absolute; z-index: 4; width: 52px; height: 52px; top: calc((100% - 136px) / 2); transform: translateY(-50%); }
-  html.js .cc-ant { left: calc(24px - var(--margin)); }
-  html.js .cc-prox { right: calc(24px - var(--margin)); }
+  html.js .cc { display: flex; flex-direction: column; padding-top: 0; padding-bottom: calc(var(--rh) + 8px); }
+  html.js .cc > .cc-nav { order: 2; justify-content: flex-start; height: 48px; padding-inline: max(var(--margin), 88px); }
+  .cc .projects > .project { min-height: min(44vw, 600px); padding-inline: max(var(--margin), 88px); padding-block: 64px 16px; }
+  /* no meio da faixa: o 100% é a folha inteira, menos a linha de controles (48) e o espaço do rasgado (64 + 8) */
+  html.js .cc :is(.cc-ant, .cc-prox) { position: absolute; z-index: 4; width: 52px; height: 52px; top: calc((100% - 120px) / 2); transform: translateY(-50%); }
+  html.js .cc-ant { left: 16px; }
+  html.js .cc-prox { right: 16px; }
   /* no desktop os botões ficam do tamanho do texto, lado a lado */
   .cc .p-acoes .btn { flex: none; }
 }

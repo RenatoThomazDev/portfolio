@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Rasgo from "./Rasgo";
+import Tape from "./Tape";
 import Fundo from "./Fundo";
 
 /* Projetos da home: faixa de largura total com troca em fade (classico.css).
@@ -131,6 +131,8 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
   return (
     <>
       {cabecalho}
+      {/* a folha de cópia heliográfica presa na prancheta: o invólucro gira, faz a sombra e segura as fitas */}
+      <div className="cc-prancha">
       <section ref={raiz} className={`cc${rodando ? " cc-auto" : ""}${pausado ? " cc-pausado" : ""}`} aria-roledescription="carrossel" aria-label="Projetos"
         onPointerEnter={(e) => e.pointerType === "mouse" && setPausas((p) => ({ ...p, mouse: true }))}
         onPointerLeave={(e) => e.pointerType === "mouse" && setPausas((p) => ({ ...p, mouse: false }))}
@@ -160,15 +162,17 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
         <div ref={janela} className="cc-janela" tabIndex={-1}>
           {children}
         </div>
-        {/* Fundos do carrossel inteiro, de borda a borda e de cima até embaixo, atrás da faixa e da linha de
-            controles: o do slide ativo aparece (data-on) e troca em fade junto com ele. Embaixo, o rasgado, por cima
-            de tudo e parado na troca. */}
+        {/* Fundos da folha inteira, atrás da faixa e da linha de controles: o do slide ativo aparece (data-on) e
+            troca em fade junto com ele. */}
         <div className="cc-fundos" aria-hidden="true">
           {itens.map((it, k) => <Fundo key={it.id} img={it.img} ativo={k === ativo} />)}
         </div>
-        <Rasgo />
         <p className="sr-only" aria-live={vivo}>{anuncio}</p>
       </section>
+      {/* fita nos dois cantos de cima: fora da folha (.cc), que tem a máscara do rasgado */}
+      <span className="cc-fita cc-fita-a" aria-hidden="true"><Tape side="a" /></span>
+      <span className="cc-fita cc-fita-b" aria-hidden="true"><Tape side="a" /></span>
+      </div>
     </>
   );
 }
