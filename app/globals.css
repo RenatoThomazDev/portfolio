@@ -4,11 +4,7 @@
 @import "./sections.css";
 @import "./vida.css";
 @import "./paginas.css";
-@import "./pilha.css";
-@import "./destaque.css";
-@import "./lista.css";
 @import "./classico.css";
-@import "./grade.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;
@@ -202,6 +198,4 @@ body { position: relative; }
   70% { opacity: .35; }
   100% { opacity: 0; transform: translate(calc(var(--x) + var(--dx)), calc(var(--y) + var(--dy))) rotate(var(--r)); }
 }
-.scribble-tip { white-space: nowrap; position: fixed; z-index: 41; pointer-events: none; padding: 4px 8px; background: var(--paper-2); border: 1px dashed var(--line-strong); color: var(--subtle); opacity: 0; transition: opacity 300ms; }
-.scribble-tip.on { opacity: 1; }
 html.scribbling, html.scribbling * { user-select: none; cursor: crosshair; }

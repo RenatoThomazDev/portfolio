@@ -1,4 +1,4 @@
-/* Projetos da home, variação "carrossel clássico" (Classico.tsx).
+/* Projetos da home: carrossel clássico (Classico.tsx), em todas as larguras.
    Com JS: a .cc-janela recorta (overflow: clip, não rola, nem por script) e o .projects vira o trilho, com os cards
    lado a lado. O trilho anda com transform (--k e --arraste); cada card ocupa a largura menos o pedaço do próximo
    (--peek). O trilho tem a altura do card mais alto, então trocar não mexe no layout (sem CLS).
@@ -51,32 +51,49 @@ html.js .cc .project:not([data-pos="0"]) { cursor: pointer; }
 .cc-ponto[aria-current="true"]:hover span { background: var(--accent); }
 .cc-ponto:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--muted); font-size: var(--t-xs); }
-.cc-seta { flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1px solid var(--line-strong); background: var(--paper); color: var(--ink); cursor: pointer; transition: border-color var(--d-fast) var(--ease), color var(--d-fast) var(--ease); }
-.cc-seta svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-.cc-seta:hover { border-color: var(--accent); color: var(--accent); }
-.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Setas: círculo com borda de 1,5px na cor do texto e fundo de papel; no hover e no foco, fundo na cor de destaque
+   e a seta clara (as mesmas cores do .btn-primary). Seta de cota de 22px, traço de 2px. */
+.cc-seta { flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer;
+  transition: background-color 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease); }
+.cc-seta svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.cc-seta:hover, .cc-seta:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* border-radius de novo: o :focus-visible global (globals.css) zera o arredondamento */
+.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
 
-/* setas → dos links internos */
-.cc .p-acoes .p-link .seta-d { transform: none; }
-.cc .p-acoes .p-link:hover .seta-d { transform: translateX(3px); }
+/* Botões do card: "Abrir demonstração" é o .btn-primary (cheio), "Ver detalhes" o .btn-secondary (com borda), da
+   mesma altura e com no mínimo 44px. Lado a lado; no celular, se não couberem, cada um ocupa a largura toda. */
+.p-resumo { margin: 0; }
+.cc .p-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); margin-top: var(--s-8); }
+.cc .p-acoes .btn { min-height: 44px; flex: 1 1 auto; }
+.cc .p-acoes .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
+/* a seta → desliza 4px no hover (as regras de .p-link de sections.css a deixavam na diagonal) */
+.cc .p-acoes .btn .seta-d { transform: none; }
+.cc .p-acoes .btn:hover .seta-d, .cc .p-acoes .btn:focus-visible .seta-d { transform: translateX(4px); }
+/* o link externo ("Ver código"), quando existir, continua link de texto com ↗ */
+.cc .p-acoes .link.p-link { align-self: center; margin-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span { transition: none !important; }
+  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span, .cc-seta, .cc .p-acoes .btn .seta-d { transition: none !important; }
 }
 
 /* ----- Desktop: card em duas colunas (moldura | texto); setas circulares nas laterais, no meio da altura da
    captura. A posição sai da largura (cqw), sem medir nada no JS. ----- */
 @media (min-width: 1024px) {
   html.js .cc { --peek: 10%; }
-  html.js .cc .projects > .project { display: grid; grid-template-columns: 58% minmax(0, 1fr); column-gap: clamp(32px, 4vw, 72px); align-items: center; }
+  /* moldura em 55%: a coluna do texto cabe os dois botões lado a lado a partir de ~1200px */
+  html.js .cc .projects > .project { display: grid; grid-template-columns: 55% minmax(0, 1fr); column-gap: clamp(24px, 3vw, 56px); align-items: center; }
   html.js .cc .projects > .project > .p-frame { grid-column: 1; grid-row: 1; }
   html.js .cc .projects > .project > .p-body { grid-column: 2; grid-row: 1; align-self: center; }
-  .cc-fantasma-m { width: 58%; margin-left: 28px; width: calc(58% - 28px); }
+  .cc-fantasma-m { margin-left: 28px; width: calc(55% - 28px); }
   .cc-nav { justify-content: flex-start; }
-  /* captura: cota de 28px em cima e à esquerda; a imagem tem 16:10 (altura = 0,625 x largura) */
-  html.js .cc-seta { position: absolute; z-index: 4; top: calc(28px + (90cqw * 0.58 - 28px) * 0.3125); transform: translateY(-50%); box-shadow: 0 2px 6px -2px rgba(40, 28, 10, 0.25); }
-  html.js .cc-ant { left: -24px; }
-  /* a seta "próximo" fica no meio do pedaço visível do vizinho, longe do texto do card */
-  html.js .cc-prox { left: calc(95cqw - 24px); }
-  html.js .cc .projects > .project > .p-body { padding-right: var(--s-24); }
+  /* setas de 56px nas laterais, no meio da altura da captura (cota de 28px em cima; imagem 16:10, altura = 0,625 x
+     largura) e com metade para fora da borda do card: a esquerda sobre a borda esquerda, a direita sobre a borda
+     direita do card (90cqw, onde começa o vão até o vizinho) */
+  html.js .cc-seta { position: absolute; z-index: 4; width: 56px; height: 56px; top: calc(28px + (90cqw * 0.55 - 28px) * 0.3125); transform: translateY(-50%); box-shadow: 0 2px 8px -2px rgba(40, 28, 10, 0.3); }
+  html.js .cc-ant { left: -28px; }
+  html.js .cc-prox { left: calc(90cqw - 28px); }
+  /* o texto do card não passa por baixo da metade de dentro da seta da direita */
+  html.js .cc .projects > .project > .p-body { padding-right: 44px; }
+  /* no desktop os botões ficam do tamanho do texto, lado a lado */
+  .cc .p-acoes .btn { flex: none; }
 }

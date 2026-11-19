@@ -7,17 +7,8 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-/* Layout da seção: três candidatas, todas com as mesmas props.
-     grade     "os 3 lado a lado" (Grade.tsx, grade.css): a de produção até a escolha final;
-     lista     "lista com prévia" (Lista.tsx, lista.css);
-     carrossel "carrossel clássico" (Classico.tsx, classico.css).
-   Em desenvolvimento, ?projetos=lista|carrossel|grade troca a variação (page.tsx); o build de produção usa sempre a
-   grade. Variações antigas, fora da comparação, guardadas: Pilha.tsx (abas + molduras empilhadas) e Destaque.tsx. */
-import Grade from "./Grade";
-import Lista from "./Lista";
+// A seção é um carrossel clássico (Classico.tsx, classico.css), em todas as larguras.
 import Classico from "./Classico";
-const VARIANTES = { grade: Grade, lista: Lista, carrossel: Classico };
-export type Variante = keyof typeof VARIANTES;
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -39,26 +30,21 @@ const Arrow = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" /></svg>
 );
 
-/* sufixo: só na página de comparação (/comparar-projetos, em desenvolvimento), onde duas variações ficam na mesma
-   página; vai nos ids (#projetos, #projetos-t) e no view-transition-name, para nada colidir. Na home é vazio. */
-export default function Projects({ variante = "grade", sufixo = "" }: { variante?: Variante; sufixo?: string }) {
-  const Layout = VARIANTES[variante] ?? Grade;
+export default function Projects() {
   return (
-    <section id={`projetos${sufixo}`} className="sec wrap grid12" aria-labelledby={`projetos-t${sufixo}`}>
+    <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
-      {/* Sem JS, nas três variações, os três projetos aparecem completos. */}
-      <Layout itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
+      {/* Sem JS, os três cards aparecem completos, em sequência. */}
+      <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, img: p.img }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
-          {/* Na lista cada item já mostra o seu número: o rótulo do bloco fica "Folha 02". (O ".n" dinâmico,
-              <span className="pj-sub">, era das variações Pilha e Destaque.) */}
           <span className="mono">Folha 02 / Projetos</span>
-          <h2 id={`projetos-t${sufixo}`}><Split text="Três demonstrações que você pode abrir e testar" /></h2>
+          <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
         </div>
       }>
       <div className="projects">
         {DEMOS.map((p, i) => (
-          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i} style={{ "--vt": `dq-${p.id.replace(".", "-")}${sufixo}` } as React.CSSProperties}>
+          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
@@ -76,8 +62,6 @@ export default function Projects({ variante = "grade", sufixo = "" }: { variante
               <Tape side="a" />
               <Tape side="b" />
               <figcaption className="mono">fig. {p.id}: {p.title.toLowerCase()}, tela inicial da demonstração.</figcaption>
-              {/* Só com JS, na moldura de trás (pilha.css): o nome da folha seguinte, ao passar o mouse. */}
-              <span className="pj-tras mono" aria-hidden="true">Próximo: {p.title} →</span>
             </figure>
             <div className="p-body" data-reveal>
               <dl className="p-stamp mono">
@@ -91,16 +75,18 @@ export default function Projects({ variante = "grade", sufixo = "" }: { variante
                 {p.tags.map((t) => <li key={t}>{t}</li>)}
               </ul>
               <div className="p-acoes">
-                {/* links internos com →; o ↗ fica só para o link externo (código) */}
-                <ProjectLink href={p.href}>Abrir demonstração<span className="sr-only">: {p.title}</span> <Seta /></ProjectLink>
-                <a className="link p-link" href={`/projetos/${p.slug}`}>Ver detalhes<span className="sr-only"> do projeto {p.title}</span> <Seta /></a>
+                {/* A ação principal é o botão cheio (o mesmo .btn-primary do "Pedir orçamento"); "Ver detalhes" é o
+                    secundário com borda. Os dois com →; o ↗ fica só para o link externo (código). A classe p-link
+                    continua no "Abrir": é por ela que public/folha.js acha a demo para o prefetch. */}
+                <ProjectLink href={p.href} className="btn btn-primary p-link">Abrir demonstração<span className="sr-only">: {p.title}</span> <Seta /></ProjectLink>
+                <a className="btn btn-secondary" href={`/projetos/${p.slug}`}>Ver detalhes<span className="sr-only"> do projeto {p.title}</span> <Seta /></a>
                 {p.code &&<a className="link p-link" href={p.code} target="_blank" rel="noopener noreferrer">Ver código<span className="sr-only">: {p.title} (abre em nova aba)</span> <Arrow /></a>}
               </div>
             </div>
           </div>
         ))}
       </div>
-      </Layout>
+      </Classico>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">

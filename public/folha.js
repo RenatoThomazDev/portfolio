@@ -148,10 +148,6 @@
     var frame = media.closest('.p-frame'), slug = media.closest('[data-demo]').dataset.demo;
     // de onde saiu: o "Voltar ao portfólio" da demo usa quando não houver referrer (app/demos/[demo]/route.ts)
     try { sessionStorage.setItem('folha-origem', location.pathname); } catch (e) {}
-    // e de qual bloco da página (a seção com id), junto com o slug: na página de comparação (/comparar-projetos, só
-    // em desenvolvimento) há duas variações com os mesmos projetos, e a volta pousa na de onde a pessoa saiu
-    var bloco = media.closest('section[id]');
-    try { sessionStorage.setItem('folha-bloco', slug + '|' + (bloco ? bloco.id : '')); } catch (e) {}
     // clique sem passar o mouse antes (teclado, ou toque que não gerou touchstart): o prefetch e a captura começam
     // aqui, no início da animação; a captura só entra se ficar pronta a tempo
     prefetch(media.closest('[data-demo]'));
@@ -192,9 +188,9 @@
         }, VOO + ASSENTA);
       }, DESCOLA);
     }
-    // Na home a folha sai sempre da moldura da frente da pilha: o "Abrir demonstração" é do projeto ativo, e as
-    // molduras de trás são inertes (Pilha.tsx). No celular o "Abrir demonstração" fica abaixo do texto e a miniatura costuma estar fora da tela: antes de
-    // descolar, a página rola (300ms, easeOutCubic) até deixar a folha inteira à vista.
+    // Na home a folha sai da moldura do card ativo do carrossel: o "Abrir demonstração" é dele, e os outros cards
+    // são inertes (Classico.tsx). No celular o "Abrir demonstração" fica abaixo do texto e a miniatura pode estar
+    // fora da tela: antes de descolar, a página rola (300ms, easeOutCubic) até deixar a folha inteira à vista.
     var q = media.getBoundingClientRect();
     if (q.top >= CAB && q.bottom <= innerHeight) { sair(); return; }
     var de = scrollY, para = Math.max(0, de + q.top - Math.max(CAB, (innerHeight - q.height) / 2)), t0 = performance.now();
@@ -205,28 +201,19 @@
     })(t0);
   }
 
-  // Projetos da home: põe o projeto da demo na frente, sem animação (.pj-sem/.dq-sem por dois quadros). Vale para
-  // o layout em uso, "destaque + 2 menores" (.dq, Destaque.tsx: o projeto vai para o destaque e sai da lateral), e
-  // para o carrossel guardado (.pj, Pilha.tsx). Roda antes da hidratação; o componente lê o data-pos do DOM ao
-  // montar e também ouve "pilha-ativar". Fora deles não faz nada.
+  // Carrossel de Projetos da home (.cc, Classico.tsx): põe o card da demo como ativo, sem deslizar (.cc-sem por dois
+  // quadros): data-pos "0" no card e o trilho direto nele (--k). Roda antes da hidratação; o carrossel lê o data-pos
+  // do DOM ao montar e também ouve "carrossel-ativar". Fora do carrossel não faz nada.
   function naFrente(p) {
-    // .ls: lista com prévia (Lista.tsx, a variação em uso), igual ao destaque: o projeto ativo tem data-pos "0"
-    // .cc: carrossel clássico (Classico.tsx, a variação em uso): além do data-pos, o trilho vai direto para o card
-    // (--k), sem deslizar
-    var pj = p.closest('.pj, .dq, .ls, .cc'); if (!pj) return;
-    var cc = pj.classList.contains('cc'), ls = pj.classList.contains('ls') || cc, dq = ls || pj.classList.contains('dq');
-    var ps = Array.prototype.slice.call(pj.querySelectorAll('.projects > .project')), k = ps.indexOf(p), n = ps.length;
+    var cc = p.closest('.cc'); if (!cc) return;
+    var ps = Array.prototype.slice.call(cc.querySelectorAll('.projects > .project')), k = ps.indexOf(p);
     if (k < 0 || p.dataset.pos === '0') return;
-    pj.classList.add(cc ? 'cc-sem' : ls ? 'ls-sem' : dq ? 'dq-sem' : 'pj-sem');
-    if (cc) { var tr = pj.querySelector('.projects'); if (tr) tr.style.setProperty('--k', String(k)); }
-    ps.forEach(function (x, i) { x.dataset.pos = dq ? (i === k ? '0' : '1') : String((i - k + n) % n); });
-    if (dq) pj.querySelectorAll('.dq-item').forEach(function (li, i) { li.hidden = i === k; });
-    var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
-    pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
-    // disparado no próprio bloco (sobe até a janela): cada componente só aceita o aviso do seu bloco
-    pj.dispatchEvent(new CustomEvent('pilha-ativar', { detail: k, bubbles: true }));
-    void pj.offsetWidth;
-    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem', 'ls-sem', 'cc-sem'); }); });
+    cc.classList.add('cc-sem');
+    var tr = cc.querySelector('.projects'); if (tr) tr.style.setProperty('--k', String(k));
+    ps.forEach(function (x, i) { x.dataset.pos = i === k ? '0' : '1'; });
+    cc.dispatchEvent(new CustomEvent('carrossel-ativar', { detail: k, bubbles: true }));
+    void cc.offsetWidth;
+    requestAnimationFrame(function () { requestAnimationFrame(function () { cc.classList.remove('cc-sem'); }); });
   }
 
   /* ---------- Volta ---------- */
@@ -238,14 +225,11 @@
     Promise.race([c ? c.img.decode() : Promise.resolve(), new Promise(function (ok) { setTimeout(ok, 250); })]).then(function () { pousar(slug); }, function () { pousar(slug); });
   }
   function pousar(slug) {
-    // o card daquela demo no bloco de onde a pessoa saiu (se ele existir nesta página); senão, o primeiro da página
-    var b = null;
-    try { var s = (sessionStorage.getItem('folha-bloco') || '').split('|'); sessionStorage.removeItem('folha-bloco'); if (s[0] === slug && s[1]) b = document.getElementById(s[1]); } catch (e) {}
-    var p = (b && b.querySelector('[data-demo="' + slug + '"]')) || document.querySelector('[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
+    var p = document.querySelector('[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
     if (!media || !frame) { r.classList.remove('folha-volta'); return; }
     frame.classList.remove('levanta');
     frame.classList.add('colado', 'ja', 'pousando');
-    // pilha da home: a moldura desta demo vem para a frente (sem animação), depois a página centraliza
+    // carrossel da home: o card desta demo fica ativo (sem deslizar), depois a página centraliza
     naFrente(p);
     media.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
     var f = montar(media, slug), c = f.card, t = f.tela, enc = 0.7;
@@ -282,8 +266,7 @@
   // quando a página estiver lida. Recarregar a página não repete o pouso.
   var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
   // na home ou nas páginas de projeto e de serviço (a demo volta para a página de onde saiu)
-  // (/comparar-projetos só existe em desenvolvimento; no build de produção dá 404 e nunca casa)
-  var vem = /^\/((projetos|servicos)\/[a-z-]+|comparar-projetos)?$/.test(location.pathname) && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
+  var vem = /^\/((projetos|servicos)\/[a-z-]+)?$/.test(location.pathname) && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
   if (vem && DEMOS[vem[1]] && pode()) {
     r.classList.add('folha-volta');
     r.style.setProperty('--folha-capa', corDemo(vem[1]));
@@ -323,6 +306,6 @@
   document.addEventListener('pointerdown', prefetch, { passive: true });
   document.addEventListener('focusin', prefetch);
 
-  // prefetch exposto: a lista da home (Lista.tsx) pede o da demo no hover/foco de cada item
+  // prefetch exposto: o carrossel da home (Classico.tsx) pede o da demo do card que fica ativo
   window.folha = { pode: pode, decolar: decolar, prefetch: prefetch };
 })();

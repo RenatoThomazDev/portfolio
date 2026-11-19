@@ -2,20 +2,19 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-/* Projetos da home na variação "carrossel clássico" (classico.css). Outras variações guardadas para comparar:
-   lista com prévia (Lista.tsx, candidata), abas + molduras empilhadas (Pilha.tsx) e destaque + 2 menores
-   (Destaque.tsx). Para trocar, mude o import e o JSX em Projects.tsx (todas recebem as mesmas props).
+/* Projetos da home: carrossel clássico (classico.css), em todas as larguras.
    Um card por vez; o .projects vira o trilho e anda com transform (--k). Do card seguinte aparece só a moldura na
    borda: o texto dos cards inativos fica invisível. No último card, a borda mostra a moldura do primeiro (.cc-fantasma),
    porque o carrossel é circular. Setas, pontos, contador, clique no card vizinho, swipe/arrastar e setas do teclado.
    Os cards ficam lado a lado no mesmo trilho, que tem a altura do maior: trocar não mexe no layout (sem CLS).
    Sem JS: os três cards em sequência, completos, sem controles. public/folha.js também mexe no data-pos e no --k
-   (na volta da demo, sem animação) e avisa com "pilha-ativar". Sem autoplay. */
+   (na volta da demo, sem animação) e avisa com "carrossel-ativar". Sem autoplay. */
 type Item = { id: string; title: string; img: string };
 type Folha = { prefetch?: (el: Element) => void };
 
-const Esq = () => <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8H3M7 4L3 8l4 4" /></svg>;
-const Dir = () => <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h10.5M9 4l4 4-4 4" /></svg>;
+// setas de cota: haste, ponta e o traço de chamada na outra extremidade
+const Esq = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12H4M9 7l-5 5 5 5M21 8v8" /></svg>;
+const Dir = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M15 7l5 5-5 5M3 8v8" /></svg>;
 
 export default function Classico({ itens, cabecalho, children }: { itens: Item[]; cabecalho: React.ReactNode; children: React.ReactNode }) {
   const raiz = useRef<HTMLElement>(null);
@@ -29,10 +28,9 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
 
   // ouve a folha desde a hidratação (layout effect: um useEffect podia perder o aviso)
   useLayoutEffect(() => {
-    // só o aviso deste bloco (na página de comparação há duas variações na mesma página); vindo da janela, vale
-    const ativar = (e: Event) => { if (e.target instanceof Node && !raiz.current?.contains(e.target)) return; setAtivo((e as CustomEvent<number>).detail); };
-    addEventListener("pilha-ativar", ativar);
-    return () => removeEventListener("pilha-ativar", ativar);
+    const ativar = (e: Event) => setAtivo((e as CustomEvent<number>).detail);
+    addEventListener("carrossel-ativar", ativar);
+    return () => removeEventListener("carrossel-ativar", ativar);
   }, []);
 
   useLayoutEffect(() => {
