@@ -35,7 +35,7 @@ export default function Projects() {
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
       {/* Sem JS, os três cards aparecem completos, em sequência. */}
-      <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, img: p.img }))} cabecalho={
+      <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, img: p.img }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
           <span className="mono">Folha 02 / Projetos</span>

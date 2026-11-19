@@ -9,12 +9,12 @@ import Image from "next/image";
    Os cards ficam lado a lado no mesmo trilho, que tem a altura do maior: trocar não mexe no layout (sem CLS).
    Sem JS: os três cards em sequência, completos, sem controles. public/folha.js também mexe no data-pos e no --k
    (na volta da demo, sem animação) e avisa com "carrossel-ativar". Sem autoplay. */
-type Item = { id: string; title: string; img: string };
+type Item = { id: string; title: string; curto: string; img: string };
 type Folha = { prefetch?: (el: Element) => void };
 
-// setas de cota ← → (haste + ponta) no quadro de 18, desenhadas em px reais (traço de 1,75px no CSS)
-const Esq = () => <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M15 9H3M7.5 4.5L3 9l4.5 4.5" /></svg>;
-const Dir = () => <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9h12M10.5 4.5L15 9l-4.5 4.5" /></svg>;
+// chevrons ‹ › de traço fino no quadro de 18 x 36 (o CSS só muda a escala; o traço não escala)
+const Esq = () => <svg viewBox="0 0 18 36" aria-hidden="true"><path d="M16 2L2 18l14 16" /></svg>;
+const Dir = () => <svg viewBox="0 0 18 36" aria-hidden="true"><path d="M2 2l14 16L2 34" /></svg>;
 
 export default function Classico({ itens, cabecalho, children }: { itens: Item[]; cabecalho: React.ReactNode; children: React.ReactNode }) {
   const raiz = useRef<HTMLElement>(null);
@@ -122,7 +122,7 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
             laterais e a linha dos pontos vai para baixo do card (order, classico.css). A ordem do Tab é a mesma
             nas duas: controles, texto do card, botões (a imagem fica fora do Tab). */}
         <div className="cc-nav">
-          <button type="button" className="cc-seta cc-ant" aria-label="Projeto anterior" onClick={() => ir(ativo - 1)}><Esq /></button>
+          <button type="button" className="cc-seta cc-ant" aria-label="Projeto anterior" onClick={() => ir(ativo - 1)}><Esq /><span className="cc-rot mono" aria-hidden="true"><span>anterior&nbsp;·</span> <span>{itens[(ativo - 1 + n) % n].curto}</span></span></button>
           <div className="cc-pontos">
             {itens.map((it, k) => (
               <button key={it.id} type="button" className="cc-ponto" aria-label={`Ir para o projeto ${k + 1}: ${it.title}`} aria-current={k === ativo ? "true" : undefined} onClick={() => ir(k)}>
@@ -131,7 +131,7 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
             ))}
             <span className="cc-cont mono" aria-hidden="true">{itens[ativo].id} / {itens[n - 1].id}</span>
           </div>
-          <button type="button" className="cc-seta cc-prox" aria-label="Próximo projeto" onClick={() => ir(ativo + 1)}><Dir /></button>
+          <button type="button" className="cc-seta cc-prox" aria-label="Próximo projeto" onClick={() => ir(ativo + 1)}><Dir /><span className="cc-rot mono" aria-hidden="true"><span>próximo&nbsp;·</span> <span>{itens[(ativo + 1) % n].curto}</span></span></button>
         </div>
         {/* tabIndex: com o foco aqui, as setas do teclado trocam de card */}
         <div ref={janela} className="cc-janela" tabIndex={-1}>
