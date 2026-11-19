@@ -88,7 +88,12 @@
 
   /* Monta a folha e devolve as poses "card" (na posição da miniatura) e "tela" (cobrindo a tela) de cada camada. */
   function montar(media, slug) {
-    var W = innerWidth, H = innerHeight, q = media.getBoundingClientRect(), cs = getComputedStyle(r);
+    var W = innerWidth, H = innerHeight, b = media.getBoundingClientRect(), cs = getComputedStyle(r);
+    // A moldura pode estar girada (grade da home: -1°, 0,5°, -0,5°, propriedade rotate). O retângulo da folha é o
+    // da miniatura sem giro nem escala (offsetWidth/Height), centrado onde ela está; o giro entra na pose "card".
+    var fr = media.closest('.p-frame'), g0 = fr ? parseFloat(getComputedStyle(fr).rotate) || 0 : 0;
+    var mw = media.offsetWidth || b.width, mh = media.offsetHeight || b.height, cx0 = b.left + b.width / 2, cy0 = b.top + b.height / 2;
+    var q = { left: cx0 - mw / 2, top: cy0 - mh / 2, right: cx0 + mw / 2, bottom: cy0 + mh / 2, width: mw, height: mh };
     var raio = getComputedStyle(media).borderTopLeftRadius || '0px';
     var img = Array.prototype.find.call(media.querySelectorAll('img'), function (i) { return i.offsetWidth > 0; });
     var cap = capturaPronta(slug);
@@ -122,7 +127,8 @@
     var tela = { top: 0, left: 0, right: W, bottom: H };
     return {
       veu: veu, voo: voo, carimbo: carimbo, fundo: fundo, mini: mini,
-      card: { giro: giro(q.left + q.width / 2, q.top + q.height / 2, -2, 1.03), giroReto: giro(q.left + q.width / 2, q.top + q.height / 2, 0, 1) },
+      // giro da moldura + o descolar (-2°); no pouso termina no giro da própria moldura
+      card: { giro: giro(cx0, cy0, g0 - 2, 1.03), giroReto: giro(cx0, cy0, g0, 1) },
       tela: { giro: giro(W / 2, H / 2, 0, 1) },
       // [elemento, propriedade, pose no card, pose na tela] de tudo que anda junto com a folha
       trilhas: [

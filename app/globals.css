@@ -8,6 +8,7 @@
 @import "./destaque.css";
 @import "./lista.css";
 @import "./classico.css";
+@import "./grade.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;

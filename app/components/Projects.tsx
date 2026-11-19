@@ -7,11 +7,17 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-/* Layout da seção em teste: "carrossel clássico" (Classico.tsx, classico.css). As outras variações continuam
-   guardadas para comparar: lista com prévia (Lista.tsx, lista.css; a candidata), abas + molduras empilhadas
-   (Pilha.tsx, pilha.css) e destaque + 2 menores (Destaque.tsx, destaque.css). Para trocar, mude o import abaixo e o
-   JSX (todas recebem as mesmas props). */
+/* Layout da seção: três candidatas, todas com as mesmas props.
+     grade     "os 3 lado a lado" (Grade.tsx, grade.css): a de produção até a escolha final;
+     lista     "lista com prévia" (Lista.tsx, lista.css);
+     carrossel "carrossel clássico" (Classico.tsx, classico.css).
+   Em desenvolvimento, ?projetos=lista|carrossel|grade troca a variação (page.tsx); o build de produção usa sempre a
+   grade. Variações antigas, fora da comparação, guardadas: Pilha.tsx (abas + molduras empilhadas) e Destaque.tsx. */
+import Grade from "./Grade";
+import Lista from "./Lista";
 import Classico from "./Classico";
+const VARIANTES = { grade: Grade, lista: Lista, carrossel: Classico };
+export type Variante = keyof typeof VARIANTES;
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -33,12 +39,13 @@ const Arrow = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" /></svg>
 );
 
-export default function Projects() {
+export default function Projects({ variante = "grade" }: { variante?: Variante }) {
+  const Layout = VARIANTES[variante] ?? Grade;
   return (
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
-      {/* Carrossel clássico (Classico.tsx, classico.css). Sem JS, os três cards completos, em sequência. */}
-      <Classico itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
+      {/* Sem JS, nas três variações, os três projetos aparecem completos. */}
+      <Layout itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
           {/* Na lista cada item já mostra o seu número: o rótulo do bloco fica "Folha 02". (O ".n" dinâmico,
@@ -91,7 +98,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
-      </Classico>
+      </Layout>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">
