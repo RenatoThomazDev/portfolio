@@ -7,10 +7,10 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-/* Layout da seção em teste: "destaque + 2 menores" (Destaque.tsx). O carrossel anterior (abas + molduras empilhadas)
-   continua guardado em Pilha.tsx e pilha.css: para voltar, troque Destaque por Pilha no import abaixo e no JSX
-   (as duas recebem as mesmas props). */
-import Destaque from "./Destaque";
+/* Layout da seção em teste: "lista com prévia" (Lista.tsx, lista.css). As variações anteriores continuam guardadas
+   para comparar: abas + molduras empilhadas (Pilha.tsx, pilha.css) e destaque + 2 menores (Destaque.tsx,
+   destaque.css). Para trocar, mude o import abaixo e o JSX (as três recebem as mesmas props). */
+import Lista from "./Lista";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -36,12 +36,13 @@ export default function Projects() {
   return (
     <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
       <Colar />
-      {/* Destaque + 2 menores (Destaque.tsx, destaque.css). Sem JS, os três projetos em sequência. */}
-      <Destaque itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img }))} cabecalho={
+      {/* Lista com prévia (Lista.tsx, lista.css). Sem JS, os três projetos completos, em sequência. */}
+      <Lista itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
         <div className="sec-head" data-reveal>
             <SecN n="02" />
-          {/* ".n" do projeto ativo: só com JS (pilha.css), atualizado por Destaque.tsx */}
-          <span className="mono">Folha 02<span className="pj-sub">.1</span> / Projetos</span>
+          {/* Na lista cada item já mostra o seu número: o rótulo do bloco fica "Folha 02". (O ".n" dinâmico,
+              <span className="pj-sub">, era das variações Pilha e Destaque.) */}
+          <span className="mono">Folha 02 / Projetos</span>
           <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
         </div>
       }>
@@ -89,7 +90,7 @@ export default function Projects() {
           </div>
         ))}
       </div>
-      </Destaque>
+      </Lista>
 
       <article className="work" data-reveal>
         <figure className="erp-fig" aria-label="Fluxo do ERP: a venda gera a nota fiscal, que entra na fila de mensagens do WhatsApp e aparece no painel em tempo real">

@@ -1,0 +1,79 @@
+/* Projetos da home, variação "lista com prévia" (Lista.tsx).
+   Base (celular, tablet e sem JS em qualquer largura): a lista some e cada projeto é um bloco completo, empilhado:
+   número e título, a moldura (menor, com fita), o resumo, as tags e os dois botões.
+   Desktop com JS (≥ 1024px): .projects, .project e .p-body viram display: contents e as peças entram na grade do
+   .ls: a lista à esquerda (5 colunas) com o resumo, as tags e os botões do ativo embaixo; as três molduras na
+   mesma célula à direita (7 colunas), fixas (sticky). As peças de cada projeto dividem a mesma célula com as dos
+   outros, então a altura reservada é a da maior e trocar a prévia não mexe no layout (sem CLS). */
+.ls { grid-column: 1 / -1; min-width: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); row-gap: var(--s-48); }
+.ls > .sec-head > .mono { white-space: nowrap; }
+.ls-lista { display: none; }
+.ls > .projects { grid-column: 1 / -1; display: grid; row-gap: var(--s-96); }
+
+/* ----- Blocos completos (base) ----- */
+.ls .project { display: flex; flex-direction: column; align-items: stretch; gap: var(--s-16); }
+.ls .project > .p-body { display: contents; }
+.ls .project .p-stamp { order: 1; }
+.ls .project h3 { order: 2; }
+.ls .project > .p-frame { order: 3; flex: none; width: 100%; max-width: 760px; margin: var(--s-8) 0; }
+.ls .project .p-resumo { order: 4; }
+.ls .project .p-tags { order: 5; }
+.ls .project .p-acoes { order: 6; }
+/* o reveal (data-reveal) do .p-body não age em display: contents; o texto entra visível */
+.ls .project > .p-body[data-reveal] { opacity: 1; transform: none; }
+/* setas → dos links internos */
+.ls .p-acoes .p-link .seta-d { transform: none; }
+.ls .p-acoes .p-link:hover .seta-d { transform: translateX(3px); }
+/* as cotas de hover do card (Vida.tsx) não servem aqui: a moldura já tem as dela */
+html.js .ls .project > .cotas { display: none; }
+
+/* ----- Desktop com JS: lista + prévia ----- */
+@media (min-width: 1024px) {
+  html.js .ls { row-gap: 0; grid-template-rows: auto auto auto auto 1fr; }
+  html.js .ls > .sec-head { grid-column: 1 / -1; grid-row: 1; margin-bottom: var(--s-48); }
+  html.js .ls :is(.projects, .project) { display: contents; }
+  html.js .ls .project :is(.p-stamp, h3) { display: none; }
+
+  /* lista */
+  html.js .ls-lista { display: block; grid-column: 1 / 6; grid-row: 2; list-style: none; margin: 0 0 var(--s-32); padding: 0; border-top: 1px solid var(--line-strong); }
+  .ls-lista li { border-bottom: 1px solid var(--line-strong); position: relative; }
+  /* marcas de cota nas pontas de cada linha */
+  .ls-lista li::after { content: ""; position: absolute; left: 0; right: 0; bottom: -5px; height: 9px; pointer-events: none;
+    background: linear-gradient(var(--line-strong), var(--line-strong)) 0 0 / 1px 100% no-repeat, linear-gradient(var(--line-strong), var(--line-strong)) 100% 0 / 1px 100% no-repeat; }
+  .ls-item { display: grid; grid-template-columns: 5ch minmax(0, 1fr) auto; grid-template-areas: "num tit seta" "num tipo seta"; column-gap: var(--s-16); row-gap: 2px; align-items: baseline;
+    padding: var(--s-20, 20px) var(--s-8) var(--s-20, 20px) var(--s-24); color: var(--muted); text-decoration: none; position: relative; transition: color var(--d-fast) var(--ease); }
+  .ls-num { grid-area: num; font-size: var(--t-sm); }
+  .ls-tit { grid-area: tit; font: 600 var(--t-xl)/1.15 var(--f-display); letter-spacing: var(--track-xl); color: inherit; }
+  .ls-tipo { grid-area: tipo; font-size: var(--t-xs); }
+  .ls-seta { grid-area: seta; align-self: center; width: 20px; height: 20px; transition: transform var(--d-fast) var(--ease); }
+  /* traço de cota à esquerda do ativo */
+  .ls-item::before { content: ""; position: absolute; left: 0; top: var(--s-16); bottom: var(--s-16); width: 9px; transform: scaleY(0); transform-origin: top; transition: transform var(--d-fast) var(--ease);
+    background: linear-gradient(currentColor, currentColor) 4px 0 / 1px 100% no-repeat, linear-gradient(currentColor, currentColor) 0 0 / 9px 1px no-repeat, linear-gradient(currentColor, currentColor) 0 100% / 9px 1px no-repeat; }
+  .ls-item[data-ativo] { color: var(--accent); }
+  .ls-item[data-ativo]::before { transform: none; }
+  .ls-item[data-ativo] .ls-seta { transform: translateX(6px); }
+  .ls-item:hover { color: var(--ink); }
+  .ls-item[data-ativo]:hover { color: var(--accent); }
+  .ls-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* resumo, tags e botões do ativo, abaixo da lista (os três projetos na mesma célula de cada linha) */
+  html.js .ls .project .p-resumo { grid-column: 1 / 6; grid-row: 3; margin: 0 0 var(--s-16); }
+  html.js .ls .project .p-tags { grid-column: 1 / 6; grid-row: 4; margin: 0 0 var(--s-16); align-self: start; }
+  html.js .ls .project .p-acoes { grid-column: 1 / 6; grid-row: 5; margin: 0; align-self: start; }
+  html.js .ls .project .p-body > * { transition: opacity 250ms var(--ease) 60ms, visibility 0s; }
+  html.js .ls .project:not([data-pos="0"]) .p-body > * { opacity: 0; visibility: hidden; transition: opacity 150ms var(--ease), visibility 0s linear 150ms; }
+
+  /* prévia: as três molduras na mesma célula, fixas enquanto a lista está na tela */
+  html.js .ls .project > .p-frame { grid-column: 6 / -1; grid-row: 2 / 6; align-self: start; position: sticky; top: 88px; width: auto; max-width: none; margin: 0 0 0 var(--s-24);
+    transition: opacity 250ms var(--ease), transform 250ms var(--ease), visibility 0s; }
+  html.js .ls .project:not([data-pos="0"]) > .p-frame { opacity: 0; visibility: hidden; transform: translate3d(0, 10px, 0); transition: opacity 150ms var(--ease), transform 150ms var(--ease), visibility 0s linear 150ms; }
+  html.js .ls .project[data-pos="0"] > .p-frame { z-index: 2; }
+}
+/* troca sem animação: volta da demo (public/folha.js põe .ls-sem por dois quadros) e movimento reduzido (só a
+   imagem nova, sem deslocamento) */
+.ls-sem .project :is(.p-frame, .p-body > *), .ls-sem .p-frame * { transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  html.js .ls .project :is(.p-frame, .p-body > *) { transition: none !important; }
+  html.js .ls .project:not([data-pos="0"]) > .p-frame { transform: none; }
+  .ls-item, .ls-item::before, .ls-seta { transition: none; }
+}

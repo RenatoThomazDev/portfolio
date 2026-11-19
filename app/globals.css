@@ -6,6 +6,7 @@
 @import "./paginas.css";
 @import "./pilha.css";
 @import "./destaque.css";
+@import "./lista.css";
 
 :root {
   --f-text: var(--font-geist), system-ui, sans-serif;
@@ -57,14 +58,19 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 }
 .link:hover::after, .link:focus-visible::after, .link[aria-current]::after { transform: scaleX(1); transform-origin: left; }
 
+/* A caixa do cursor tem sempre 40px: o ponto (8px) e o anel (40px) são o ::before em escala. Antes o ponto virava
+   anel mudando width, height e margin, o que contava como layout shift a cada link (CLS). */
 .cursor {
   position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none;
-  width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
-  background: var(--accent); opacity: 0;
-  transition: width var(--d-fast) var(--ease), height var(--d-fast) var(--ease), margin var(--d-fast) var(--ease), opacity var(--d-fast) var(--ease), background-color var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
+  width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  opacity: 0; transition: opacity var(--d-fast) var(--ease);
+}
+.cursor::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--accent); transform: scale(0.2);
+  transition: transform var(--d-fast) var(--ease), background-color var(--d-fast) var(--ease), box-shadow var(--d-fast) var(--ease);
 }
 .cursor.on { opacity: 1; }
-.cursor.hover { width: 40px; height: 40px; margin: -20px 0 0 -20px; background: transparent; box-shadow: inset 0 0 0 1px var(--accent); }
+.cursor.hover::before { transform: scale(1); background: transparent; box-shadow: inset 0 0 0 1px var(--accent); }
 
 
 

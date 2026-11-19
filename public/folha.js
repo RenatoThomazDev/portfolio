@@ -200,18 +200,19 @@
   // para o carrossel guardado (.pj, Pilha.tsx). Roda antes da hidratação; o componente lê o data-pos do DOM ao
   // montar e também ouve "pilha-ativar". Fora deles não faz nada.
   function naFrente(p) {
-    var pj = p.closest('.pj, .dq'); if (!pj) return;
-    var dq = pj.classList.contains('dq');
+    // .ls: lista com prévia (Lista.tsx, a variação em uso), igual ao destaque: o projeto ativo tem data-pos "0"
+    var pj = p.closest('.pj, .dq, .ls'); if (!pj) return;
+    var ls = pj.classList.contains('ls'), dq = ls || pj.classList.contains('dq');
     var ps = Array.prototype.slice.call(pj.querySelectorAll('.projects > .project')), k = ps.indexOf(p), n = ps.length;
     if (k < 0 || p.dataset.pos === '0') return;
-    pj.classList.add(dq ? 'dq-sem' : 'pj-sem');
+    pj.classList.add(ls ? 'ls-sem' : dq ? 'dq-sem' : 'pj-sem');
     ps.forEach(function (x, i) { x.dataset.pos = dq ? (i === k ? '0' : '1') : String((i - k + n) % n); });
     if (dq) pj.querySelectorAll('.dq-item').forEach(function (li, i) { li.hidden = i === k; });
     var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
     pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
     dispatchEvent(new CustomEvent('pilha-ativar', { detail: k }));
     void pj.offsetWidth;
-    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem'); }); });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem', 'ls-sem'); }); });
   }
 
   /* ---------- Volta ---------- */
@@ -304,5 +305,6 @@
   document.addEventListener('pointerdown', prefetch, { passive: true });
   document.addEventListener('focusin', prefetch);
 
-  window.folha = { pode: pode, decolar: decolar };
+  // prefetch exposto: a lista da home (Lista.tsx) pede o da demo no hover/foco de cada item
+  window.folha = { pode: pode, decolar: decolar, prefetch: prefetch };
 })();
