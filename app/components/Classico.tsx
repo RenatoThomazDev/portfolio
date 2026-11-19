@@ -29,7 +29,8 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
 
   // ouve a folha desde a hidratação (layout effect: um useEffect podia perder o aviso)
   useLayoutEffect(() => {
-    const ativar = (e: Event) => setAtivo((e as CustomEvent<number>).detail);
+    // só o aviso deste bloco (na página de comparação há duas variações na mesma página); vindo da janela, vale
+    const ativar = (e: Event) => { if (e.target instanceof Node && !raiz.current?.contains(e.target)) return; setAtivo((e as CustomEvent<number>).detail); };
     addEventListener("pilha-ativar", ativar);
     return () => removeEventListener("pilha-ativar", ativar);
   }, []);

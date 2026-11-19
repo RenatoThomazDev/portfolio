@@ -148,6 +148,10 @@
     var frame = media.closest('.p-frame'), slug = media.closest('[data-demo]').dataset.demo;
     // de onde saiu: o "Voltar ao portfólio" da demo usa quando não houver referrer (app/demos/[demo]/route.ts)
     try { sessionStorage.setItem('folha-origem', location.pathname); } catch (e) {}
+    // e de qual bloco da página (a seção com id), junto com o slug: na página de comparação (/comparar-projetos, só
+    // em desenvolvimento) há duas variações com os mesmos projetos, e a volta pousa na de onde a pessoa saiu
+    var bloco = media.closest('section[id]');
+    try { sessionStorage.setItem('folha-bloco', slug + '|' + (bloco ? bloco.id : '')); } catch (e) {}
     // clique sem passar o mouse antes (teclado, ou toque que não gerou touchstart): o prefetch e a captura começam
     // aqui, no início da animação; a captura só entra se ficar pronta a tempo
     prefetch(media.closest('[data-demo]'));
@@ -219,7 +223,8 @@
     if (dq) pj.querySelectorAll('.dq-item').forEach(function (li, i) { li.hidden = i === k; });
     var rot = p.querySelector('.p-folha span'), sub = rot ? rot.textContent : '';
     pj.querySelectorAll('.pj-sub').forEach(function (s) { s.textContent = sub.slice(sub.lastIndexOf('.')); });
-    dispatchEvent(new CustomEvent('pilha-ativar', { detail: k }));
+    // disparado no próprio bloco (sobe até a janela): cada componente só aceita o aviso do seu bloco
+    pj.dispatchEvent(new CustomEvent('pilha-ativar', { detail: k, bubbles: true }));
     void pj.offsetWidth;
     requestAnimationFrame(function () { requestAnimationFrame(function () { pj.classList.remove('pj-sem', 'dq-sem', 'ls-sem', 'cc-sem'); }); });
   }
@@ -233,7 +238,10 @@
     Promise.race([c ? c.img.decode() : Promise.resolve(), new Promise(function (ok) { setTimeout(ok, 250); })]).then(function () { pousar(slug); }, function () { pousar(slug); });
   }
   function pousar(slug) {
-    var p = document.querySelector('[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
+    // o card daquela demo no bloco de onde a pessoa saiu (se ele existir nesta página); senão, o primeiro da página
+    var b = null;
+    try { var s = (sessionStorage.getItem('folha-bloco') || '').split('|'); sessionStorage.removeItem('folha-bloco'); if (s[0] === slug && s[1]) b = document.getElementById(s[1]); } catch (e) {}
+    var p = (b && b.querySelector('[data-demo="' + slug + '"]')) || document.querySelector('[data-demo="' + slug + '"]'), media = p && p.querySelector('.p-media'), frame = p && p.querySelector('.p-frame');
     if (!media || !frame) { r.classList.remove('folha-volta'); return; }
     frame.classList.remove('levanta');
     frame.classList.add('colado', 'ja', 'pousando');
@@ -274,7 +282,8 @@
   // quando a página estiver lida. Recarregar a página não repete o pouso.
   var nav = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
   // na home ou nas páginas de projeto e de serviço (a demo volta para a página de onde saiu)
-  var vem = /^\/((projetos|servicos)\/[a-z-]+)?$/.test(location.pathname) && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
+  // (/comparar-projetos só existe em desenvolvimento; no build de produção dá 404 e nunca casa)
+  var vem = /^\/((projetos|servicos)\/[a-z-]+|comparar-projetos)?$/.test(location.pathname) && (!nav || nav.type !== 'reload') && document.referrer.match(/\/demos\/([a-z]+)/);
   if (vem && DEMOS[vem[1]] && pode()) {
     r.classList.add('folha-volta');
     r.style.setProperty('--folha-capa', corDemo(vem[1]));

@@ -24,7 +24,8 @@ export default function Lista({ itens, cabecalho, children }: { itens: Item[]; c
   // Layout effect (não useEffect): o aviso da folha pode chegar logo depois da hidratação, e um useEffect ainda não
   // estaria ouvindo (medido: a volta deixava o projeto certo na prévia e o 02.1 marcado na lista).
   useLayoutEffect(() => {
-    const ativar = (e: Event) => setAtivo((e as CustomEvent<number>).detail);
+    // só o aviso deste bloco (na página de comparação há duas variações na mesma página); vindo da janela, vale
+    const ativar = (e: Event) => { if (e.target instanceof Node && !raiz.current?.contains(e.target)) return; setAtivo((e as CustomEvent<number>).detail); };
     addEventListener("pilha-ativar", ativar);
     return () => removeEventListener("pilha-ativar", ativar);
   }, []);

@@ -1,0 +1,10 @@
+/* Página de comparação (só em desenvolvimento): rótulo de cada variação sobre uma linha de cota. */
+.cmp-bloco { padding-top: var(--s-64); }
+.cmp-bloco + .cmp-bloco { margin-top: var(--s-96); }
+.cmp-rot { position: relative; display: flex; align-items: center; min-height: 32px; margin: 0; color: var(--accent); font-size: var(--t-sm); }
+/* linha de cota de ponta a ponta, com as marcas nas pontas; o rótulo fica sobre ela, com fundo de papel */
+.cmp-rot::before { content: ""; position: absolute; left: var(--margin); right: var(--margin); top: 50%; height: 11px; transform: translateY(-50%); pointer-events: none;
+  background: linear-gradient(var(--accent), var(--accent)) 0 50% / 100% 1px no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 0 0 / 1px 100% no-repeat,
+    linear-gradient(var(--accent), var(--accent)) 100% 0 / 1px 100% no-repeat; }
+.cmp-rot > span { position: relative; margin-left: var(--s-24); padding: 4px var(--s-12); background: var(--paper); border: 1px solid var(--accent); white-space: nowrap; }

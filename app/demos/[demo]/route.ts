@@ -14,7 +14,10 @@ export const generateStaticParams = () => DEMOS.map((demo) => ({ demo }));
    lá, public/folha.js). A origem vem do referrer do mesmo site; sem referrer, do sessionStorage que folha.js grava no
    clique e que a demo consome ao abrir (uma vez: abrir a demo direto depois não herda uma origem antiga). Só aceita
    /projetos/<slug> e /servicos/<slug>. */
-const VOLTA = `<script>(function(){var ok=/^\\/(projetos|servicos)\\/[a-z-]+$/,o=null;
+// Em desenvolvimento também aceita /comparar-projetos (a página de comparação das variações da home). No build de
+// produção o trecho fica vazio e o script da demo sai igual ao de antes.
+const COMPARAR = process.env.NODE_ENV === "development" ? "|^\\/comparar-projetos$" : "";
+const VOLTA = `<script>(function(){var ok=/^\\/(projetos|servicos)\\/[a-z-]+$${COMPARAR}/,o=null;
 try{var r=document.referrer&&new URL(document.referrer);if(r&&r.origin===location.origin)o=r.pathname}catch(e){}
 try{if(!document.referrer)o=sessionStorage.getItem('folha-origem');sessionStorage.removeItem('folha-origem')}catch(e){}
 if(!o||!ok.test(o))return;

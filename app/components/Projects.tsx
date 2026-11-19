@@ -39,10 +39,12 @@ const Arrow = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4.5 11.5l7-7M5.5 4.5h6v6" /></svg>
 );
 
-export default function Projects({ variante = "grade" }: { variante?: Variante }) {
+/* sufixo: só na página de comparação (/comparar-projetos, em desenvolvimento), onde duas variações ficam na mesma
+   página; vai nos ids (#projetos, #projetos-t) e no view-transition-name, para nada colidir. Na home é vazio. */
+export default function Projects({ variante = "grade", sufixo = "" }: { variante?: Variante; sufixo?: string }) {
   const Layout = VARIANTES[variante] ?? Grade;
   return (
-    <section id="projetos" className="sec wrap grid12" aria-labelledby="projetos-t">
+    <section id={`projetos${sufixo}`} className="sec wrap grid12" aria-labelledby={`projetos-t${sufixo}`}>
       <Colar />
       {/* Sem JS, nas três variações, os três projetos aparecem completos. */}
       <Layout itens={DEMOS.map((p) => ({ id: p.id, title: p.title, curto: p.curto, kind: p.kind, img: p.img, slug: p.slug, resultado: p.resultado }))} cabecalho={
@@ -51,12 +53,12 @@ export default function Projects({ variante = "grade" }: { variante?: Variante }
           {/* Na lista cada item já mostra o seu número: o rótulo do bloco fica "Folha 02". (O ".n" dinâmico,
               <span className="pj-sub">, era das variações Pilha e Destaque.) */}
           <span className="mono">Folha 02 / Projetos</span>
-          <h2 id="projetos-t"><Split text="Três demonstrações que você pode abrir e testar" /></h2>
+          <h2 id={`projetos-t${sufixo}`}><Split text="Três demonstrações que você pode abrir e testar" /></h2>
         </div>
       }>
       <div className="projects">
         {DEMOS.map((p, i) => (
-          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i} style={{ "--vt": `dq-${p.id.replace(".", "-")}` } as React.CSSProperties}>
+          <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i} style={{ "--vt": `dq-${p.id.replace(".", "-")}${sufixo}` } as React.CSSProperties}>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
