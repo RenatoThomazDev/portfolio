@@ -201,15 +201,15 @@
     })(t0);
   }
 
-  // Carrossel de Projetos da home (.cc, Classico.tsx): põe o card da demo como ativo, sem deslizar (.cc-sem por dois
-  // quadros): data-pos "0" no card e o trilho direto nele (--k). Roda antes da hidratação; o carrossel lê o data-pos
-  // do DOM ao montar e também ouve "carrossel-ativar". Fora do carrossel não faz nada.
+  // Faixa de Projetos da home (.cc, Classico.tsx): põe o slide da demo como ativo, sem fade nem entrada (.cc-sem por
+  // dois quadros), e marca data-voltou: a troca automática fica parada. Roda antes da hidratação; o carrossel lê o
+  // data-pos e o data-voltou do DOM ao montar e também ouve "carrossel-ativar". Fora do carrossel não faz nada.
   function naFrente(p) {
     var cc = p.closest('.cc'); if (!cc) return;
     var ps = Array.prototype.slice.call(cc.querySelectorAll('.projects > .project')), k = ps.indexOf(p);
-    if (k < 0 || p.dataset.pos === '0') return;
+    if (k < 0) return;
+    cc.dataset.voltou = '1';
     cc.classList.add('cc-sem');
-    var tr = cc.querySelector('.projects'); if (tr) tr.style.setProperty('--k', String(k));
     ps.forEach(function (x, i) { x.dataset.pos = i === k ? '0' : '1'; });
     cc.dispatchEvent(new CustomEvent('carrossel-ativar', { detail: k, bubbles: true }));
     void cc.offsetWidth;

@@ -1,144 +1,189 @@
-/* Projetos da home: carrossel clássico (Classico.tsx), em todas as larguras.
-   Com JS: a .cc-janela sangra até as bordas da tela (margem negativa + padding da margem) e recorta ali com
-   overflow-x: clip (não rola, nem por script); a página não ganha rolagem horizontal. O .projects vira o trilho, com
-   os cards lado a lado, e anda com transform (--k e --arraste). Cada card tem a largura do conteúdo, mais a margem
-   da direita, menos o pedaço visível do vizinho (--vis) e o vão (--gap): do próximo card aparece --vis, cortado
-   na borda da tela. O trilho tem a altura do card mais alto, então trocar não mexe no layout (sem CLS).
-   Sem JS: os três cards em sequência, completos, sem setas nem pontos (o layout de antes, de sections.css). */
+/* Projetos da home: faixa de largura total com troca em fade (Classico.tsx).
+   A .cc-janela sai da coluna de conteúdo (margem negativa) e ocupa a largura toda da tela; recorta ali com
+   overflow-x: clip, então a página não ganha rolagem horizontal. Cada slide tem de fundo a captura do projeto (a do
+   tema), cobrindo a faixa, desfocada e escurecida por uma camada de tinta; por cima, o texto em cor clara e a moldura
+   de prancheta, levemente girada. Em cima e embaixo, a borda de papel rasgado (Rasgo.tsx).
+   Com JS: os slides ficam empilhados na mesma célula de um grid (a faixa tem a altura do maior: trocar não mexe no
+   layout); o atual some em fade enquanto o novo aparece, o fundo do novo faz um zoom curto e o texto dele entra em
+   sequência, com a moldura por último. O rasgado fica na faixa, por cima de tudo, e não some no fade.
+   Sem JS: os três slides em sequência, completos, cada um com fundo, rasgado, texto, moldura e links. */
 .cc { grid-column: 1 / -1; min-width: 0; position: relative; }
-html:not(.js) :is(.cc-nav, .cc-fantasma) { display: none; }
+html:not(.js) .cc-nav, html:not(.js) .cc-janela > .rasgo, html.js .cc .project > .rasgo { display: none; }
 html.js .cc .project > .cotas { display: none; }
 
-/* --vis: quanto aparece do vizinho (~11% no celular, ~7% no desktop) */
-html.js .cc { container-type: inline-size; --vis: 11vw; --gap: var(--gutter); --card: calc(100% + var(--margin) - var(--vis) - var(--gap)); }
-html.js .cc-janela { position: relative; margin-inline: calc(-1 * var(--margin)); padding-inline: var(--margin); overflow-x: clip; touch-action: pan-y; outline: none; }
-html.js .cc-janela:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-html.js .cc .projects { display: flex; gap: var(--gap); row-gap: 0;
-  transform: translate3d(calc(var(--k, 0) * -1 * (var(--card) + var(--gap)) + var(--arraste, 0px)), 0, 0);
-  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1); }
-html.js .cc-arrasta .projects { transition: none; cursor: grabbing; }
-/* volta da demo: public/folha.js põe .cc-sem por dois quadros, e o trilho vai direto para o card */
-.cc-sem .projects, .cc-sem .project > .p-body, .cc-sem .cc-fantasma { transition: none !important; }
-html.js .cc .projects > .project { flex: 0 0 var(--card); min-width: 0; display: flex; flex-direction: column; gap: var(--s-24); user-select: none; }
-html.js .cc .projects > .project > .p-frame { flex: none; width: 100%; margin: 0; }
-html.js .cc .projects > .project > .p-body { margin: 0; }
-/* do vizinho aparece só a moldura: o texto dos cards inativos fica invisível */
-html.js .cc .project > .p-body { transition: opacity 250ms var(--ease) 120ms, visibility 0s; }
-html.js .cc .project:not([data-pos="0"]) > .p-body { opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
-html.js .cc .project:not([data-pos="0"]) { cursor: pointer; }
-/* nem a legenda "fig." nem os números das cotas do vizinho: dele aparecem só a imagem e a fita */
-html.js .cc .project > .p-frame :is(figcaption, .pf-w, .pf-h) { transition: opacity 250ms var(--ease) 120ms; }
-html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h) { opacity: 0; transition: opacity 120ms var(--ease); }
-/* abaixo de 768px a coluna da cota vertical (28px) ocuparia quase todo o pedaço do vizinho: encolhe */
+/* Cor do texto sobre o fundo escuro: o papel no tema claro, a tinta (clara) no escuro. --sobre-2: texto de apoio. */
+/* Véu: --ink a 76% no claro (com 72% o texto de apoio ficava em 4,3:1 sobre uma captura branca), --paper-3 a 76%
+   no escuro. Contraste no pior caso (imagem toda branca atrás): título 5,9:1 e apoio 4,7:1 no claro. */
+.cc-janela { --sobre: var(--paper); --veu: color-mix(in srgb, var(--ink) 76%, transparent); }
+:root[data-theme="dark"] .cc-janela { --sobre: var(--ink); --veu: color-mix(in srgb, var(--paper-3) 76%, transparent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cc-janela { --sobre: var(--ink); --veu: color-mix(in srgb, var(--paper-3) 76%, transparent); } }
+.cc-janela { --sobre-2: color-mix(in srgb, var(--sobre) 84%, transparent); position: relative; margin-inline: calc(-1 * var(--margin)); overflow-x: clip; outline: none; }
+html.js .cc-janela { touch-action: pan-y; }
+html.js .cc-janela:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+
+/* ----- Slide ----- */
+.cc .projects { display: grid; row-gap: 0; }
+.cc .projects > .project { position: relative; isolation: isolate; display: flex; flex-direction: column; gap: var(--s-24); padding: 64px var(--margin); user-select: none; }
+html.js .cc .projects > .project { grid-area: 1 / 1; }
+
+/* Fundo: maior que o slide (-16px de cada lado), para a borda do desfoque não aparecer; escurecido pelo ::after.
+   Desfoque de 8px: com 6px os títulos da captura ainda se liam atrás do título do slide, como texto duplicado. */
+.p-fundo { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: var(--ink); }
+:root[data-theme="dark"] .p-fundo { background: var(--paper-3); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo { background: var(--paper-3); } }
+/* max-width: none: o img global tem max-width 100%, que cortava os 32px a mais e deixava uma faixa sem imagem */
+.p-fundo img { position: absolute; left: -16px; top: -16px; width: calc(100% + 32px); height: calc(100% + 32px); max-width: none; object-fit: cover; object-position: top; filter: blur(8px); }
+.p-fundo::after { content: ""; position: absolute; inset: 0; background: var(--veu); }
+/* uma imagem por tema e por largura: a captura inteira a partir de 768px, o recorte do topo abaixo */
+.p-fundo img { display: none; }
+.p-fundo .pf-lm { display: block; }
+:root[data-theme="dark"] .p-fundo .pf-lm { display: none; }
+:root[data-theme="dark"] .p-fundo .pf-dm { display: block; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo .pf-lm { display: none; } :root:not([data-theme="light"]) .p-fundo .pf-dm { display: block; } }
+@media (min-width: 768px) {
+  .p-fundo :is(.pf-lm, .pf-dm) { display: none !important; }
+  .p-fundo .pf-l { display: block; }
+  :root[data-theme="dark"] .p-fundo .pf-l { display: none; }
+  :root[data-theme="dark"] .p-fundo .pf-d { display: block; }
+}
+@media (min-width: 768px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .p-fundo .pf-l { display: none; } :root:not([data-theme="light"]) .p-fundo .pf-d { display: block; } }
+
+/* Texto: rótulo mono, título grande na fonte display, a frase de resultado e os botões. */
+.cc .p-topo, .cc .p-base { display: flex; flex-direction: column; gap: var(--s-16); min-width: 0; }
+.cc .p-rot { margin: 0; color: var(--sobre-2); font-size: var(--t-xs); }
+.cc .projects > .project h3 { margin: 0; color: var(--sobre); font: 600 clamp(2.25rem, 1rem + 4.4vw, 5.5rem)/1.02 var(--f-display); letter-spacing: var(--track-xl); word-spacing: var(--word-xl); text-wrap: balance; }
+.cc .p-pal { display: inline-block; }
+.cc .projects > .project .p-resumo { margin: 0; color: var(--sobre-2); max-width: 46ch; }
+/* Botões: "Abrir demonstração" é o .btn-primary (cheio); "Ver detalhes" o secundário com borda, claro sobre o
+   fundo escuro. Altura mínima de 44px; no celular, se não couberem lado a lado, cada um ocupa a largura toda. */
+.cc .p-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); margin-top: var(--s-8); }
+.cc .p-acoes .btn { min-height: 44px; flex: 1 1 auto; }
+.cc .p-acoes .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
+.cc .p-acoes .btn-secondary { color: var(--sobre); border-color: color-mix(in srgb, var(--sobre) 72%, transparent); }
+.cc .p-acoes .btn-secondary:hover, .cc .p-acoes .btn-secondary:focus-visible { border-color: var(--sobre); background: color-mix(in srgb, var(--sobre) 12%, transparent); }
+/* a seta → desliza 4px no hover (as regras de .p-link de sections.css a deixavam na diagonal) */
+.cc .p-acoes .btn .seta-d { transform: none; }
+.cc .p-acoes .btn:hover .seta-d, .cc .p-acoes .btn:focus-visible .seta-d { transform: translateX(4px); }
+/* o link externo ("Ver código"), quando existir, continua link de texto com ↗ */
+.cc .p-acoes .link.p-link { align-self: center; margin-top: 0; color: var(--sobre); }
+
+/* Moldura sobre o fundo, girada -1,5° (propriedade rotate: é o giro que public/folha.js lê para sair e pousar).
+   Cotas e legenda claras, para aparecerem no fundo escuro. */
+.cc .projects > .project > .p-frame { margin: 0; width: 100%; min-width: 0; rotate: -1.5deg; --c: color-mix(in srgb, var(--sobre) 55%, transparent); }
+.cc .p-frame :is(.pf-w, .pf-h, figcaption) { color: var(--sobre-2); }
+/* o número da cota tem um fundo que interrompe a linha: aqui ele é o tom do fundo escuro (o papel virava uma
+   pílula clara com o número claro em cima, ilegível) */
+.cc .p-frame :is(.pf-w, .pf-h) > span { background: var(--base); }
+.cc-janela { --base: var(--ink); }
+:root[data-theme="dark"] .cc-janela { --base: var(--paper-3); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cc-janela { --base: var(--paper-3); } }
 @media (max-width: 767px) {
-  html.js .cc .p-frame { grid-template-columns: 8px minmax(0, 1fr); }
-  html.js .cc .p-frame .pf-h { display: none; }
+  .cc .p-frame { grid-template-columns: 8px minmax(0, 1fr); }
+  .cc .p-frame .pf-h { display: none; }
 }
 
-/* moldura do primeiro projeto na borda, depois do último (circular); a mesma posição do card seguinte */
-.cc-fantasma { position: absolute; top: 0; left: calc(100cqw + 2 * var(--margin) - var(--vis)); width: calc(100cqw + var(--margin) - var(--vis) - var(--gap)); pointer-events: none; opacity: 0; transition: opacity 300ms var(--ease); }
-.cc-fantasma[data-on] { opacity: 1; }
-.cc-fantasma-m { display: block; margin: 28px 0 0 8px; aspect-ratio: 16 / 10; overflow: hidden; border-radius: var(--radius); border: 6px solid var(--paper-2); box-shadow: 0 0 0 1px var(--line); background: var(--paper-2); }
-.cc-fantasma-m img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.85) contrast(1.04); }
-.cc-fantasma .img-d { display: none; }
-:root[data-theme="dark"] .cc-fantasma .img-l { display: none; }
-:root[data-theme="dark"] .cc-fantasma .img-d { display: block; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cc-fantasma .img-l { display: none; } :root:not([data-theme="light"]) .cc-fantasma .img-d { display: block; } }
+/* ----- Borda de papel rasgado: na cor do papel da página, por cima da imagem, com uma sombra leve. ----- */
+.rasgo { position: absolute; left: 0; right: 0; z-index: 3; height: 28px; pointer-events: none; }
+.rasgo-topo { top: -1px; filter: drop-shadow(0 1.5px 1.5px rgba(40, 28, 10, 0.3)); }
+.rasgo-base { bottom: -1px; filter: drop-shadow(0 -1.5px 1.5px rgba(40, 28, 10, 0.3)); }
+.rasgo i { display: block; height: 100%; background: var(--paper); -webkit-mask-size: 480px 28px; mask-size: 480px 28px; -webkit-mask-repeat: repeat-x; mask-repeat: repeat-x; }
 
-/* ----- Controles. Celular e tablet: a linha (seta, pontos e contador, seta) logo acima da moldura. ----- */
+/* ----- Troca (só com JS) ----- */
+/* o slide: fade de 600ms; o de trás fica invisível e fora do Tab (inert, Classico.tsx) */
+html.js .cc .projects > .project { transition: opacity 600ms var(--ease), visibility 0s; }
+html.js .cc .projects > .project:not([data-pos="0"]) { opacity: 0; visibility: hidden; transition: opacity 600ms var(--ease), visibility 0s linear 600ms; }
+/* o fundo do novo: zoom de 1,06 para 1 em 1,2s; o de trás volta para 1,06 só depois de sumir */
+html.js .cc .project > .p-fundo { transition: transform 1200ms cubic-bezier(0.22, 1, 0.36, 1); }
+html.js .cc .project:not([data-pos="0"]) > .p-fundo { transform: scale(1.06); transition: transform 0s 600ms; }
+/* O texto do novo entra em sequência (rótulo, título palavra por palavra a cada 60ms, frase, botões) e a moldura
+   por último. No de trás tudo volta para o começo só depois de ele sumir (atraso de 600ms, sem transição). */
+html.js .cc .project :is(.p-rot, .p-pal, .p-resumo, .p-acoes) { transition: opacity 450ms var(--ease) var(--d), translate 600ms cubic-bezier(0.22, 1, 0.36, 1) var(--d); }
+html.js .cc .project .p-rot { --d: 150ms; }
+html.js .cc .project .p-pal { --d: calc(250ms + var(--w, 0) * 60ms); }
+html.js .cc .project .p-resumo { --d: 650ms; }
+html.js .cc .project .p-acoes { --d: 760ms; }
+html.js .cc .project:not([data-pos="0"]) :is(.p-rot, .p-pal, .p-resumo, .p-acoes) { opacity: 0; translate: 0 24px; transition: opacity 0s 600ms, translate 0s 600ms; }
+html.js .cc .projects > .project > .p-frame { transition: opacity 500ms var(--ease) 880ms, translate 700ms cubic-bezier(0.22, 1, 0.36, 1) 880ms, rotate 700ms cubic-bezier(0.22, 1, 0.36, 1) 880ms; }
+html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { opacity: 0; translate: 0 16px; rotate: -3deg; transition: opacity 0s 600ms, translate 0s 600ms, rotate 0s 600ms; }
+/* volta da demo: public/folha.js põe .cc-sem por dois quadros, e o slide da demo já fica ativo, sem animação */
+.cc-sem .project, .cc-sem .project * { transition: none !important; }
+
+/* ----- Controles. Celular e tablet: a linha (seta, pontos, contador, pausa, seta) logo acima da faixa. ----- */
 .cc-nav { display: flex; align-items: center; justify-content: space-between; gap: var(--s-12); margin-bottom: var(--s-16); min-height: 48px; }
 .cc-pontos { display: flex; align-items: center; gap: var(--s-4); min-width: 0; }
-.cc-ponto { width: 28px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+.cc-ponto { position: relative; width: 28px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
 .cc-ponto span { width: 20px; height: 2px; background: var(--line-strong); transition: background var(--d-fast) var(--ease), transform var(--d-fast) var(--ease); }
 .cc-ponto[aria-current="true"] span { background: var(--accent); transform: scaleY(2); }
 .cc-ponto:hover span { background: var(--ink); }
 .cc-ponto[aria-current="true"]:hover span { background: var(--accent); }
 .cc-ponto:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+/* progresso da troca automática: uma linha de cota que preenche em 6s embaixo do ponto ativo (com marcas nas
+   pontas); pausa junto com a troca */
+.cc-prog { position: absolute; left: 4px; bottom: 9px; width: 20px; height: 1.5px; background: var(--accent); transform-origin: 0 50%; animation: cc-prog 6s linear forwards; }
+.cc-prog::before, .cc-prog::after { content: ""; position: absolute; top: -2.5px; width: 1px; height: 6px; background: var(--line-strong); }
+.cc-prog::before { left: 0; } .cc-prog::after { right: 0; }
+.cc-pausado .cc-prog { animation-play-state: paused; }
+@keyframes cc-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--muted); font-size: var(--t-xs); }
+/* abaixo de 400px a linha (2 setas, 3 pontos, contador e pausa) não cabe: o contador sai; os pontos já dizem qual
+   é o slide (e o contador é aria-hidden) */
+@media (max-width: 399px) { .cc-cont { display: none; } .cc-nav { gap: var(--s-8); } }
 
-/* Setas: chevron grande de traço fino, sem caixa nem fundo, no traço das linhas de cota (1,5px, pontas retas), na
-   cor do texto. A área clicável é invisível: 44 x 44px no celular (chevron de 24px de altura, sem rótulo) e
-   56 x 96px no desktop (chevron de 36 x 18px, com o rótulo mono "anterior · Automação" embaixo, em --muted).
-   No hover e no foco o chevron e o rótulo vão para a cor de destaque, o chevron desliza 4px para o lado dele e,
-   no desktop, sai dele uma linha de cota de 24px. */
-.cc-seta { --dx: 0px; position: relative; flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
-  border: 0; border-radius: 0; background: none; color: var(--ink); cursor: pointer; transition: color 150ms var(--ease); }
-.cc-seta svg { width: 12px; height: 24px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; stroke-linejoin: miter;
-  vector-effect: non-scaling-stroke; transform: translateX(var(--dx)); transition: transform 150ms var(--ease); }
-.cc-seta svg path { vector-effect: non-scaling-stroke; }
-.cc-rot { display: none; }
-.cc-seta:hover, .cc-seta:focus-visible { color: var(--accent); }
-.cc-ant:hover, .cc-ant:focus-visible { --dx: -4px; }
-.cc-prox:hover, .cc-prox:focus-visible { --dx: 4px; }
-/* foco envolvendo a área clicável; border-radius de novo porque o :focus-visible global muda o arredondamento */
-.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; border-radius: 0; }
-
-/* Botões do card: "Abrir demonstração" é o .btn-primary (cheio), "Ver detalhes" o .btn-secondary (com borda), da
-   mesma altura e com no mínimo 44px. Lado a lado; no celular, se não couberem, cada um ocupa a largura toda. */
-.p-resumo { margin: 0; }
-.cc .p-acoes { display: flex; flex-wrap: wrap; gap: var(--s-12); margin-top: var(--s-8); }
-.cc .p-acoes .btn { min-height: 44px; flex: 1 1 auto; }
-.cc .p-acoes .btn.p-link { margin-top: 0; align-self: auto; font-weight: inherit; }
-/* a seta → desliza 4px no hover (as regras de .p-link de sections.css a deixavam na diagonal) */
-.cc .p-acoes .btn .seta-d { transform: none; }
-.cc .p-acoes .btn:hover .seta-d, .cc .p-acoes .btn:focus-visible .seta-d { transform: translateX(4px); }
-/* o link externo ("Ver código"), quando existir, continua link de texto com ↗ */
-.cc .p-acoes .link.p-link { align-self: center; margin-top: 0; }
+/* Setas: quadrado de papel translúcido com borda fina e um chevron. No hover e no foco, o quadrado gira 360° (a da
+   esquerda para trás) virando círculo na cor de destaque, e o chevron cresce e fica na cor do papel. O fundo e a
+   borda ficam no ::after, por baixo do SVG, para o giro não girar a seta. 44px no celular e 52px no desktop. */
+.cc-seta { position: relative; isolation: isolate; flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  border: 0; border-radius: 0; background: none; color: var(--ink); cursor: pointer; transition: color 450ms ease-in-out; }
+.cc-seta::after { content: ""; position: absolute; inset: 0; z-index: -1; border: 1px solid var(--ink); border-radius: 0;
+  background: color-mix(in srgb, var(--paper-2) 88%, transparent); transition: transform 450ms ease-in-out, border-radius 450ms ease-in-out, background-color 450ms ease-in-out, border-color 450ms ease-in-out; }
+.cc-seta svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 450ms ease-in-out; }
+.cc-seta:hover, .cc-seta:focus-visible { color: var(--on-accent); }
+.cc-seta:hover::after, .cc-seta:focus-visible::after { border-radius: 50%; background-color: var(--accent); border-color: var(--accent); }
+.cc-ant:hover::after, .cc-ant:focus-visible::after { transform: rotate(-360deg); }
+.cc-prox:hover::after, .cc-prox:focus-visible::after, .cc-pausa:hover::after, .cc-pausa:focus-visible::after { transform: rotate(360deg); }
+.cc-seta:hover svg, .cc-seta:focus-visible svg { transform: scale(1.35); }
+.cc-seta:active svg { transform: scale(1.2); }
+/* foco: além do círculo, um contorno; border-radius de novo porque o :focus-visible global muda o arredondamento */
+.cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
+/* Pausar/continuar: o mesmo estilo das setas, em quadrado pequeno, perto dos pontos. */
+.cc-seta.cc-pausa { width: 36px; height: 36px; margin-left: var(--s-12); }
+.cc-pausa svg { width: 16px; height: 16px; }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span, .cc-seta, .cc-seta svg, .cc .p-acoes .btn .seta-d { transition: none !important; }
-  /* sem deslocamento: o chevron não desliza e a linha de cota aparece inteira de uma vez */
-  .cc-seta::after, .cc-rot { transition: none !important; }
-  .cc-ant:hover, .cc-ant:focus-visible, .cc-prox:hover, .cc-prox:focus-visible { --dx: 0px; }
-  /* "html" a mais: as regras do desktop vêm depois no arquivo */
-  html .cc-prox::after { left: calc(50% + 9px); }
-  html .cc-ant::after { right: calc(50% + 9px); }
+  /* só o cross-fade de 200ms: sem zoom no fundo e sem entrada em sequência */
+  html.js .cc .projects > .project, html.js .cc .projects > .project:not([data-pos="0"]) { transition-duration: 200ms; }
+  html.js .cc .projects > .project:not([data-pos="0"]) { transition: opacity 200ms var(--ease), visibility 0s linear 200ms; }
+  html.js .cc .project > .p-fundo, html.js .cc .project:not([data-pos="0"]) > .p-fundo { transform: none; transition: none; }
+  html.js .cc .project :is(.p-rot, .p-pal, .p-resumo, .p-acoes), html.js .cc .project:not([data-pos="0"]) :is(.p-rot, .p-pal, .p-resumo, .p-acoes),
+  html.js .cc .projects > .project > .p-frame, html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { opacity: 1; translate: none; transition: none; }
+  html.js .cc .projects > .project:not([data-pos="0"]) > .p-frame { rotate: -1.5deg; }
+  .cc-ponto span, .cc-seta, .cc-seta svg, .cc .p-acoes .btn .seta-d { transition: none !important; }
+  /* sem giro nem escala nas setas: só a troca de cor e o canto arredondado, de uma vez */
+  .cc-seta::after { transition: none !important; }
+  .cc-seta:hover::after, .cc-seta:focus-visible::after, .cc-seta:hover svg, .cc-seta:focus-visible svg, .cc-seta:active svg { transform: none !important; }
 }
 
-/* ----- Desktop: card em duas colunas (moldura | texto). Setas nas laterais; a linha dos pontos e do contador
-   vai para baixo do card. Tudo calculado pela largura (cqw), sem medir nada no JS. ----- */
+/* ----- Tablet e desktop: duas colunas. Esquerda (~5/12): rótulo e título em cima, frase e botões embaixo, centrados
+   na altura; direita (~6/12): a moldura. ----- */
+@media (min-width: 768px) {
+  .cc .projects > .project { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: 1fr auto auto 1fr; column-gap: var(--gutter); row-gap: var(--s-24); align-items: center; min-height: 560px; padding-block: 72px; }
+  .cc .projects > .project > .p-topo { grid-column: 1 / 6; grid-row: 2; align-self: end; }
+  .cc .projects > .project > .p-base { grid-column: 1 / 6; grid-row: 3; align-self: start; }
+  /* até 720px de largura: em telas muito largas a moldura passava dos 640px de altura da faixa */
+  .cc .projects > .project > .p-frame { grid-column: 7 / -1; grid-row: 1 / -1; max-width: 720px; justify-self: end; }
+}
+/* Desktop: a faixa com min(44vw, 640px) de altura; setas nas laterais da faixa, no meio da altura dela, sobre o
+   fundo; os pontos, o contador e a pausa ficam sozinhos embaixo, alinhados com o texto. O conteúdo guarda 100px de
+   cada lado (24 + 52 da seta + 24 de folga). */
 @media (min-width: 1024px) {
-  html.js .cc { --vis: 7vw; display: flex; flex-direction: column; }
-  html.js .cc > .cc-nav { order: 2; justify-content: flex-start; margin: var(--s-24) 0 0; }
-  /* moldura em 55%: a coluna do texto cabe os dois botões lado a lado a partir de ~1440px */
-  html.js .cc .projects > .project { display: grid; grid-template-columns: 55% minmax(0, 1fr); column-gap: clamp(24px, 3vw, 56px); align-items: center; }
-  html.js .cc .projects > .project > .p-frame { grid-column: 1; grid-row: 1; }
-  html.js .cc .projects > .project > .p-body { grid-column: 2; grid-row: 1; align-self: center; }
-  .cc-fantasma-m { margin-left: 28px; width: calc(55% - 28px); }
-  /* Setas nas laterais, no meio da altura da imagem: cota de 28px em cima; imagem 16:10 (altura = 0,625 x
-     largura) na coluna de 55% do card. Área de 56 x 96px. Os pontos e o contador ficam sozinhos embaixo. */
-  html.js .cc > .cc-nav { padding-left: 28px; }
-  html.js .cc-seta { position: absolute; z-index: 4; width: 56px; height: 96px; top: calc(28px + ((100cqw + var(--margin) - var(--vis) - var(--gap)) * 0.55 - 28px) * 0.3125); transform: translateY(-50%); }
-  .cc-seta svg { width: 18px; height: 36px; }
-  /* Esquerda: centrada na borda do conteúdo, antes da imagem, no lugar da cota vertical da moldura (que fica
-     invisível no desktop; a coluna dela continua, então nada se mexe). Mais para a esquerda, ela cairia na linha
-     guia azul da margem. */
-  html.js .cc-ant { left: -28px; }
-  html.js .cc .p-frame .pf-h { visibility: hidden; }
-  /* a moldura no topo da linha do card (o texto pode ser mais alto que ela): a conta do top acima vale sempre */
-  html.js .cc .projects > .project > .p-frame { align-self: start; }
-  /* direita: dentro do card, encostada na borda direita dele, depois da coluna de texto; o vizinho começa 24px
-     (o vão) depois, então ela não o cobre. O texto guarda 104px: rótulo (até ~64) + 24 de folga, com sobra. */
-  html.js .cc-prox { left: calc(100cqw + var(--margin) - var(--vis) - var(--gap) - 56px); }
-  html.js .cc .projects > .project > .p-body { padding-right: 104px; }
-  /* rótulo embaixo do chevron, em duas linhas ("anterior ·" / nome); o da esquerda centrado no chevron (não chega
-     na imagem nem na linha guia da margem), o da direita alinhado pela borda de fora */
-  .cc-rot { display: block; position: absolute; top: 72px; width: max-content; white-space: nowrap; color: var(--muted); font-size: 10px; line-height: 1.35; transition: color 150ms var(--ease); }
-  .cc-rot > span { display: block; }
-  .cc-ant .cc-rot { left: 50%; transform: translateX(-50%); text-align: center; }
-  .cc-prox .cc-rot { right: 0; text-align: right; }
-  .cc-seta:hover .cc-rot, .cc-seta:focus-visible .cc-rot { color: var(--accent); }
-  /* linha de cota de 24px saindo da ponta do chevron (que está a 9px do centro e desliza 4px) */
-  .cc-seta::after { content: ""; position: absolute; top: calc(50% - 0.75px); width: 24px; height: 1.5px; background: currentColor; transform: scaleX(0); transition: transform 150ms var(--ease); pointer-events: none; }
-  .cc-prox::after { left: calc(50% + 13px); transform-origin: 0 50%; }
-  .cc-ant::after { right: calc(50% + 13px); transform-origin: 100% 50%; }
-  .cc-seta:hover::after, .cc-seta:focus-visible::after { transform: scaleX(1); }
+  html.js .cc { display: flex; flex-direction: column; }
+  html.js .cc > .cc-nav { order: 2; justify-content: flex-start; height: 48px; margin: var(--s-24) 0 0; padding-left: calc(max(var(--margin), 100px) - var(--margin)); }
+  .cc .projects > .project { min-height: min(44vw, 640px); padding-inline: max(var(--margin), 100px); }
+  /* o 100% é o .cc: a faixa mais a linha de baixo (48 + 24) */
+  html.js .cc :is(.cc-ant, .cc-prox) { position: absolute; z-index: 4; width: 52px; height: 52px; top: calc((100% - 72px) / 2); transform: translateY(-50%); }
+  html.js .cc-ant { left: calc(24px - var(--margin)); }
+  html.js .cc-prox { right: calc(24px - var(--margin)); }
   /* no desktop os botões ficam do tamanho do texto, lado a lado */
   .cc .p-acoes .btn { flex: none; }
-}
-/* Entre 1024 e 1279px a margem é de 32px: a linha de cota da esquerda tem 12px para não passar da borda da tela,
-   e o rótulo da esquerda (64px) não cabe nela sem ser cortado, então fica escondido. */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  html.js .cc-ant::after { width: 12px; }
-  html.js .cc-ant .cc-rot { display: none; }
 }

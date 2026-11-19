@@ -7,8 +7,10 @@ import ProjectLink from "./ProjectLink";
 import Colar from "./Colar";
 import SecN from "./SecN";
 import Tape from "./Tape";
-// A seção é um carrossel clássico (Classico.tsx, classico.css), em todas as larguras.
+// A seção é um carrossel em faixa de largura total, com troca em fade (Classico.tsx, classico.css).
 import Classico from "./Classico";
+import Rasgo from "./Rasgo";
+import { Fragment } from "react";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
 
@@ -45,6 +47,24 @@ export default function Projects() {
       <div className="projects">
         {DEMOS.map((p, i) => (
           <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
+            {/* Fundo do slide: a captura do projeto (a do tema), cobrindo a faixa, desfocada e escurecida (classico.css).
+                Decorativa. Sem priority: a seção não está na primeira tela. Só a do tema e da largura aparece, e as
+                outras (display: none, lazy) não são baixadas. Abaixo de 768px é o recorte do topo com sizes="100vw":
+                o mesmo endereço da imagem da moldura (img-lm/img-dm), então no celular o fundo não baixa nada a mais. */}
+            <div className="p-fundo" aria-hidden="true">
+              <Image className="pf-l" src={p.img} alt="" width={1920} height={1200} sizes="100vw" />
+              <Image className="pf-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="100vw" />
+              <Image className="pf-lm" src={p.img.replace(".png", "-recorte.png")} alt="" width={1600} height={1000} sizes="100vw" />
+              <Image className="pf-dm" src={p.img.replace(".png", "-recorte-escuro.png")} alt="" width={1600} height={1000} sizes="100vw" />
+            </div>
+            {/* sem JS cada slide tem o próprio rasgado; com JS ele fica na faixa (Classico.tsx), parado na troca */}
+            <Rasgo lado="topo" />
+            <Rasgo lado="base" />
+            <div className="p-topo">
+              <p className="p-rot mono">Folha {p.id} · {p.kind}</p>
+              {/* palavra por palavra, para a entrada em sequência (--w: a posição da palavra) */}
+              <h3>{p.title.split(" ").map((w, k) => <Fragment key={k}><span className="p-pal" style={{ "--w": k } as React.CSSProperties}>{w}</span>{" "}</Fragment>)}</h3>
+            </div>
             {/* Prancha: cotas de largura e altura em volta da miniatura e a legenda da figura. */}
             <figure className="p-frame" data-colar>
               <span className="pf-w mono" aria-hidden="true"><span className="d-lg">1920</span><span className="d-sm">1600</span></span>
@@ -53,8 +73,8 @@ export default function Projects() {
               <span className="p-sombra" aria-hidden="true" />
               {/* A imagem repete o link "Abrir demonstração": fica fora da ordem do Tab e do leitor de tela. */}
               <ProjectMedia href={p.href} folha={p.id}>
-              <Image className="img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 52vw, 100vw" />
-              <Image className="img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 52vw, 100vw" />
+              <Image className="img-l" src={p.img} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 46vw, 100vw" />
+              <Image className="img-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="(min-width: 1024px) 46vw, 100vw" />
               {/* Abaixo de 768px: recorte ampliado do topo da demo, legível na largura do celular. */}
               <Image className="img-lm" src={p.img.replace(".png", "-recorte.png")} alt="" width={1600} height={1000} sizes="100vw" />
               <Image className="img-dm" src={p.img.replace(".png", "-recorte-escuro.png")} alt="" width={1600} height={1000} sizes="100vw" />
@@ -63,17 +83,9 @@ export default function Projects() {
               <Tape side="b" />
               <figcaption className="mono">fig. {p.id}: {p.title.toLowerCase()}, tela inicial da demonstração.</figcaption>
             </figure>
-            <div className="p-body" data-reveal>
-              <dl className="p-stamp mono">
-                <dt>folha</dt><dd>{p.id}</dd>
-                <dt>tipo</dt><dd>{p.kind}</dd>
-              </dl>
-              <h3>{p.title}</h3>
-              {/* Resumo: só o resultado. Problema, o que foi feito e o resultado completos ficam em /projetos/[slug]. */}
+            <div className="p-base">
+              {/* Resumo: só o resultado. Problema, o que foi feito, o resultado e as tecnologias ficam em /projetos/[slug]. */}
               <p className="p-resumo">{p.resultado}</p>
-              <ul className="p-tags mono" aria-label="Tecnologias">
-                {p.tags.map((t) => <li key={t}>{t}</li>)}
-              </ul>
               <div className="p-acoes">
                 {/* A ação principal é o botão cheio (o mesmo .btn-primary do "Pedir orçamento"); "Ver detalhes" é o
                     secundário com borda. Os dois com →; o ↗ fica só para o link externo (código). A classe p-link
