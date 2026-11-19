@@ -56,12 +56,22 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
 .cc-ponto:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
 .cc-cont { margin-left: var(--s-12); white-space: nowrap; color: var(--muted); font-size: var(--t-xs); }
 
-/* Setas: círculo com borda de 1,5px na cor do texto e fundo de papel; no hover e no foco, fundo na cor de destaque
-   e a seta clara (as mesmas cores do .btn-primary). Seta de cota de 22px, traço de 2px. */
-.cc-seta { flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); cursor: pointer;
-  transition: background-color 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease); }
-.cc-seta svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.cc-seta:hover, .cc-seta:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* Setas: círculo cheio na cor do texto (escuro no claro, claro no escuro), sem borda, com o chevron na cor do
+   papel. No hover e no foco o fundo vira a cor de destaque e o chevron fica na cor do texto sobre ela (as cores do
+   .btn-primary). Chevron de ~40% do diâmetro (19px em 48, 22px em 56), traço de 2,25px, pontas arredondadas.
+   Ajuste óptico: o desenho é 1px deslocado para dentro, no sentido contrário da ponta; no hover desliza 2px para
+   o lado da ponta. Sombra leve, a mesma das molduras. */
+.cc-seta { --dx: 0px; flex: none; width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: var(--paper); cursor: pointer;
+  box-shadow: 0 1px 1px color-mix(in srgb, #5A4320 18%, transparent), 0 3px 6px -2px color-mix(in srgb, #5A4320 22%, transparent);
+  transition: background-color 150ms var(--ease), color 150ms var(--ease), transform 150ms var(--ease); }
+.cc-seta svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round;
+  transform: translateX(var(--dx)); transition: transform 150ms var(--ease); }
+.cc-ant { --dx: 1px; }
+.cc-prox { --dx: -1px; }
+.cc-seta:hover, .cc-seta:focus-visible { background: var(--accent); color: var(--on-accent); }
+.cc-ant:hover, .cc-ant:focus-visible { --dx: -1px; }
+.cc-prox:hover, .cc-prox:focus-visible { --dx: 1px; }
+.cc-seta:active { transform: scale(0.96); }
 /* border-radius de novo: o :focus-visible global (globals.css) zera o arredondamento */
 .cc-seta:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 50%; }
 
@@ -78,7 +88,10 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
 .cc .p-acoes .link.p-link { align-self: center; margin-top: 0; }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span, .cc-seta, .cc .p-acoes .btn .seta-d { transition: none !important; }
+  html.js .cc .projects, html.js .cc .project > .p-body, .cc-fantasma, .cc-ponto span, .cc-seta, .cc-seta svg, .cc .p-acoes .btn .seta-d { transition: none !important; }
+  /* sem o deslize do chevron no hover: ele fica no ajuste óptico de repouso */
+  .cc-ant:hover, .cc-ant:focus-visible { --dx: 1px; }
+  .cc-prox:hover, .cc-prox:focus-visible { --dx: -1px; }
 }
 
 /* ----- Desktop: card em duas colunas (moldura | texto). Setas de 56px nas laterais, no meio da altura da captura;
@@ -92,7 +105,9 @@ html.js .cc .project:not([data-pos="0"]) > .p-frame :is(figcaption, .pf-w, .pf-h
   html.js .cc .projects > .project > .p-body { grid-column: 2; grid-row: 1; align-self: center; }
   .cc-fantasma-m { margin-left: 28px; width: calc(55% - 28px); }
   /* altura: cota de 28px em cima; imagem 16:10 (altura = 0,625 x largura) na coluna de 55% do card */
-  html.js .cc-seta { position: absolute; z-index: 4; width: 56px; height: 56px; top: calc(28px + ((100cqw + var(--margin) - var(--vis) - var(--gap)) * 0.55 - 28px) * 0.3125); transform: translateY(-50%); box-shadow: 0 2px 8px -2px rgba(40, 28, 10, 0.3); }
+  html.js .cc-seta { position: absolute; z-index: 4; width: 56px; height: 56px; top: calc(28px + ((100cqw + var(--margin) - var(--vis) - var(--gap)) * 0.55 - 28px) * 0.3125); transform: translateY(-50%); }
+  html.js .cc-seta:active { transform: translateY(-50%) scale(0.96); }
+  .cc-seta svg { width: 22px; height: 22px; }
   /* esquerda: metade para fora da borda esquerda do card (sobre a margem, onde não há nada) */
   html.js .cc-ant { left: -28px; }
   /* direita: dentro do card, encostada na borda direita dele; não cobre o pedaço do vizinho, e o texto guarda 80px

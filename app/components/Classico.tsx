@@ -12,9 +12,9 @@ import Image from "next/image";
 type Item = { id: string; title: string; img: string };
 type Folha = { prefetch?: (el: Element) => void };
 
-// setas de cota: haste, ponta e o traço de chamada na outra extremidade
-const Esq = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12H4M9 7l-5 5 5 5M21 8v8" /></svg>;
-const Dir = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M15 7l5 5-5 5M3 8v8" /></svg>;
+// chevrons ‹ › centrados no quadro de 24; o ajuste óptico (1px para dentro) fica no CSS
+const Esq = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg>;
+const Dir = () => <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg>;
 
 export default function Classico({ itens, cabecalho, children }: { itens: Item[]; cabecalho: React.ReactNode; children: React.ReactNode }) {
   const raiz = useRef<HTMLElement>(null);
