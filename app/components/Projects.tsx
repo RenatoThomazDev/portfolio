@@ -10,6 +10,7 @@ import Tape from "./Tape";
 // A seção é um carrossel em faixa de largura total, com troca em fade (Classico.tsx, classico.css).
 import Classico from "./Classico";
 import Rasgo from "./Rasgo";
+import Fundo from "./Fundo";
 import { Fragment } from "react";
 
 import { PROJETOS as DEMOS } from "../../config/paginas";
@@ -47,19 +48,10 @@ export default function Projects() {
       <div className="projects">
         {DEMOS.map((p, i) => (
           <div key={p.id} className="project" data-demo={p.slug} data-cotas data-pos={i}>
-            {/* Fundo do slide: a captura do projeto (a do tema), cobrindo a faixa, desfocada e escurecida (classico.css).
-                Decorativa. Sem priority: a seção não está na primeira tela. Só a do tema e da largura aparece, e as
-                outras (display: none, lazy) não são baixadas. Abaixo de 768px é o recorte do topo com sizes="100vw":
-                o mesmo endereço da imagem da moldura (img-lm/img-dm), então no celular o fundo não baixa nada a mais. */}
-            <div className="p-fundo" aria-hidden="true">
-              <Image className="pf-l" src={p.img} alt="" width={1920} height={1200} sizes="100vw" />
-              <Image className="pf-d" src={p.img.replace(".png", "-escuro.png")} alt="" width={1920} height={1200} sizes="100vw" />
-              <Image className="pf-lm" src={p.img.replace(".png", "-recorte.png")} alt="" width={1600} height={1000} sizes="100vw" />
-              <Image className="pf-dm" src={p.img.replace(".png", "-recorte-escuro.png")} alt="" width={1600} height={1000} sizes="100vw" />
-            </div>
-            {/* sem JS cada slide tem o próprio rasgado; com JS ele fica na faixa (Classico.tsx), parado na troca */}
-            <Rasgo lado="topo" />
-            <Rasgo lado="base" />
+            {/* Sem JS cada slide tem o próprio fundo e o rasgado embaixo. Com JS os dois ficam no carrossel inteiro
+                (Classico.tsx), atrás também da linha de controles, e estes aqui ficam escondidos (classico.css). */}
+            <Fundo img={p.img} />
+            <Rasgo />
             <div className="p-topo">
               <p className="p-rot mono">Folha {p.id} · {p.kind}</p>
               {/* palavra por palavra, para a entrada em sequência (--w: a posição da palavra) */}

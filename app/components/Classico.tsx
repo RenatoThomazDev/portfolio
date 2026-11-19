@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Rasgo from "./Rasgo";
+import Fundo from "./Fundo";
 
 /* Projetos da home: faixa de largura total com troca em fade (classico.css).
    Os slides ficam empilhados na mesma célula de um grid: a faixa tem a altura do maior e trocar não mexe no layout
@@ -158,10 +159,14 @@ export default function Classico({ itens, cabecalho, children }: { itens: Item[]
         {/* tabIndex: com o foco aqui, as setas do teclado trocam de slide */}
         <div ref={janela} className="cc-janela" tabIndex={-1}>
           {children}
-          {/* com JS o rasgado fica na faixa, por cima dos slides, e não some junto no fade */}
-          <Rasgo lado="topo" />
-          <Rasgo lado="base" />
         </div>
+        {/* Fundos do carrossel inteiro, de borda a borda e de cima até embaixo, atrás da faixa e da linha de
+            controles: o do slide ativo aparece (data-on) e troca em fade junto com ele. Embaixo, o rasgado, por cima
+            de tudo e parado na troca. */}
+        <div className="cc-fundos" aria-hidden="true">
+          {itens.map((it, k) => <Fundo key={it.id} img={it.img} ativo={k === ativo} />)}
+        </div>
+        <Rasgo />
         <p className="sr-only" aria-live={vivo}>{anuncio}</p>
       </section>
     </>
